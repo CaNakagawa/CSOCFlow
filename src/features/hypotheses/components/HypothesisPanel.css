@@ -1,0 +1,128 @@
+.hypothesis-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.hypothesis-panel__disclaimer {
+  font-size: 11px;
+  opacity: 0.7;
+  font-style: italic;
+  margin: 0;
+}
+
+.hypothesis-panel__empty {
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+.hypothesis-card {
+  border: 1px solid var(--panel-border, #334155);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hypothesis-card--high {
+  border-left: 4px solid #ef4444;
+}
+.hypothesis-card--probable {
+  border-left: 4px solid #f59e0b;
+}
+.hypothesis-card--possible {
+  border-left: 4px solid #38bdf8;
+}
+.hypothesis-card--low {
+  border-left: 4px solid #64748b;
+}
+
+.hypothesis-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hypothesis-card__header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.hypothesis-card__badge {
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.hypothesis-card__description,
+.hypothesis-card__mitre,
+.hypothesis-card__explanation {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.hypothesis-card__mitre {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.hypothesis-card details summary {
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.hypothesis-card ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.hypothesis-card__checks {
+  margin-top: 4px;
+  border-top: 1px solid var(--panel-border, #334155);
+  padding-top: 6px;
+}
+
+.hypothesis-card__checks h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+}
+
+.hypothesis-card__check {
+  margin-bottom: 8px;
+}
+
+.hypothesis-card__check-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.hypothesis-card__check-reason {
+  margin: 2px 0 6px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.hypothesis-card__check-answers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hypothesis-card__check-answers button {
+  font: inherit;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--panel-border, #334155);
+  background: var(--input-bg, #1e293b);
+  color: inherit;
+  cursor: pointer;
+}
+
+.hypothesis-card__check-answers button:hover {
+  background: #334155;
+}

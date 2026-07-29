@@ -1,0 +1,276 @@
+import { create } from 'zustand'
+import { generateId } from '../../../shared/utils/id'
+import type {
+  CanvasNodeType,
+  InvestigationEdge,
+  InvestigationMeta,
+  InvestigationNode,
+  NodeState,
+  RelationshipType,
+} from '../../../shared/types/investigation'
+import type { EvidenceFieldDefinition } from '../../../shared/types/knowledge'
+import type { CheckAnswerRecord, HypothesisResult } from '../../../shared/types/correlation'
+import type { Investigation } from '../../../shared/types/investigation'
+
+export interface Viewport {
+  x: number
+  y: number
+  zoom: number
+}
+
+export function combineEdges(
+  inferredEdges: InvestigationEdge[],
+  manualEdges: InvestigationEdge[],
+): InvestigationEdge[] {
+  const seen = new Set<string>()
+  const combined: InvestigationEdge[] = []
+  for (const edge of [...inferredEdges, ...manualEdges]) {
+    if (seen.has(edge.id)) continue
+    seen.add(edge.id)
+    combined.push(edge)
+  }
+  return combined
+}
+
+function defaultFieldValue(field: EvidenceFieldDefinition): unknown {
+  switch (field.type) {
+    case 'string_array':
+      return []
+    case 'boolean':
+      return false
+    case 'number':
+      return undefined
+    default:
+      return ''
+  }
+}
+
+function createMeta(): InvestigationMeta {
+  const now = new Date().toISOString()
+  return {
+    id: generateId('investigation'),
+    title: 'Nova investigação',
+    caseId: '',
+    createdAt: now,
+    updatedAt: now,
+    analyst: '',
+    description: '',
+    status: 'open',
+    conclusion: null,
+  }
+}
+
+interface InvestigationState {
+  meta: InvestigationMeta
+  viewport: Viewport
+  nodes: InvestigationNode[]
+  manualEdges: InvestigationEdge[]
+  inferredEdges: InvestigationEdge[]
+  selectedNodeId: string | null
+  checkAnswers: CheckAnswerRecord[]
+  hypothesisResults: HypothesisResult[]
+  analystNotes: string
+
+  addNode: (params: {
+    nodeType: CanvasNodeType
+    definitionId: string
+    label: string
+    position: { x: number; y: number }
+    fieldDefinitions: EvidenceFieldDefinition[]
+  }) => string
+  updateNodeFields: (nodeId: string, fields: Record<string, unknown>) => void
+  updateNodeState: (nodeId: string, state: NodeState) => void
+  updateNodeNotes: (nodeId: string, notes: string) => void
+  moveNode: (nodeId: string, position: { x: number; y: number }) => void
+  removeNode: (nodeId: string) => void
+  selectNode: (nodeId: string | null) => void
+  addManualEdge: (source: string, target: string, type: RelationshipType, label?: string) => void
+  removeEdge: (edgeId: string) => void
+  setViewport: (viewport: Viewport) => void
+  recordCheckAnswer: (checkId: string, value: string) => void
+  setMeta: (partial: Partial<InvestigationMeta>) => void
+  setAnalystNotes: (notes: string) => void
+  setInferredEdges: (edges: InvestigationEdge[]) => void
+  setHypothesisResults: (results: HypothesisResult[]) => void
+  loadInvestigation: (doc: Investigation) => void
+  toDocument: () => Investigation
+  newInvestigation: () => void
+  clearCanvas: () => void
+}
+
+const SCHEMA_VERSION = '1.0.0'
+const APPLICATION_VERSION = '0.1.0'
+
+export const useInvestigationStore = create<InvestigationState>((set, get) => ({
+  meta: createMeta(),
+  viewport: { x: 0, y: 0, zoom: 1 },
+  nodes: [],
+  manualEdges: [],
+  inferredEdges: [],
+  selectedNodeId: null,
+  checkAnswers: [],
+  hypothesisResults: [],
+  analystNotes: '',
+
+  addNode: ({ nodeType, definitionId, label, position, fieldDefinitions }) => {
+    const now = new Date().toISOString()
+    const id = generateId('node')
+    const fields: Record<string, unknown> = {}
+    for (const field of fieldDefinitions) {
+      fields[field.id] = defaultFieldValue(field)
+    }
+    const node: InvestigationNode = {
+      id,
+      definitionId,
+      type: nodeType,
+      label,
+      state: 'unknown',
+      position,
+      fields,
+      notes: '',
+      createdAt: now,
+      updatedAt: now,
+    }
+    set((state) => ({ nodes: [...state.nodes, node], selectedNodeId: id }))
+    return id
+  },
+
+  updateNodeFields: (nodeId, fields) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId
+          ? { ...n, fields: { ...n.fields, ...fields }, updatedAt: new Date().toISOString() }
+          : n,
+      ),
+    }))
+  },
+
+  updateNodeState: (nodeId, nodeState) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, state: nodeState, updatedAt: new Date().toISOString() } : n,
+      ),
+    }))
+  },
+
+  updateNodeNotes: (nodeId, notes) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, notes, updatedAt: new Date().toISOString() } : n,
+      ),
+    }))
+  },
+
+  moveNode: (nodeId, position) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) => (n.id === nodeId ? { ...n, position } : n)),
+    }))
+  },
+
+  removeNode: (nodeId) => {
+    set((state) => ({
+      nodes: state.nodes.filter((n) => n.id !== nodeId),
+      manualEdges: state.manualEdges.filter((e) => e.source !== nodeId && e.target !== nodeId),
+      inferredEdges: state.inferredEdges.filter((e) => e.source !== nodeId && e.target !== nodeId),
+      selectedNodeId: state.selectedNodeId === nodeId ? null : state.selectedNodeId,
+    }))
+  },
+
+  selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
+
+  addManualEdge: (source, target, type, label) => {
+    set((state) => ({
+      manualEdges: [
+        ...state.manualEdges,
+        { id: generateId('edge'), source, target, type, label, automatic: false },
+      ],
+    }))
+  },
+
+  removeEdge: (edgeId) => {
+    set((state) => ({
+      manualEdges: state.manualEdges.filter((e) => e.id !== edgeId),
+    }))
+  },
+
+  setViewport: (viewport) => set({ viewport }),
+
+  recordCheckAnswer: (checkId, value) => {
+    set((state) => ({
+      checkAnswers: [
+        ...state.checkAnswers.filter((a) => a.checkId !== checkId),
+        { checkId, value, answeredAt: new Date().toISOString() },
+      ],
+    }))
+  },
+
+  setMeta: (partial) => {
+    set((state) => ({ meta: { ...state.meta, ...partial, updatedAt: new Date().toISOString() } }))
+  },
+
+  setAnalystNotes: (notes) => set({ analystNotes: notes }),
+
+  setInferredEdges: (edges) => set({ inferredEdges: edges }),
+  setHypothesisResults: (results) => set({ hypothesisResults: results }),
+
+  loadInvestigation: (doc) => {
+    set({
+      meta: doc.investigation,
+      viewport: doc.canvas.viewport,
+      nodes: doc.canvas.nodes,
+      manualEdges: doc.canvas.edges.filter((e) => !e.automatic),
+      inferredEdges: doc.canvas.edges.filter((e) => e.automatic),
+      selectedNodeId: null,
+      checkAnswers: [],
+      hypothesisResults: [],
+      analystNotes: doc.report.analystNotes,
+    })
+  },
+
+  toDocument: () => {
+    const state = get()
+    return {
+      schemaVersion: SCHEMA_VERSION,
+      applicationVersion: APPLICATION_VERSION,
+      investigation: state.meta,
+      canvas: {
+        viewport: state.viewport,
+        nodes: state.nodes,
+        edges: combineEdges(state.inferredEdges, state.manualEdges),
+      },
+      hypotheses: state.hypothesisResults.map((h) => ({
+        hypothesisId: h.hypothesisId,
+        score: h.score,
+      })),
+      timeline: [],
+      report: {
+        analystNotes: state.analystNotes,
+        recommendations: [],
+      },
+    }
+  },
+
+  newInvestigation: () => {
+    set({
+      meta: createMeta(),
+      viewport: { x: 0, y: 0, zoom: 1 },
+      nodes: [],
+      manualEdges: [],
+      inferredEdges: [],
+      selectedNodeId: null,
+      checkAnswers: [],
+      hypothesisResults: [],
+      analystNotes: '',
+    })
+  },
+
+  clearCanvas: () => {
+    set({
+      nodes: [],
+      manualEdges: [],
+      inferredEdges: [],
+      selectedNodeId: null,
+      hypothesisResults: [],
+    })
+  },
+}))

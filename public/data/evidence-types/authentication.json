@@ -1,0 +1,56 @@
+[
+  {
+    "id": "evidence.authentication.failed_ssh",
+    "name": "Falhas de autenticação SSH",
+    "category": "authentication",
+    "node_type": "authentication_event",
+    "brief": "Uma ou mais tentativas malsucedidas de autenticação utilizando SSH.",
+    "fields": [
+      { "id": "protocol", "label": "Protocolo", "type": "string", "required": false },
+      { "id": "result", "label": "Resultado", "type": "string", "required": false },
+      { "id": "failed_attempts", "label": "Quantidade de falhas", "type": "number", "required": false },
+      { "id": "source_ip", "label": "IP de origem", "type": "ip", "required": false },
+      { "id": "target_users", "label": "Usuários afetados", "type": "string_array", "required": false },
+      { "id": "timestamp", "label": "Data e hora", "type": "datetime", "required": false }
+    ],
+    "educational_content": {
+      "why_it_matters": "Muitas falhas em curto período podem representar tentativa automatizada de descobrir credenciais.",
+      "suspicious_when": [
+        "Grande volume em pouco tempo",
+        "Mesmo IP atacando diversos usuários",
+        "Tentativas seguidas por autenticação bem-sucedida"
+      ],
+      "legitimate_when": [
+        "Erro de configuração",
+        "Serviço utilizando credencial expirada",
+        "Scanner autorizado"
+      ]
+    }
+  },
+  {
+    "id": "evidence.authentication.successful_login",
+    "name": "Autenticação bem-sucedida",
+    "category": "authentication",
+    "node_type": "authentication_event",
+    "brief": "Um evento de autenticação concluído com sucesso.",
+    "fields": [
+      { "id": "protocol", "label": "Protocolo", "type": "string", "required": false },
+      { "id": "result", "label": "Resultado", "type": "string", "required": false },
+      { "id": "source_ip", "label": "IP de origem", "type": "ip", "required": false },
+      { "id": "target_users", "label": "Usuário autenticado", "type": "string_array", "required": false },
+      { "id": "timestamp", "label": "Data e hora", "type": "datetime", "required": false }
+    ],
+    "educational_content": {
+      "why_it_matters": "Uma autenticação bem-sucedida logo após diversas falhas pode indicar que uma credencial foi descoberta ou comprometida.",
+      "suspicious_when": [
+        "Ocorre logo após uma sequência de falhas",
+        "Origem coincide com o IP das tentativas malsucedidas",
+        "Login em horário incomum para o usuário"
+      ],
+      "legitimate_when": [
+        "Usuário lembrou a senha correta após erros de digitação",
+        "Corresponde ao padrão normal de acesso do usuário"
+      ]
+    }
+  }
+]

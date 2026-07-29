@@ -1,0 +1,73 @@
+.generic-node {
+  min-width: 160px;
+  border: 2px solid var(--border-color, #64748b);
+  border-radius: 8px;
+  background: var(--node-bg, #1e293b);
+  color: var(--node-fg, #e2e8f0);
+  padding: 8px 10px;
+  font-size: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.generic-node--selected {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.generic-node__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.generic-node__glyph {
+  font-weight: 700;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  letter-spacing: 0.02em;
+}
+
+.generic-node__category {
+  font-size: 10px;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.generic-node__label {
+  font-weight: 600;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.generic-node__state {
+  font-size: 10px;
+  opacity: 0.85;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 4px;
+}
+
+.generic-node--suspicious {
+  border-color: #f59e0b;
+}
+
+.generic-node--confirmed_malicious {
+  border-color: #ef4444;
+}
+
+.generic-node--false_positive,
+.generic-node--discarded {
+  border-color: #64748b;
+  opacity: 0.6;
+}
+
+.generic-node--expected {
+  border-color: #22c55e;
+}
+
+.generic-node--observed {
+  border-color: #38bdf8;
+}

@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "applicationVersion": "0.1.0",
+  "investigation": {
+    "id": "demo-ssh-brute-force",
+    "title": "Demo: SSH Brute Force",
+    "caseId": "DEMO-001",
+    "createdAt": "2026-07-29T09:00:00.000Z",
+    "updatedAt": "2026-07-29T09:00:00.000Z",
+    "analyst": "Analista de plantão",
+    "description": "Caso de demonstração: múltiplas tentativas de autenticação SSH a partir de um único IP com reputação maliciosa, seguidas de uma autenticação bem-sucedida.",
+    "status": "open",
+    "conclusion": null
+  },
+  "canvas": {
+    "viewport": { "x": 0, "y": 0, "zoom": 1 },
+    "nodes": [
+      {
+        "id": "demo-node-failed-auth",
+        "definitionId": "evidence.authentication.failed_ssh",
+        "type": "authentication_event",
+        "label": "Falhas de autenticação SSH",
+        "state": "suspicious",
+        "position": { "x": 80, "y": 80 },
+        "fields": {
+          "protocol": "ssh",
+          "result": "failed",
+          "failed_attempts": 83,
+          "source_ip": "198.51.100.23",
+          "target_users": ["root", "admin", "deploy"],
+          "timestamp": "2026-07-29T02:00:00.000Z"
+        },
+        "notes": "Detectado pelo alerta de força bruta do EDR.",
+        "createdAt": "2026-07-29T09:00:00.000Z",
+        "updatedAt": "2026-07-29T09:00:00.000Z"
+      },
+      {
+        "id": "demo-node-success-auth",
+        "definitionId": "evidence.authentication.successful_login",
+        "type": "authentication_event",
+        "label": "Autenticação bem-sucedida",
+        "state": "suspicious",
+        "position": { "x": 340, "y": 80 },
+        "fields": {
+          "protocol": "ssh",
+          "result": "success",
+          "source_ip": "198.51.100.23",
+          "target_users": ["root"],
+          "timestamp": "2026-07-29T02:47:00.000Z"
+        },
+        "notes": "Ocorreu 47 minutos após o início das falhas.",
+        "createdAt": "2026-07-29T09:00:00.000Z",
+        "updatedAt": "2026-07-29T09:00:00.000Z"
+      },
+      {
+        "id": "demo-node-ip",
+        "definitionId": "evidence.network.ip_address",
+        "type": "ip_address",
+        "label": "198.51.100.23",
+        "state": "confirmed_malicious",
+        "position": { "x": 80, "y": 260 },
+        "fields": {
+          "value": "198.51.100.23",
+          "reputation": "malicious",
+          "is_approved_scanner": false,
+          "country": "Desconhecido"
+        },
+        "notes": "Classificado como malicioso por fonte de threat intelligence.",
+        "createdAt": "2026-07-29T09:00:00.000Z",
+        "updatedAt": "2026-07-29T09:00:00.000Z"
+      },
+      {
+        "id": "demo-node-user",
+        "definitionId": "evidence.identity.user",
+        "type": "user",
+        "label": "root",
+        "state": "suspicious",
+        "position": { "x": 340, "y": 260 },
+        "fields": {
+          "username": "root",
+          "is_privileged": true
+        },
+        "notes": "",
+        "createdAt": "2026-07-29T09:00:00.000Z",
+        "updatedAt": "2026-07-29T09:00:00.000Z"
+      },
+      {
+        "id": "demo-node-host",
+        "definitionId": "evidence.identity.host",
+        "type": "host",
+        "label": "bastion-01",
+        "state": "observed",
+        "position": { "x": 600, "y": 170 },
+        "fields": {
+          "hostname": "bastion-01",
+          "internet_facing": true
+        },
+        "notes": "Host exposto à internet para acesso administrativo remoto.",
+        "createdAt": "2026-07-29T09:00:00.000Z",
+        "updatedAt": "2026-07-29T09:00:00.000Z"
+      }
+    ],
+    "edges": []
+  },
+  "hypotheses": [],
+  "timeline": [
+    {
+      "id": "demo-timeline-1",
+      "nodeId": "demo-node-failed-auth",
+      "timestamp": "2026-07-29T02:00:00.000Z",
+      "label": "Início das falhas de autenticação SSH"
+    },
+    {
+      "id": "demo-timeline-2",
+      "nodeId": "demo-node-success-auth",
+      "timestamp": "2026-07-29T02:47:00.000Z",
+      "label": "Autenticação bem-sucedida como root"
+    }
+  ],
+  "report": {
+    "analystNotes": "",
+    "recommendations": []
+  }
+}

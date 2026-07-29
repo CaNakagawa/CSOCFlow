@@ -1,0 +1,66 @@
+.details-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.details-panel__empty {
+  font-size: 12px;
+  opacity: 0.65;
+  padding: 8px;
+}
+
+.details-panel__label {
+  margin: 0;
+}
+
+.details-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.details-panel__field input,
+.details-panel__field select,
+.details-panel__field textarea {
+  font: inherit;
+  padding: 5px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--panel-border, #334155);
+  background: var(--input-bg, #1e293b);
+  color: inherit;
+}
+
+.details-panel__field input[type='checkbox'] {
+  width: fit-content;
+}
+
+.details-panel__education {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--panel-border, #334155);
+  font-size: 12px;
+}
+
+.details-panel__education h4 {
+  margin: 0 0 4px;
+}
+
+.details-panel__education h5 {
+  margin: 8px 0 2px;
+  font-size: 11px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.details-panel__education ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.details-panel__why {
+  opacity: 0.85;
+}

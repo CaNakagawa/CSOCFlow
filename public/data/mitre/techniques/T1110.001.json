@@ -1,0 +1,31 @@
+{
+  "id": "T1110.001",
+  "name": "Password Guessing",
+  "type": "mitre_subtechnique",
+  "tactics": ["TA0006"],
+  "platforms": ["Linux", "Windows", "macOS", "Network", "Containers", "IaaS", "SaaS", "Office Suite", "Identity Provider"],
+  "brief": "Adversários utilizam uma lista de senhas conhecidas ou comuns, tentando repetidamente contra uma ou poucas contas até obter sucesso.",
+  "investigation_context": {
+    "what_it_means": "Uma variação de brute force em que a lista de senhas testadas é conhecida (senhas comuns, vazadas ou padrão), geralmente contra um número menor de contas.",
+    "why_it_matters": "Contas com senhas fracas ou padrão são frequentemente comprometidas dessa forma, principalmente em serviços expostos à internet.",
+    "suspicious_when": [
+      "Tentativas usando senhas conhecidas de vazamentos públicos",
+      "Poucas contas-alvo com muitas tentativas cada"
+    ],
+    "legitimate_when": [
+      "Testes de política de senha realizados pela equipe de segurança"
+    ],
+    "common_mistakes": [
+      "Confundir com password spraying, que testa poucas senhas contra muitos usuários"
+    ]
+  },
+  "expected_evidence": ["authentication_event", "user", "ip_address"],
+  "related_hypotheses": ["hypothesis.ssh_brute_force"],
+  "suggested_checks": ["check.authentication_success"],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1110.001 Password Guessing",
+      "url": "https://attack.mitre.org/techniques/T1110/001/"
+    }
+  ]
+}

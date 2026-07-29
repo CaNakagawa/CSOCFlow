@@ -1,0 +1,28 @@
+[
+  {
+    "id": "rel.authentication_source_ip",
+    "type": "authenticated_from",
+    "label": "autenticou a partir de",
+    "from": "authentication_event",
+    "to": "ip_address",
+    "match": {
+      "sourceField": "source_ip",
+      "targetField": "value"
+    },
+    "explanation": "O evento de autenticação registra este endereço IP como origem.",
+    "automatic": true
+  },
+  {
+    "id": "rel.authentication_targeted_user",
+    "type": "targeted",
+    "label": "teve como alvo",
+    "from": "authentication_event",
+    "to": "user",
+    "match": {
+      "sourceField": "target_users",
+      "targetField": "username"
+    },
+    "explanation": "O usuário aparece como alvo do evento de autenticação.",
+    "automatic": true
+  }
+]

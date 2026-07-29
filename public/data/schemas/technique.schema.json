@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://csocflow/schemas/technique.schema.json",
+  "title": "MitreTechnique",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "type",
+    "tactics",
+    "platforms",
+    "brief",
+    "investigation_context",
+    "expected_evidence",
+    "related_hypotheses",
+    "suggested_checks",
+    "references"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$" },
+    "name": { "type": "string", "minLength": 1 },
+    "type": { "enum": ["mitre_technique", "mitre_subtechnique"] },
+    "tactics": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^TA[0-9]{4}$" },
+      "minItems": 1
+    },
+    "platforms": { "type": "array", "items": { "type": "string" } },
+    "brief": { "type": "string", "minLength": 1 },
+    "investigation_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "what_it_means",
+        "why_it_matters",
+        "suspicious_when",
+        "legitimate_when",
+        "common_mistakes"
+      ],
+      "properties": {
+        "what_it_means": { "type": "string" },
+        "why_it_matters": { "type": "string" },
+        "suspicious_when": { "type": "array", "items": { "type": "string" } },
+        "legitimate_when": { "type": "array", "items": { "type": "string" } },
+        "common_mistakes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "expected_evidence": { "type": "array", "items": { "type": "string" } },
+    "related_hypotheses": { "type": "array", "items": { "type": "string" } },
+    "suggested_checks": { "type": "array", "items": { "type": "string" } },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "url"],
+        "properties": {
+          "title": { "type": "string" },
+          "url": { "type": "string", "format": "uri" }
+        }
+      }
+    }
+  }
+}

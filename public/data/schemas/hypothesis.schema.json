@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://csocflow/schemas/hypothesis.schema.json",
+  "title": "HypothesisDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "category",
+    "description",
+    "mitre",
+    "base_score",
+    "minimum_score",
+    "maximum_score",
+    "conditions",
+    "negative_conditions",
+    "recommended_checks",
+    "explanation_templates",
+    "false_positive_context",
+    "report_template"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^hypothesis\\." },
+    "name": { "type": "string", "minLength": 1 },
+    "category": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "mitre": { "type": "array", "items": { "type": "string" } },
+    "base_score": { "type": "number" },
+    "minimum_score": { "type": "number" },
+    "maximum_score": { "type": "number" },
+    "conditions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/condition" }
+    },
+    "negative_conditions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/condition" }
+    },
+    "recommended_checks": { "type": "array", "items": { "type": "string" } },
+    "explanation_templates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "missing", "counterpoints"],
+      "properties": {
+        "summary": { "type": "string" },
+        "missing": { "type": "string" },
+        "counterpoints": { "type": "string" }
+      }
+    },
+    "false_positive_context": { "type": "array", "items": { "type": "string" } },
+    "report_template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "summary"],
+      "properties": {
+        "title": { "type": "string" },
+        "summary": { "type": "string" }
+      }
+    }
+  },
+  "definitions": {
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fact", "operator", "weight", "description"],
+      "properties": {
+        "id": { "type": "string" },
+        "fact": { "type": "string", "minLength": 1 },
+        "operator": {
+          "enum": [
+            "equals",
+            "not_equals",
+            "contains",
+            "not_contains",
+            "in",
+            "not_in",
+            "exists",
+            "not_exists",
+            "greater_than",
+            "greater_than_or_equal",
+            "less_than",
+            "less_than_or_equal",
+            "matches_any_selected_node",
+            "has_relationship",
+            "node_count_greater_than",
+            "state_equals"
+          ]
+        },
+        "value": {},
+        "weight": { "type": "number" },
+        "description": { "type": "string" }
+      }
+    }
+  }
+}

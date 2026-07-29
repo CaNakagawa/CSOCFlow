@@ -1,0 +1,25 @@
+{
+  "id": "check.authentication_success",
+  "title": "Verificar autenticação bem-sucedida",
+  "description": "Determine se alguma conta conseguiu autenticar após a sequência de falhas.",
+  "reason": "Uma autenticação bem-sucedida após várias falhas pode indicar comprometimento de credenciais.",
+  "expected_evidence_types": ["authentication_event", "user", "host", "ip_address"],
+  "priority": "high",
+  "answers": [
+    {
+      "value": "yes",
+      "label": "Sim, houve sucesso",
+      "effects": [{ "hypothesis_id": "hypothesis.ssh_brute_force", "score_delta": 25 }]
+    },
+    {
+      "value": "no",
+      "label": "Não houve sucesso",
+      "effects": [{ "hypothesis_id": "hypothesis.ssh_brute_force", "score_delta": -5 }]
+    },
+    {
+      "value": "unknown",
+      "label": "Não foi possível determinar",
+      "effects": []
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "TA0001",
+    "name": "Initial Access",
+    "shortName": "initial-access"
+  },
+  {
+    "id": "TA0002",
+    "name": "Execution",
+    "shortName": "execution"
+  },
+  {
+    "id": "TA0006",
+    "name": "Credential Access",
+    "shortName": "credential-access"
+  }
+]

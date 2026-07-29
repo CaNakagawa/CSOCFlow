@@ -1,0 +1,25 @@
+{
+  "id": "check.source_ip_reputation",
+  "title": "Verificar reputação do IP de origem",
+  "description": "Consulte fontes de threat intelligence para checar se o IP de origem é conhecido como malicioso, suspeito ou um scanner autorizado.",
+  "reason": "A reputação do IP ajuda a diferenciar uma tentativa maliciosa de um erro de configuração ou automação legítima.",
+  "expected_evidence_types": ["ip_address"],
+  "priority": "medium",
+  "answers": [
+    {
+      "value": "malicious",
+      "label": "IP com reputação maliciosa",
+      "effects": [{ "hypothesis_id": "hypothesis.ssh_brute_force", "score_delta": 15 }]
+    },
+    {
+      "value": "approved_scanner",
+      "label": "IP é um scanner autorizado",
+      "effects": [{ "hypothesis_id": "hypothesis.ssh_brute_force", "score_delta": -40 }]
+    },
+    {
+      "value": "unknown",
+      "label": "Não foi possível determinar",
+      "effects": []
+    }
+  ]
+}

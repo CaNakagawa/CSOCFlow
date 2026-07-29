@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://csocflow/schemas/evidence.schema.json",
+  "title": "EvidenceTypeDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "category", "node_type", "brief", "fields", "educational_content"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^evidence\\." },
+    "name": { "type": "string", "minLength": 1 },
+    "category": { "type": "string", "minLength": 1 },
+    "node_type": { "type": "string" },
+    "brief": { "type": "string", "minLength": 1 },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "type", "required"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "type": {
+            "enum": ["string", "number", "boolean", "ip", "datetime", "string_array"]
+          },
+          "required": { "type": "boolean" }
+        }
+      }
+    },
+    "educational_content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["why_it_matters", "suspicious_when", "legitimate_when"],
+      "properties": {
+        "why_it_matters": { "type": "string" },
+        "suspicious_when": { "type": "array", "items": { "type": "string" } },
+        "legitimate_when": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

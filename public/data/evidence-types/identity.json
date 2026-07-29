@@ -1,0 +1,43 @@
+[
+  {
+    "id": "evidence.identity.user",
+    "name": "Usuário",
+    "category": "identity",
+    "node_type": "user",
+    "brief": "Uma conta de usuário envolvida na atividade investigada, seja como alvo ou como origem.",
+    "fields": [
+      { "id": "username", "label": "Nome de usuário", "type": "string", "required": true },
+      { "id": "is_privileged", "label": "Conta privilegiada?", "type": "boolean", "required": false }
+    ],
+    "educational_content": {
+      "why_it_matters": "Contas privilegiadas ou administrativas comprometidas representam um risco maior do que contas comuns.",
+      "suspicious_when": [
+        "Conta privilegiada alvo de múltiplas tentativas de autenticação",
+        "Conta utilizada fora do padrão normal de acesso"
+      ],
+      "legitimate_when": [
+        "Atividade compatível com o horário e local habituais do usuário"
+      ]
+    }
+  },
+  {
+    "id": "evidence.identity.host",
+    "name": "Host",
+    "category": "identity",
+    "node_type": "host",
+    "brief": "Um host (servidor ou estação de trabalho) envolvido na atividade investigada.",
+    "fields": [
+      { "id": "hostname", "label": "Nome do host", "type": "string", "required": true },
+      { "id": "internet_facing", "label": "Exposto à internet?", "type": "boolean", "required": false }
+    ],
+    "educational_content": {
+      "why_it_matters": "Hosts expostos à internet são alvos mais comuns de tentativas de força bruta e varreduras automatizadas.",
+      "suspicious_when": [
+        "Host exposto diretamente à internet recebendo tentativas de autenticação de múltiplas origens"
+      ],
+      "legitimate_when": [
+        "Host interno acessado apenas pela rede corporativa"
+      ]
+    }
+  }
+]

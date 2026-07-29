@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "tactics": "mitre/tactics.json",
+  "techniques": [
+    "mitre/techniques/T1110.json",
+    "mitre/techniques/T1110.001.json"
+  ],
+  "evidenceTypes": [
+    "evidence-types/authentication.json",
+    "evidence-types/network.json",
+    "evidence-types/identity.json"
+  ],
+  "hypotheses": [
+    "hypotheses/ssh-brute-force.json"
+  ],
+  "checks": [
+    "checks/authentication-success.json",
+    "checks/source-ip-reputation.json"
+  ],
+  "investigationPatterns": [
+    "investigation-patterns/suspicious-authentication.json"
+  ],
+  "relationships": [
+    "relationships/relationships.json"
+  ]
+}

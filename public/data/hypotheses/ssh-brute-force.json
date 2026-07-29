@@ -1,0 +1,77 @@
+{
+  "id": "hypothesis.ssh_brute_force",
+  "name": "SSH Brute Force",
+  "category": "credential_access",
+  "description": "Tentativa repetitiva de descobrir credenciais válidas em um serviço SSH.",
+  "mitre": ["T1110", "T1110.001"],
+  "base_score": 0,
+  "minimum_score": 35,
+  "maximum_score": 100,
+  "conditions": [
+    {
+      "id": "cond.ssh_protocol",
+      "fact": "authentication.protocol",
+      "operator": "equals",
+      "value": "ssh",
+      "weight": 15,
+      "description": "o protocolo utilizado nas tentativas de autenticação foi SSH"
+    },
+    {
+      "id": "cond.many_failed_attempts",
+      "fact": "authentication.failed_attempts",
+      "operator": "greater_than_or_equal",
+      "value": 20,
+      "weight": 25,
+      "description": "foram observadas 20 ou mais tentativas malsucedidas de autenticação"
+    },
+    {
+      "id": "cond.single_source_ip",
+      "fact": "source.unique_ip_count",
+      "operator": "equals",
+      "value": 1,
+      "weight": 10,
+      "description": "todas as tentativas partiram de um único endereço IP"
+    },
+    {
+      "id": "cond.suspicious_reputation",
+      "fact": "source.ip_reputation",
+      "operator": "in",
+      "value": ["suspicious", "malicious"],
+      "weight": 20,
+      "description": "o IP de origem possui reputação suspeita ou maliciosa"
+    },
+    {
+      "id": "cond.success_after_failures",
+      "fact": "authentication.success_after_failures",
+      "operator": "equals",
+      "value": true,
+      "weight": 30,
+      "description": "houve uma autenticação bem-sucedida após as falhas"
+    }
+  ],
+  "negative_conditions": [
+    {
+      "id": "cond.approved_scanner",
+      "fact": "source.ip_is_approved_scanner",
+      "operator": "equals",
+      "value": true,
+      "weight": -40,
+      "description": "o IP de origem é um scanner de segurança autorizado"
+    }
+  ],
+  "recommended_checks": ["check.authentication_success", "check.source_ip_reputation"],
+  "explanation_templates": {
+    "summary": "A hipótese foi sugerida porque {{matched_summary}}.",
+    "missing": "Ainda é necessário verificar se {{missing_summary}}.",
+    "counterpoints": "A hipótese pode ser enfraquecida porque {{counterpoint_summary}}."
+  },
+  "false_positive_context": [
+    "Scanner autorizado",
+    "Serviço com senha desatualizada",
+    "Automação com credencial incorreta"
+  ],
+  "report_template": {
+    "title": "Possível ataque de força bruta via SSH",
+    "summary": "Foram observadas tentativas repetidas de autenticação SSH."
+  }
+}

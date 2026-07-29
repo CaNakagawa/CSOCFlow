@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://csocflow/schemas/investigation.schema.json",
+  "title": "Investigation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "applicationVersion", "investigation", "canvas", "hypotheses", "timeline", "report"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "applicationVersion": { "type": "string" },
+    "investigation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "caseId", "createdAt", "updatedAt", "analyst", "description", "status", "conclusion"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "caseId": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "analyst": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "enum": ["open", "closed"] },
+        "conclusion": {
+          "enum": ["confirmed", "probable", "inconclusive", "legitimate_activity", "false_positive", null]
+        }
+      }
+    },
+    "canvas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["viewport", "nodes", "edges"],
+      "properties": {
+        "viewport": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y", "zoom"],
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "zoom": { "type": "number" }
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "definitionId", "type", "label", "state", "position", "fields", "createdAt", "updatedAt"],
+            "properties": {
+              "id": { "type": "string" },
+              "definitionId": { "type": "string" },
+              "type": { "type": "string" },
+              "label": { "type": "string" },
+              "state": {
+                "enum": [
+                  "unknown",
+                  "observed",
+                  "suspicious",
+                  "confirmed_malicious",
+                  "expected",
+                  "false_positive",
+                  "discarded"
+                ]
+              },
+              "position": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["x", "y"],
+                "properties": {
+                  "x": { "type": "number" },
+                  "y": { "type": "number" }
+                }
+              },
+              "fields": { "type": "object" },
+              "notes": { "type": "string" },
+              "createdAt": { "type": "string" },
+              "updatedAt": { "type": "string" }
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "source", "target", "type", "automatic"],
+            "properties": {
+              "id": { "type": "string" },
+              "source": { "type": "string" },
+              "target": { "type": "string" },
+              "type": { "type": "string" },
+              "label": { "type": "string" },
+              "automatic": { "type": "boolean" },
+              "confidence": { "type": "number" },
+              "explanation": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["hypothesisId", "score"],
+        "properties": {
+          "hypothesisId": { "type": "string" },
+          "score": { "type": "number" },
+          "overriddenByAnalyst": { "type": "boolean" }
+        }
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "nodeId", "timestamp", "label"],
+        "properties": {
+          "id": { "type": "string" },
+          "nodeId": { "type": "string" },
+          "timestamp": { "type": ["string", "null"] },
+          "label": { "type": "string" }
+        }
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analystNotes", "recommendations"],
+      "properties": {
+        "analystNotes": { "type": "string" },
+        "recommendations": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

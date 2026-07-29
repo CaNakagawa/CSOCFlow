@@ -1,0 +1,37 @@
+{
+  "id": "T1110",
+  "name": "Brute Force",
+  "type": "mitre_technique",
+  "tactics": ["TA0006"],
+  "platforms": ["Linux", "Windows", "macOS", "Network", "Containers", "IaaS", "SaaS", "Office Suite", "Identity Provider"],
+  "brief": "Adversários podem tentar adivinhar credenciais válidas de forma sistemática, sem conhecimento prévio da senha, usando um conjunto repetido de tentativas de autenticação.",
+  "investigation_context": {
+    "what_it_means": "Indica um padrão de múltiplas tentativas de autenticação em um curto intervalo de tempo, buscando descobrir uma credencial válida.",
+    "why_it_matters": "É uma das formas mais comuns de obtenção inicial de acesso ou de escalonamento lateral, especialmente contra serviços expostos como SSH, RDP e portais web.",
+    "suspicious_when": [
+      "Grande volume de falhas de autenticação em curto intervalo",
+      "Mesma origem atacando múltiplos usuários",
+      "Tentativas seguidas de uma autenticação bem-sucedida",
+      "Origem com reputação de IP suspeita ou maliciosa"
+    ],
+    "legitimate_when": [
+      "Erro de configuração em automação ou serviço agendado",
+      "Usuário digitando a senha errada repetidamente",
+      "Scanner de segurança autorizado testando controles"
+    ],
+    "common_mistakes": [
+      "Classificar qualquer falha de autenticação isolada como brute force",
+      "Ignorar o contexto de reputação da origem",
+      "Não verificar se alguma tentativa teve sucesso"
+    ]
+  },
+  "expected_evidence": ["authentication_event", "user", "host", "ip_address"],
+  "related_hypotheses": ["hypothesis.ssh_brute_force"],
+  "suggested_checks": ["check.authentication_success", "check.source_ip_reputation"],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1110 Brute Force",
+      "url": "https://attack.mitre.org/techniques/T1110/"
+    }
+  ]
+}
