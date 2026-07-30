@@ -1,24 +1,44 @@
 {
   "id": "use-case.suspicious_authentication",
-  "name": "Autenticação suspeita (força bruta / password guessing)",
-  "description": "Padrão de múltiplas tentativas de autenticação, possivelmente seguidas de sucesso, indicando tentativa de descoberta de credenciais válidas.",
+  "name": {
+    "en": "Suspicious authentication (brute force / password guessing)",
+    "pt": "Autenticação suspeita (força bruta / password guessing)",
+    "de": "Verdächtige Authentifizierung (Brute Force / Password Guessing)"
+  },
+  "description": {
+    "en": "A pattern of multiple authentication attempts, possibly followed by success, indicating an attempt to discover valid credentials.",
+    "pt": "Padrão de múltiplas tentativas de autenticação, possivelmente seguidas de sucesso, indicando tentativa de descoberta de credenciais válidas.",
+    "de": "Ein Muster mehrerer Authentifizierungsversuche, möglicherweise gefolgt von Erfolg, das auf einen Versuch hinweist, gültige Anmeldedaten zu entdecken."
+  },
   "tactics": ["TA0006"],
   "techniques": ["T1110", "T1110.001"],
   "investigationSteps": [
     {
       "order": 1,
       "techniqueId": "T1110",
-      "instruction": "Confirme o volume, a janela de tempo e a origem das tentativas de autenticação malsucedidas. Verifique se houve uma autenticação bem-sucedida após as falhas.",
+      "instruction": {
+        "en": "Confirm the volume, time window and origin of the failed authentication attempts. Check whether a successful authentication occurred after the failures.",
+        "pt": "Confirme o volume, a janela de tempo e a origem das tentativas de autenticação malsucedidas. Verifique se houve uma autenticação bem-sucedida após as falhas.",
+        "de": "Bestätigen Sie Volumen, Zeitfenster und Herkunft der fehlgeschlagenen Authentifizierungsversuche. Prüfen Sie, ob nach den Fehlversuchen eine erfolgreiche Authentifizierung stattfand."
+      },
       "detectionStrategies": []
     },
     {
       "order": 2,
       "techniqueId": "T1110.001",
-      "instruction": "Se poucas contas foram alvo com muitas tentativas cada, avalie se as senhas testadas correspondem a listas conhecidas ou vazadas (password guessing), em vez de um ataque de força bruta genérico.",
+      "instruction": {
+        "en": "If few accounts were targeted with many attempts each, assess whether the tested passwords match known or leaked lists (password guessing), rather than a generic brute force attack.",
+        "pt": "Se poucas contas foram alvo com muitas tentativas cada, avalie se as senhas testadas correspondem a listas conhecidas ou vazadas (password guessing), em vez de um ataque de força bruta genérico.",
+        "de": "Wenn wenige Konten mit jeweils vielen Versuchen angegriffen wurden, prüfen Sie, ob die getesteten Passwörter bekannten oder geleakten Listen entsprechen (Password Guessing) statt einem generischen Brute-Force-Angriff."
+      },
       "detectionStrategies": []
     }
   ],
-  "dataSources": ["Logs de autenticação SSH", "Alertas de EDR/IDS"],
+  "dataSources": {
+    "en": ["SSH authentication logs", "EDR/IDS alerts"],
+    "pt": ["Logs de autenticação SSH", "Alertas de EDR/IDS"],
+    "de": ["SSH-Authentifizierungsprotokolle", "EDR-/IDS-Warnungen"]
+  },
   "relatedHypotheses": ["hypothesis.ssh_brute_force"],
   "sourceReference": null
 }

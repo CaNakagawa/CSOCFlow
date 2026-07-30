@@ -1,27 +1,81 @@
 [
   {
     "id": "evidence.network.ip_address",
-    "name": "Endereço IP",
+    "name": {
+      "en": "IP address",
+      "pt": "Endereço IP",
+      "de": "IP-Adresse"
+    },
     "category": "infrastructure",
     "node_type": "ip_address",
-    "brief": "Um endereço IP observado como origem ou destino de uma atividade investigada.",
+    "brief": {
+      "en": "An IP address observed as the source or destination of the investigated activity.",
+      "pt": "Um endereço IP observado como origem ou destino de uma atividade investigada.",
+      "de": "Eine IP-Adresse, die als Quelle oder Ziel der untersuchten Aktivität beobachtet wurde."
+    },
     "fields": [
-      { "id": "value", "label": "Endereço IP", "type": "ip", "required": true },
-      { "id": "reputation", "label": "Reputação", "type": "string", "required": false },
-      { "id": "is_approved_scanner", "label": "É um scanner autorizado?", "type": "boolean", "required": false },
-      { "id": "country", "label": "País", "type": "string", "required": false }
+      {
+        "id": "value",
+        "label": { "en": "IP address", "pt": "Endereço IP", "de": "IP-Adresse" },
+        "type": "ip",
+        "required": true
+      },
+      {
+        "id": "reputation",
+        "label": { "en": "Reputation", "pt": "Reputação", "de": "Reputation" },
+        "type": "string",
+        "required": false
+      },
+      {
+        "id": "is_approved_scanner",
+        "label": { "en": "Is an approved scanner?", "pt": "É um scanner autorizado?", "de": "Ist ein autorisierter Scanner?" },
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "id": "country",
+        "label": { "en": "Country", "pt": "País", "de": "Land" },
+        "type": "string",
+        "required": false
+      }
     ],
     "educational_content": {
-      "why_it_matters": "A reputação e a origem de um endereço IP ajudam a diferenciar tráfego legítimo de atividade maliciosa.",
-      "suspicious_when": [
-        "IP classificado como suspeito ou malicioso por fontes de reputação",
-        "IP associado a provedores de hospedagem ou VPN incomuns para o contexto",
-        "Nenhum histórico prévio de comunicação com este IP"
-      ],
-      "legitimate_when": [
-        "IP pertence a um scanner de segurança autorizado",
-        "IP corresponde a um provedor de nuvem corporativo conhecido"
-      ]
+      "why_it_matters": {
+        "en": "The reputation and origin of an IP address help distinguish legitimate traffic from malicious activity.",
+        "pt": "A reputação e a origem de um endereço IP ajudam a diferenciar tráfego legítimo de atividade maliciosa.",
+        "de": "Reputation und Herkunft einer IP-Adresse helfen, legitimen Verkehr von bösartiger Aktivität zu unterscheiden."
+      },
+      "suspicious_when": {
+        "en": [
+          "IP classified as suspicious or malicious by reputation sources",
+          "IP associated with hosting providers or VPNs unusual for the context",
+          "No prior history of communication with this IP"
+        ],
+        "pt": [
+          "IP classificado como suspeito ou malicioso por fontes de reputação",
+          "IP associado a provedores de hospedagem ou VPN incomuns para o contexto",
+          "Nenhum histórico prévio de comunicação com este IP"
+        ],
+        "de": [
+          "IP von Reputationsquellen als verdächtig oder bösartig eingestuft",
+          "IP mit für den Kontext ungewöhnlichen Hosting-Anbietern oder VPNs verknüpft",
+          "Keine vorherige Kommunikationshistorie mit dieser IP"
+        ]
+      },
+      "legitimate_when": {
+        "en": [
+          "IP belongs to an authorized security scanner",
+          "IP matches a known corporate cloud provider"
+        ],
+        "pt": [
+          "IP pertence a um scanner de segurança autorizado",
+          "IP corresponde a um provedor de nuvem corporativo conhecido"
+        ],
+        "de": [
+          "IP gehört zu einem autorisierten Sicherheitsscanner",
+          "IP entspricht einem bekannten Unternehmens-Cloud-Anbieter"
+        ]
+      }
     }
   }
 ]

@@ -17,8 +17,8 @@
   ],
   "properties": {
     "id": { "type": "string", "pattern": "^use-case\\." },
-    "name": { "type": "string", "minLength": 1 },
-    "description": { "type": "string", "minLength": 1 },
+    "name": { "$ref": "#/definitions/localizedText" },
+    "description": { "$ref": "#/definitions/localizedText" },
     "tactics": {
       "type": "array",
       "items": { "type": "string", "pattern": "^TA[0-9]{4}$" },
@@ -38,7 +38,7 @@
         "properties": {
           "order": { "type": "number" },
           "techniqueId": { "type": "string" },
-          "instruction": { "type": "string", "minLength": 1 },
+          "instruction": { "$ref": "#/definitions/localizedText" },
           "detectionStrategies": {
             "type": "array",
             "items": {
@@ -47,7 +47,7 @@
               "required": ["id", "name", "url"],
               "properties": {
                 "id": { "type": "string" },
-                "name": { "type": "string" },
+                "name": { "$ref": "#/definitions/localizedText" },
                 "url": { "type": "string", "format": "uri" }
               }
             }
@@ -55,7 +55,7 @@
         }
       }
     },
-    "dataSources": { "type": "array", "items": { "type": "string" } },
+    "dataSources": { "$ref": "#/definitions/localizedList" },
     "relatedHypotheses": { "type": "array", "items": { "type": "string" } },
     "sourceReference": {
       "oneOf": [
@@ -70,6 +70,28 @@
           }
         }
       ]
+    }
+  },
+  "definitions": {
+    "localizedText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "pt", "de"],
+      "properties": {
+        "en": { "type": "string", "minLength": 1 },
+        "pt": { "type": "string", "minLength": 1 },
+        "de": { "type": "string", "minLength": 1 }
+      }
+    },
+    "localizedList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "pt", "de"],
+      "properties": {
+        "en": { "type": "array", "items": { "type": "string" } },
+        "pt": { "type": "array", "items": { "type": "string" } },
+        "de": { "type": "array", "items": { "type": "string" } }
+      }
     }
   }
 }

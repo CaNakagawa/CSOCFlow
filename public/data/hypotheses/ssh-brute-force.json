@@ -1,8 +1,12 @@
 {
   "id": "hypothesis.ssh_brute_force",
-  "name": "SSH Brute Force",
+  "name": { "en": "SSH Brute Force", "pt": "SSH Brute Force", "de": "SSH Brute Force" },
   "category": "credential_access",
-  "description": "Tentativa repetitiva de descobrir credenciais válidas em um serviço SSH.",
+  "description": {
+    "en": "Repeated attempt to discover valid credentials on an SSH service.",
+    "pt": "Tentativa repetitiva de descobrir credenciais válidas em um serviço SSH.",
+    "de": "Wiederholter Versuch, gültige Anmeldedaten für einen SSH-Dienst zu entdecken."
+  },
   "mitre": ["T1110", "T1110.001"],
   "base_score": 0,
   "minimum_score": 35,
@@ -14,7 +18,11 @@
       "operator": "equals",
       "value": "ssh",
       "weight": 15,
-      "description": "o protocolo utilizado nas tentativas de autenticação foi SSH"
+      "description": {
+        "en": "the protocol used in the authentication attempts was SSH",
+        "pt": "o protocolo utilizado nas tentativas de autenticação foi SSH",
+        "de": "das bei den Authentifizierungsversuchen verwendete Protokoll war SSH"
+      }
     },
     {
       "id": "cond.many_failed_attempts",
@@ -22,7 +30,11 @@
       "operator": "greater_than_or_equal",
       "value": 20,
       "weight": 25,
-      "description": "foram observadas 20 ou mais tentativas malsucedidas de autenticação"
+      "description": {
+        "en": "20 or more failed authentication attempts were observed",
+        "pt": "foram observadas 20 ou mais tentativas malsucedidas de autenticação",
+        "de": "20 oder mehr fehlgeschlagene Authentifizierungsversuche wurden beobachtet"
+      }
     },
     {
       "id": "cond.single_source_ip",
@@ -30,7 +42,11 @@
       "operator": "equals",
       "value": 1,
       "weight": 10,
-      "description": "todas as tentativas partiram de um único endereço IP"
+      "description": {
+        "en": "all attempts came from a single IP address",
+        "pt": "todas as tentativas partiram de um único endereço IP",
+        "de": "alle Versuche stammten von einer einzigen IP-Adresse"
+      }
     },
     {
       "id": "cond.suspicious_reputation",
@@ -38,7 +54,11 @@
       "operator": "in",
       "value": ["suspicious", "malicious"],
       "weight": 20,
-      "description": "o IP de origem possui reputação suspeita ou maliciosa"
+      "description": {
+        "en": "the source IP has a suspicious or malicious reputation",
+        "pt": "o IP de origem possui reputação suspeita ou maliciosa",
+        "de": "die Quell-IP hat einen verdächtigen oder bösartigen Ruf"
+      }
     },
     {
       "id": "cond.success_after_failures",
@@ -46,7 +66,11 @@
       "operator": "equals",
       "value": true,
       "weight": 30,
-      "description": "houve uma autenticação bem-sucedida após as falhas"
+      "description": {
+        "en": "there was a successful authentication after the failures",
+        "pt": "houve uma autenticação bem-sucedida após as falhas",
+        "de": "es gab eine erfolgreiche Authentifizierung nach den Fehlversuchen"
+      }
     }
   ],
   "negative_conditions": [
@@ -56,22 +80,46 @@
       "operator": "equals",
       "value": true,
       "weight": -40,
-      "description": "o IP de origem é um scanner de segurança autorizado"
+      "description": {
+        "en": "the source IP is an authorized security scanner",
+        "pt": "o IP de origem é um scanner de segurança autorizado",
+        "de": "die Quell-IP ist ein autorisierter Sicherheitsscanner"
+      }
     }
   ],
   "recommended_checks": ["check.authentication_success", "check.source_ip_reputation"],
   "explanation_templates": {
-    "summary": "A hipótese foi sugerida porque {{matched_summary}}.",
-    "missing": "Ainda é necessário verificar se {{missing_summary}}.",
-    "counterpoints": "A hipótese pode ser enfraquecida porque {{counterpoint_summary}}."
+    "summary": {
+      "en": "The hypothesis was suggested because {{matched_summary}}.",
+      "pt": "A hipótese foi sugerida porque {{matched_summary}}.",
+      "de": "Die Hypothese wurde vorgeschlagen, weil {{matched_summary}}."
+    },
+    "missing": {
+      "en": "It still needs to be verified whether {{missing_summary}}.",
+      "pt": "Ainda é necessário verificar se {{missing_summary}}.",
+      "de": "Es muss noch geprüft werden, ob {{missing_summary}}."
+    },
+    "counterpoints": {
+      "en": "The hypothesis may be weakened because {{counterpoint_summary}}.",
+      "pt": "A hipótese pode ser enfraquecida porque {{counterpoint_summary}}.",
+      "de": "Die Hypothese könnte geschwächt sein, weil {{counterpoint_summary}}."
+    }
   },
-  "false_positive_context": [
-    "Scanner autorizado",
-    "Serviço com senha desatualizada",
-    "Automação com credencial incorreta"
-  ],
+  "false_positive_context": {
+    "en": ["Authorized scanner", "Service with an outdated password", "Automation using an incorrect credential"],
+    "pt": ["Scanner autorizado", "Serviço com senha desatualizada", "Automação com credencial incorreta"],
+    "de": ["Autorisierter Scanner", "Dienst mit veraltetem Passwort", "Automatisierung mit falscher Anmeldedaten"]
+  },
   "report_template": {
-    "title": "Possível ataque de força bruta via SSH",
-    "summary": "Foram observadas tentativas repetidas de autenticação SSH."
+    "title": {
+      "en": "Possible SSH brute force attack",
+      "pt": "Possível ataque de força bruta via SSH",
+      "de": "Möglicher SSH-Brute-Force-Angriff"
+    },
+    "summary": {
+      "en": "Repeated SSH authentication attempts were observed.",
+      "pt": "Foram observadas tentativas repetidas de autenticação SSH.",
+      "de": "Es wurden wiederholte SSH-Authentifizierungsversuche beobachtet."
+    }
   }
 }

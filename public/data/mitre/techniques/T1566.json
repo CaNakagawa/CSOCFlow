@@ -4,29 +4,139 @@
   "type": "mitre_technique",
   "tactics": ["TA0001"],
   "platforms": ["Windows", "Linux", "macOS", "Office 365", "Google Workspace"],
-  "brief": "Adversários podem enviar mensagens de phishing para obter acesso a sistemas, geralmente contendo anexos ou links maliciosos.",
+  "brief": {
+    "en": "Adversaries may send phishing messages to gain access to systems, typically containing malicious attachments or links.",
+    "pt": "Adversários podem enviar mensagens de phishing para obter acesso a sistemas, geralmente contendo anexos ou links maliciosos.",
+    "de": "Angreifer können Phishing-Nachrichten versenden, um sich Zugriff auf Systeme zu verschaffen, typischerweise mit bösartigen Anhängen oder Links."
+  },
   "investigation_context": {
-    "what_it_means": "Indica o recebimento de uma mensagem (geralmente e-mail) projetada para enganar o destinatário e obter acesso inicial ou credenciais.",
-    "why_it_matters": "É um dos vetores de acesso inicial mais comuns, pois explora o fator humano em vez de vulnerabilidades técnicas.",
-    "suspicious_when": [
-      "Remetente ou domínio de origem inconsistente com o suposto emissor",
-      "Anexo com macro, script ou extensão executável disfarçada",
-      "Link para domínio recém-registrado ou visualmente similar a um serviço legítimo",
-      "Linguagem de urgência ou apelo incomum para o contexto do destinatário"
-    ],
-    "legitimate_when": [
-      "Comunicação legítima de parceiro ou fornecedor conhecido, apenas mal classificada por filtros",
-      "Simulação de phishing autorizada pela equipe de segurança (treinamento)"
-    ],
-    "common_mistakes": [
-      "Analisar apenas o conteúdo do e-mail sem verificar anexos/links tecnicamente",
-      "Não correlacionar o e-mail com a atividade subsequente do usuário que o recebeu",
-      "Assumir que o usuário não interagiu com o e-mail sem confirmar"
-    ]
+    "what_it_means": {
+      "en": "Indicates the receipt of a message (usually email) designed to deceive the recipient and gain initial access or credentials.",
+      "pt": "Indica o recebimento de uma mensagem (geralmente e-mail) projetada para enganar o destinatário e obter acesso inicial ou credenciais.",
+      "de": "Zeigt den Empfang einer Nachricht (in der Regel E-Mail) an, die darauf ausgelegt ist, den Empfänger zu täuschen und Erstzugriff oder Anmeldedaten zu erlangen."
+    },
+    "why_it_matters": {
+      "en": "It is one of the most common initial access vectors, since it exploits the human factor rather than a technical vulnerability.",
+      "pt": "É um dos vetores de acesso inicial mais comuns, pois explora o fator humano em vez de vulnerabilidades técnicas.",
+      "de": "Es ist einer der häufigsten Erstzugriffsvektoren, da es den menschlichen Faktor statt einer technischen Schwachstelle ausnutzt."
+    },
+    "suspicious_when": {
+      "en": [
+        "Sender or origin domain inconsistent with the claimed sender",
+        "Attachment with a macro, script, or disguised executable extension",
+        "Link to a recently registered domain or one visually similar to a legitimate service",
+        "Language creating urgency or an unusual appeal for the recipient's context"
+      ],
+      "pt": [
+        "Remetente ou domínio de origem inconsistente com o suposto emissor",
+        "Anexo com macro, script ou extensão executável disfarçada",
+        "Link para domínio recém-registrado ou visualmente similar a um serviço legítimo",
+        "Linguagem de urgência ou apelo incomum para o contexto do destinatário"
+      ],
+      "de": [
+        "Absender oder Ursprungsdomain stimmt nicht mit dem angegebenen Absender überein",
+        "Anhang mit Makro, Skript oder getarnter ausführbarer Erweiterung",
+        "Link zu einer kürzlich registrierten oder einem legitimen Dienst optisch ähnlichen Domain",
+        "Sprache, die Dringlichkeit oder einen ungewöhnlichen Reiz für den Kontext des Empfängers erzeugt"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Legitimate communication from a known partner or vendor, just misclassified by filters",
+        "Authorized phishing simulation run by the security team (training)"
+      ],
+      "pt": [
+        "Comunicação legítima de parceiro ou fornecedor conhecido, apenas mal classificada por filtros",
+        "Simulação de phishing autorizada pela equipe de segurança (treinamento)"
+      ],
+      "de": [
+        "Legitime Kommunikation eines bekannten Partners oder Anbieters, nur von Filtern falsch eingestuft",
+        "Vom Sicherheitsteam autorisierte Phishing-Simulation (Schulung)"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Analyzing only the email content without technically checking attachments/links",
+        "Not correlating the email with the recipient's subsequent activity",
+        "Assuming the user did not interact with the email without confirming it"
+      ],
+      "pt": [
+        "Analisar apenas o conteúdo do e-mail sem verificar anexos/links tecnicamente",
+        "Não correlacionar o e-mail com a atividade subsequente do usuário que o recebeu",
+        "Assumir que o usuário não interagiu com o e-mail sem confirmar"
+      ],
+      "de": [
+        "Nur den E-Mail-Inhalt zu analysieren, ohne Anhänge/Links technisch zu prüfen",
+        "Die E-Mail nicht mit der anschließenden Aktivität des Empfängers zu korrelieren",
+        "Ohne Bestätigung anzunehmen, dass der Benutzer nicht mit der E-Mail interagiert hat"
+      ]
+    }
   },
   "expected_evidence": ["email", "user", "url", "file", "host"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [
+    {
+      "id": "AN0188",
+      "detectionStrategyId": "DET0070",
+      "description": {
+        "en": "Identifies unusual inbound email with attachments or URLs followed by new process execution or suspicious document behavior.",
+        "pt": "Identifica e-mails de entrada incomuns com anexos ou URLs seguidos de execução de novo processo ou comportamento suspeito de documento.",
+        "de": "Identifiziert ungewöhnliche eingehende E-Mails mit Anhängen oder URLs, gefolgt von neuer Prozessausführung oder verdächtigem Dokumentverhalten."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+    },
+    {
+      "id": "AN0189",
+      "detectionStrategyId": "DET0070",
+      "description": {
+        "en": "Detects malicious payload delivery through email clients (Thunderbird, mutt) resulting in suspicious file creation or outbound connections.",
+        "pt": "Detecta entrega de payload malicioso por meio de clientes de e-mail (Thunderbird, mutt) resultando em criação de arquivo suspeito ou conexões de saída.",
+        "de": "Erkennt bösartige Payload-Zustellung über E-Mail-Clients (Thunderbird, mutt), die zu verdächtiger Dateierstellung oder ausgehenden Verbindungen führt."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+    },
+    {
+      "id": "AN0190",
+      "detectionStrategyId": "DET0070",
+      "description": {
+        "en": "Identifies anomalous Mail app activity such as attachments executed immediately or URLs launched via Safari/Preview (macOS).",
+        "pt": "Identifica atividade anômala do app Mail, como anexos executados imediatamente ou URLs abertas via Safari/Preview (macOS).",
+        "de": "Identifiziert anomale Mail-App-Aktivität wie sofort ausgeführte Anhänge oder über Safari/Preview geöffnete URLs (macOS)."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+    },
+    {
+      "id": "AN0191",
+      "detectionStrategyId": "DET0070",
+      "description": {
+        "en": "Detects phishing via Office documents with embedded macros or links spawning processes.",
+        "pt": "Detecta phishing via documentos Office com macros incorporadas ou links que iniciam processos.",
+        "de": "Erkennt Phishing über Office-Dokumente mit eingebetteten Makros oder Links, die Prozesse starten."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+    },
+    {
+      "id": "AN0192",
+      "detectionStrategyId": "DET0070",
+      "description": {
+        "en": "Identifies phishing targeting identity providers manifesting as anomalous login attempts and fake SSO prompts.",
+        "pt": "Identifica phishing direcionado a provedores de identidade, manifestando-se como tentativas de login anômalas e prompts falsos de SSO.",
+        "de": "Identifiziert Phishing gegen Identitätsanbieter, das sich als anomale Anmeldeversuche und gefälschte SSO-Aufforderungen zeigt."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+    },
+    {
+      "id": "AN0193",
+      "detectionStrategyId": "DET0070",
+      "description": {
+        "en": "Detects phishing via SaaS services (chat, collaboration platforms) with malicious URLs or attachments.",
+        "pt": "Detecta phishing via serviços SaaS (chat, plataformas de colaboração) com URLs ou anexos maliciosos.",
+        "de": "Erkennt Phishing über SaaS-Dienste (Chat, Kollaborationsplattformen) mit bösartigen URLs oder Anhängen."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+    }
+  ],
   "references": [
     {
       "title": "MITRE ATT&CK - T1566 Phishing",

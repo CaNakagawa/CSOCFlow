@@ -7,9 +7,9 @@
   "required": ["id", "title", "description", "reason", "expected_evidence_types", "priority", "answers"],
   "properties": {
     "id": { "type": "string", "pattern": "^check\\." },
-    "title": { "type": "string", "minLength": 1 },
-    "description": { "type": "string" },
-    "reason": { "type": "string" },
+    "title": { "$ref": "#/definitions/localizedText" },
+    "description": { "$ref": "#/definitions/localizedText" },
+    "reason": { "$ref": "#/definitions/localizedText" },
     "expected_evidence_types": { "type": "array", "items": { "type": "string" } },
     "priority": { "enum": ["low", "medium", "high"] },
     "answers": {
@@ -20,7 +20,7 @@
         "required": ["value", "label", "effects"],
         "properties": {
           "value": { "type": "string" },
-          "label": { "type": "string" },
+          "label": { "$ref": "#/definitions/localizedText" },
           "effects": {
             "type": "array",
             "items": {
@@ -34,6 +34,18 @@
             }
           }
         }
+      }
+    }
+  },
+  "definitions": {
+    "localizedText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "pt", "de"],
+      "properties": {
+        "en": { "type": "string", "minLength": 1 },
+        "pt": { "type": "string", "minLength": 1 },
+        "de": { "type": "string", "minLength": 1 }
       }
     }
   }

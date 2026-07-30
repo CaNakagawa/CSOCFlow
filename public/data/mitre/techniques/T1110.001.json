@@ -4,24 +4,112 @@
   "type": "mitre_subtechnique",
   "tactics": ["TA0006"],
   "platforms": ["Linux", "Windows", "macOS", "Network", "Containers", "IaaS", "SaaS", "Office Suite", "Identity Provider"],
-  "brief": "Adversários utilizam uma lista de senhas conhecidas ou comuns, tentando repetidamente contra uma ou poucas contas até obter sucesso.",
+  "brief": {
+    "en": "Adversaries use a list of known or common passwords, repeatedly trying them against one or a few accounts until one succeeds.",
+    "pt": "Adversários utilizam uma lista de senhas conhecidas ou comuns, tentando repetidamente contra uma ou poucas contas até obter sucesso.",
+    "de": "Angreifer verwenden eine Liste bekannter oder gängiger Passwörter und probieren diese wiederholt gegen ein oder wenige Konten aus, bis eines erfolgreich ist."
+  },
   "investigation_context": {
-    "what_it_means": "Uma variação de brute force em que a lista de senhas testadas é conhecida (senhas comuns, vazadas ou padrão), geralmente contra um número menor de contas.",
-    "why_it_matters": "Contas com senhas fracas ou padrão são frequentemente comprometidas dessa forma, principalmente em serviços expostos à internet.",
-    "suspicious_when": [
-      "Tentativas usando senhas conhecidas de vazamentos públicos",
-      "Poucas contas-alvo com muitas tentativas cada"
-    ],
-    "legitimate_when": [
-      "Testes de política de senha realizados pela equipe de segurança"
-    ],
-    "common_mistakes": [
-      "Confundir com password spraying, que testa poucas senhas contra muitos usuários"
-    ]
+    "what_it_means": {
+      "en": "A variant of brute force where the list of tested passwords is known (common, leaked or default passwords), usually against a smaller number of accounts.",
+      "pt": "Uma variação de brute force em que a lista de senhas testadas é conhecida (senhas comuns, vazadas ou padrão), geralmente contra um número menor de contas.",
+      "de": "Eine Variante von Brute Force, bei der die getestete Passwortliste bekannt ist (gängige, geleakte oder Standardpasswörter), meist gegen eine kleinere Anzahl von Konten."
+    },
+    "why_it_matters": {
+      "en": "Accounts with weak or default passwords are frequently compromised this way, especially on services exposed to the internet.",
+      "pt": "Contas com senhas fracas ou padrão são frequentemente comprometidas dessa forma, principalmente em serviços expostos à internet.",
+      "de": "Konten mit schwachen oder Standardpasswörtern werden auf diese Weise häufig kompromittiert, besonders bei ins Internet exponierten Diensten."
+    },
+    "suspicious_when": {
+      "en": [
+        "Attempts using passwords known from public leaks",
+        "Few target accounts with many attempts each"
+      ],
+      "pt": [
+        "Tentativas usando senhas conhecidas de vazamentos públicos",
+        "Poucas contas-alvo com muitas tentativas cada"
+      ],
+      "de": [
+        "Versuche mit Passwörtern aus bekannten öffentlichen Leaks",
+        "Wenige Zielkonten mit jeweils vielen Versuchen"
+      ]
+    },
+    "legitimate_when": {
+      "en": ["Password policy testing performed by the security team"],
+      "pt": ["Testes de política de senha realizados pela equipe de segurança"],
+      "de": ["Passwortrichtlinien-Tests durch das Sicherheitsteam"]
+    },
+    "common_mistakes": {
+      "en": ["Confusing it with password spraying, which tests few passwords against many users"],
+      "pt": ["Confundir com password spraying, que testa poucas senhas contra muitos usuários"],
+      "de": ["Verwechslung mit Password Spraying, bei dem wenige Passwörter gegen viele Benutzer getestet werden"]
+    }
   },
   "expected_evidence": ["authentication_event", "user", "ip_address"],
   "related_hypotheses": ["hypothesis.ssh_brute_force"],
   "suggested_checks": ["check.authentication_success"],
+  "detection_analytics": [
+    {
+      "id": "AN1521",
+      "detectionStrategyId": "DET0551",
+      "description": {
+        "en": "Series of authentication failures (Event ID 4625) targeting the same or similar user accounts over time from one or more remote IPs (Windows).",
+        "pt": "Série de falhas de autenticação (Event ID 4625) visando a mesma conta ou contas de usuário semelhantes ao longo do tempo, a partir de um ou mais IPs remotos (Windows).",
+        "de": "Serie von Authentifizierungsfehlern (Ereignis-ID 4625), die über einen Zeitraum dasselbe oder ähnliche Benutzerkonten von einer oder mehreren Remote-IPs betreffen (Windows)."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+    },
+    {
+      "id": "AN1522",
+      "detectionStrategyId": "DET0551",
+      "description": {
+        "en": "Repeated failed SSH login attempts followed by a possible success from the same remote host.",
+        "pt": "Tentativas repetidas de login SSH malsucedidas seguidas de um possível sucesso a partir do mesmo host remoto.",
+        "de": "Wiederholte fehlgeschlagene SSH-Anmeldeversuche, gefolgt von einem möglichen Erfolg vom selben Remote-Host."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+    },
+    {
+      "id": "AN1523",
+      "detectionStrategyId": "DET0551",
+      "description": {
+        "en": "Series of failed logins from loginwindow or sshd with repeated usernames or password prompts (macOS).",
+        "pt": "Série de falhas de login via loginwindow ou sshd com nomes de usuário repetidos ou solicitações de senha (macOS).",
+        "de": "Serie fehlgeschlagener Anmeldungen über loginwindow oder sshd mit wiederholten Benutzernamen oder Passwortabfragen (macOS)."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+    },
+    {
+      "id": "AN1524",
+      "detectionStrategyId": "DET0551",
+      "description": {
+        "en": "Multiple failed sign-in attempts from external sources across many users followed by success from the same IP (cloud/SaaS).",
+        "pt": "Múltiplas tentativas de login malsucedidas de origens externas, envolvendo diversos usuários, seguidas de sucesso a partir do mesmo IP (nuvem/SaaS).",
+        "de": "Mehrere fehlgeschlagene Anmeldeversuche von externen Quellen über viele Benutzer, gefolgt von Erfolg von derselben IP (Cloud/SaaS)."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+    },
+    {
+      "id": "AN1525",
+      "detectionStrategyId": "DET0551",
+      "description": {
+        "en": "Login attempt failures over SNMP, Telnet, or SSH interfaces, often reflected in syslog events (network devices).",
+        "pt": "Falhas de tentativa de login via SNMP, Telnet ou SSH, geralmente refletidas em eventos de syslog (dispositivos de rede).",
+        "de": "Fehlgeschlagene Anmeldeversuche über SNMP-, Telnet- oder SSH-Schnittstellen, oft in Syslog-Ereignissen sichtbar (Netzwerkgeräte)."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+    },
+    {
+      "id": "AN1526",
+      "detectionStrategyId": "DET0551",
+      "description": {
+        "en": "Password guessing attempts against web-based apps (e.g. Dropbox, Google Workspace) reflected in API or sign-in logs.",
+        "pt": "Tentativas de adivinhação de senha contra aplicações web (ex: Dropbox, Google Workspace) refletidas em logs de API ou de login.",
+        "de": "Passwort-Rateversuche gegen webbasierte Anwendungen (z. B. Dropbox, Google Workspace), sichtbar in API- oder Anmeldeprotokollen."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+    }
+  ],
   "references": [
     {
       "title": "MITRE ATT&CK - T1110.001 Password Guessing",

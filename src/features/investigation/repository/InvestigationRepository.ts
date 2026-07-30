@@ -13,7 +13,7 @@ export interface InvestigationRepository {
 
 export class InvalidInvestigationFileError extends Error {
   constructor(reason: string) {
-    super(`Arquivo de investigação inválido: ${reason}`)
+    super(`Invalid investigation file: ${reason}`)
     this.name = 'InvalidInvestigationFileError'
   }
 }

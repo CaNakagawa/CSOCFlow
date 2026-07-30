@@ -4,29 +4,109 @@
   "type": "mitre_technique",
   "tactics": ["TA0006"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem tentar extrair credenciais de contas na forma de hashes ou senhas em texto claro a partir do sistema operacional (ex: LSASS, SAM, /etc/shadow).",
+  "brief": {
+    "en": "Adversaries may try to extract account credentials, in the form of hashes or plaintext passwords, from the operating system (e.g. LSASS, SAM, /etc/shadow).",
+    "pt": "Adversários podem tentar extrair credenciais de contas na forma de hashes ou senhas em texto claro a partir do sistema operacional (ex: LSASS, SAM, /etc/shadow).",
+    "de": "Angreifer können versuchen, Kontoanmeldedaten in Form von Hashes oder Klartextpasswörtern aus dem Betriebssystem zu extrahieren (z. B. LSASS, SAM, /etc/shadow)."
+  },
   "investigation_context": {
-    "what_it_means": "Indica uma tentativa de acessar ou extrair credenciais armazenadas localmente no sistema operacional.",
-    "why_it_matters": "Credenciais obtidas dessa forma frequentemente permitem movimentação lateral e escalonamento de privilégio no ambiente, incluindo contas administrativas.",
-    "suspicious_when": [
-      "Acesso ao processo LSASS por uma ferramenta que não seja o próprio sistema operacional",
-      "Uso de utilitários conhecidos de dump de credenciais (ex: Mimikatz) ou comportamento equivalente",
-      "Cópia ou leitura de arquivos como SAM, SYSTEM ou /etc/shadow fora de rotina de backup",
-      "Ferramenta de dump executada logo após obtenção de privilégio elevado"
-    ],
-    "legitimate_when": [
-      "Ferramenta de segurança corporativa autorizada realizando auditoria de credenciais",
-      "Processo de backup de sistema documentado"
-    ],
-    "common_mistakes": [
-      "Focar apenas na assinatura da ferramenta e ignorar o comportamento de acesso ao LSASS",
-      "Não verificar o que foi feito com as credenciais após o dump (uso subsequente)",
-      "Assumir que apenas ferramentas conhecidas realizam essa técnica"
-    ]
+    "what_it_means": {
+      "en": "Indicates an attempt to access or extract credentials stored locally in the operating system.",
+      "pt": "Indica uma tentativa de acessar ou extrair credenciais armazenadas localmente no sistema operacional.",
+      "de": "Zeigt einen Versuch an, lokal im Betriebssystem gespeicherte Anmeldedaten zuzugreifen oder zu extrahieren."
+    },
+    "why_it_matters": {
+      "en": "Credentials obtained this way often enable lateral movement and privilege escalation across the environment, including administrative accounts.",
+      "pt": "Credenciais obtidas dessa forma frequentemente permitem movimentação lateral e escalonamento de privilégio no ambiente, incluindo contas administrativas.",
+      "de": "Auf diese Weise erlangte Anmeldedaten ermöglichen oft laterale Bewegung und Rechteerweiterung in der Umgebung, einschließlich administrativer Konten."
+    },
+    "suspicious_when": {
+      "en": [
+        "Access to the LSASS process by a tool other than the operating system itself",
+        "Use of known credential dumping utilities (e.g. Mimikatz) or equivalent behavior",
+        "Copying or reading files such as SAM, SYSTEM or /etc/shadow outside a backup routine",
+        "Dumping tool executed right after gaining elevated privileges"
+      ],
+      "pt": [
+        "Acesso ao processo LSASS por uma ferramenta que não seja o próprio sistema operacional",
+        "Uso de utilitários conhecidos de dump de credenciais (ex: Mimikatz) ou comportamento equivalente",
+        "Cópia ou leitura de arquivos como SAM, SYSTEM ou /etc/shadow fora de rotina de backup",
+        "Ferramenta de dump executada logo após obtenção de privilégio elevado"
+      ],
+      "de": [
+        "Zugriff auf den LSASS-Prozess durch ein anderes Tool als das Betriebssystem selbst",
+        "Verwendung bekannter Credential-Dumping-Tools (z. B. Mimikatz) oder gleichwertigen Verhaltens",
+        "Kopieren oder Lesen von Dateien wie SAM, SYSTEM oder /etc/shadow außerhalb einer Backup-Routine",
+        "Dumping-Tool wurde unmittelbar nach Erlangung erhöhter Rechte ausgeführt"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Authorized corporate security tool performing a credential audit",
+        "Documented system backup process"
+      ],
+      "pt": [
+        "Ferramenta de segurança corporativa autorizada realizando auditoria de credenciais",
+        "Processo de backup de sistema documentado"
+      ],
+      "de": [
+        "Autorisiertes Unternehmens-Sicherheitstool führt eine Anmeldedaten-Prüfung durch",
+        "Dokumentierter Systemsicherungsprozess"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Focusing only on the tool's signature and ignoring the LSASS access behavior",
+        "Not checking what was done with the credentials after the dump (subsequent use)",
+        "Assuming only well-known tools perform this technique"
+      ],
+      "pt": [
+        "Focar apenas na assinatura da ferramenta e ignorar o comportamento de acesso ao LSASS",
+        "Não verificar o que foi feito com as credenciais após o dump (uso subsequente)",
+        "Assumir que apenas ferramentas conhecidas realizam essa técnica"
+      ],
+      "de": [
+        "Sich nur auf die Signatur des Tools zu konzentrieren und das LSASS-Zugriffsverhalten zu ignorieren",
+        "Nicht zu prüfen, was nach dem Dump mit den Anmeldedaten geschah (Folgenutzung)",
+        "Anzunehmen, dass nur bekannte Tools diese Technik anwenden"
+      ]
+    }
   },
   "expected_evidence": ["process", "host", "user", "file"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [
+    {
+      "id": "AN0648",
+      "detectionStrategyId": "DET0234",
+      "description": {
+        "en": "Identifies processes accessing LSASS memory or SAM registry hives outside trusted security tools, often preceding file creation or lateral movement activities.",
+        "pt": "Identifica processos acessando a memória do LSASS ou hives de registro SAM fora de ferramentas de segurança confiáveis, frequentemente antecedendo criação de arquivos ou atividades de movimentação lateral.",
+        "de": "Identifiziert Prozesse, die außerhalb vertrauenswürdiger Sicherheitstools auf den LSASS-Speicher oder SAM-Registry-Hives zugreifen, oft vor Dateierstellung oder lateraler Bewegung."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0234/"
+    },
+    {
+      "id": "AN0649",
+      "detectionStrategyId": "DET0234",
+      "description": {
+        "en": "Detects processes opening /proc/*/mem or /proc/*/maps targeting credential-storing services like sshd or login, particularly when combined with privilege escalation and memory inspection tools (gcore, gdb).",
+        "pt": "Detecta processos abrindo /proc/*/mem ou /proc/*/maps visando serviços que armazenam credenciais como sshd ou login, particularmente quando combinados com escalonamento de privilégio e ferramentas de inspeção de memória (gcore, gdb).",
+        "de": "Erkennt Prozesse, die /proc/*/mem oder /proc/*/maps öffnen und dabei anmeldedatenspeichernde Dienste wie sshd oder login anvisieren, besonders in Kombination mit Rechteausweitung und Speicherinspektionstools (gcore, gdb)."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0234/"
+    },
+    {
+      "id": "AN0650",
+      "detectionStrategyId": "DET0234",
+      "description": {
+        "en": "Identifies unsigned processes accessing system memory or launching known credential scraping tools (such as osascript and dylib injections) targeting Keychain or sensitive memory regions (macOS).",
+        "pt": "Identifica processos não assinados acessando memória do sistema ou executando ferramentas conhecidas de coleta de credenciais (como osascript e injeções dylib) visando o Keychain ou regiões sensíveis de memória (macOS).",
+        "de": "Identifiziert unsignierte Prozesse, die auf den Systemspeicher zugreifen oder bekannte Credential-Scraping-Tools (wie osascript und dylib-Injektionen) starten, die auf den Keychain oder sensible Speicherbereiche abzielen (macOS)."
+      },
+      "url": "https://attack.mitre.org/detectionstrategies/DET0234/"
+    }
+  ],
   "references": [
     {
       "title": "MITRE ATT&CK - T1003 OS Credential Dumping",

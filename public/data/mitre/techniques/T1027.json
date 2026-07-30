@@ -4,29 +4,78 @@
   "type": "mitre_technique",
   "tactics": ["TA0005"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem tentar tornar um arquivo ou informação executável mais difícil de descobrir ou analisar, ofuscando seu conteúdo (codificação, empacotamento, criptografia).",
+  "brief": {
+    "en": "Adversaries may try to make an executable file or piece of information harder to discover or analyze by obfuscating its content (encoding, packing, encryption).",
+    "pt": "Adversários podem tentar tornar um arquivo ou informação executável mais difícil de descobrir ou analisar, ofuscando seu conteúdo (codificação, empacotamento, criptografia).",
+    "de": "Angreifer können versuchen, eine ausführbare Datei oder Information schwerer auffindbar oder analysierbar zu machen, indem sie deren Inhalt verschleiern (Kodierung, Packen, Verschlüsselung)."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que um arquivo, script ou comando foi deliberadamente codificado, compactado ou disfarçado para dificultar a análise.",
-    "why_it_matters": "A ofuscação é usada para evitar assinaturas de antivírus e dificultar a análise humana rápida do conteúdo malicioso.",
-    "suspicious_when": [
-      "Comando com grandes blocos de texto em base64 ou hexadecimal",
-      "Arquivo com entropia muito alta ou empacotado (packer) sem motivo aparente",
-      "Nome de arquivo/extensão não corresponde ao conteúdo real",
-      "Uso de técnicas de camuflagem (extensões duplas, espaços, caracteres especiais no nome)"
-    ],
-    "legitimate_when": [
-      "Empacotamento/minificação padrão de builds de software legítimo",
-      "Uso de criptografia por ferramentas corporativas de proteção de dados"
-    ],
-    "common_mistakes": [
-      "Assumir que todo conteúdo ofuscado é malicioso sem decodificar e analisar",
-      "Não tentar decodificar comandos codificados antes de descartar o alerta",
-      "Ignorar ofuscação por não haver assinatura de antivírus correspondente"
-    ]
+    "what_it_means": {
+      "en": "Indicates that a file, script or command was deliberately encoded, compressed or disguised to make analysis harder.",
+      "pt": "Indica que um arquivo, script ou comando foi deliberadamente codificado, compactado ou disfarçado para dificultar a análise.",
+      "de": "Zeigt an, dass eine Datei, ein Skript oder ein Befehl absichtlich kodiert, komprimiert oder getarnt wurde, um die Analyse zu erschweren."
+    },
+    "why_it_matters": {
+      "en": "Obfuscation is used to evade antivirus signatures and make quick human analysis of the malicious content harder.",
+      "pt": "A ofuscação é usada para evitar assinaturas de antivírus e dificultar a análise humana rápida do conteúdo malicioso.",
+      "de": "Verschleierung wird verwendet, um Antivirensignaturen zu umgehen und die schnelle menschliche Analyse bösartiger Inhalte zu erschweren."
+    },
+    "suspicious_when": {
+      "en": [
+        "Command with large blocks of base64 or hex-encoded text",
+        "File with very high entropy or packed without an apparent reason",
+        "File name/extension does not match the actual content",
+        "Use of camouflage techniques (double extensions, spaces, special characters in the name)"
+      ],
+      "pt": [
+        "Comando com grandes blocos de texto em base64 ou hexadecimal",
+        "Arquivo com entropia muito alta ou empacotado (packer) sem motivo aparente",
+        "Nome de arquivo/extensão não corresponde ao conteúdo real",
+        "Uso de técnicas de camuflagem (extensões duplas, espaços, caracteres especiais no nome)"
+      ],
+      "de": [
+        "Befehl mit großen Blöcken base64- oder hexkodierten Textes",
+        "Datei mit sehr hoher Entropie oder ohne ersichtlichen Grund gepackt",
+        "Dateiname/-erweiterung stimmt nicht mit dem tatsächlichen Inhalt überein",
+        "Verwendung von Tarntechniken (doppelte Erweiterungen, Leerzeichen, Sonderzeichen im Namen)"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Standard packaging/minification of legitimate software builds",
+        "Use of encryption by corporate data protection tools"
+      ],
+      "pt": [
+        "Empacotamento/minificação padrão de builds de software legítimo",
+        "Uso de criptografia por ferramentas corporativas de proteção de dados"
+      ],
+      "de": [
+        "Standardmäßiges Packen/Minifizieren legitimer Software-Builds",
+        "Verwendung von Verschlüsselung durch Unternehmens-Datenschutztools"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Assuming all obfuscated content is malicious without decoding and analyzing it",
+        "Not attempting to decode encoded commands before dismissing the alert",
+        "Ignoring obfuscation because there is no matching antivirus signature"
+      ],
+      "pt": [
+        "Assumir que todo conteúdo ofuscado é malicioso sem decodificar e analisar",
+        "Não tentar decodificar comandos codificados antes de descartar o alerta",
+        "Ignorar ofuscação por não haver assinatura de antivírus correspondente"
+      ],
+      "de": [
+        "Anzunehmen, dass jeder verschleierte Inhalt bösartig ist, ohne ihn zu dekodieren und zu analysieren",
+        "Kodierte Befehle vor dem Verwerfen des Alarms nicht zu dekodieren zu versuchen",
+        "Verschleierung zu ignorieren, weil keine passende Antivirensignatur existiert"
+      ]
+    }
   },
   "expected_evidence": ["file", "file_hash", "command_line", "process"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1027 Obfuscated Files or Information",

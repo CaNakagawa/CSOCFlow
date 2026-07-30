@@ -74,7 +74,7 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
       }),
     ]
 
-    const result = engine.evaluate({ nodes, edges: [], knowledgeBase, checkAnswers: [] })
+    const result = engine.evaluate({ nodes, edges: [], knowledgeBase, checkAnswers: [], locale: 'en' })
 
     const sshBruteForce = result.hypotheses.find(
       (h) => h.hypothesisId === 'hypothesis.ssh_brute_force',
@@ -84,7 +84,7 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
     expect(sshBruteForce!.confidenceLevel).toBe('high')
     expect(sshBruteForce!.matchedConditions).toHaveLength(5)
     expect(sshBruteForce!.contradictedConditions).toHaveLength(0)
-    expect(sshBruteForce!.explanation).toContain('protocolo utilizado')
+    expect(sshBruteForce!.explanation).toContain('protocol used')
   })
 
   it('weakens the hypothesis when the source IP is an approved scanner', () => {
@@ -118,7 +118,7 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
       }),
     ]
 
-    const result = engine.evaluate({ nodes, edges: [], knowledgeBase, checkAnswers: [] })
+    const result = engine.evaluate({ nodes, edges: [], knowledgeBase, checkAnswers: [], locale: 'en' })
     const sshBruteForce = result.hypotheses.find(
       (h) => h.hypothesisId === 'hypothesis.ssh_brute_force',
     )
@@ -131,7 +131,7 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
 
   it('does not suggest the hypothesis when no supporting evidence exists', () => {
     const engine = createCorrelationEngine()
-    const result = engine.evaluate({ nodes: [], edges: [], knowledgeBase, checkAnswers: [] })
+    const result = engine.evaluate({ nodes: [], edges: [], knowledgeBase, checkAnswers: [], locale: 'en' })
     expect(
       result.hypotheses.find((h) => h.hypothesisId === 'hypothesis.ssh_brute_force'),
     ).toBeUndefined()
@@ -152,7 +152,13 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
       }),
     ]
 
-    const withoutAnswer = engine.evaluate({ nodes, edges: [], knowledgeBase, checkAnswers: [] })
+    const withoutAnswer = engine.evaluate({
+      nodes,
+      edges: [],
+      knowledgeBase,
+      checkAnswers: [],
+      locale: 'en',
+    })
     const withAnswer = engine.evaluate({
       nodes,
       edges: [],
@@ -164,6 +170,7 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
           answeredAt: '2026-07-29T11:00:00.000Z',
         },
       ],
+      locale: 'en',
     })
 
     const before = withoutAnswer.hypotheses.find(
@@ -186,7 +193,7 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
       makeNode({ id: 'ip-1', type: 'ip_address', fields: { value: '198.51.100.23' } }),
     ]
 
-    const result = engine.evaluate({ nodes, edges: [], knowledgeBase, checkAnswers: [] })
+    const result = engine.evaluate({ nodes, edges: [], knowledgeBase, checkAnswers: [], locale: 'en' })
     const edge = result.inferredEdges.find((e) => e.source === 'evt-failed' && e.target === 'ip-1')
 
     expect(edge).toBeDefined()

@@ -1,24 +1,36 @@
 {
   "id": "check.source_ip_reputation",
-  "title": "Verificar reputação do IP de origem",
-  "description": "Consulte fontes de threat intelligence para checar se o IP de origem é conhecido como malicioso, suspeito ou um scanner autorizado.",
-  "reason": "A reputação do IP ajuda a diferenciar uma tentativa maliciosa de um erro de configuração ou automação legítima.",
+  "title": {
+    "en": "Check the reputation of the source IP",
+    "pt": "Verificar reputação do IP de origem",
+    "de": "Reputation der Quell-IP prüfen"
+  },
+  "description": {
+    "en": "Query threat intelligence sources to check whether the source IP is known to be malicious, suspicious, or an authorized scanner.",
+    "pt": "Consulte fontes de threat intelligence para checar se o IP de origem é conhecido como malicioso, suspeito ou um scanner autorizado.",
+    "de": "Prüfen Sie Threat-Intelligence-Quellen, um festzustellen, ob die Quell-IP als bösartig, verdächtig oder als autorisierter Scanner bekannt ist."
+  },
+  "reason": {
+    "en": "The IP's reputation helps distinguish a malicious attempt from a misconfiguration or legitimate automation.",
+    "pt": "A reputação do IP ajuda a diferenciar uma tentativa maliciosa de um erro de configuração ou automação legítima.",
+    "de": "Die Reputation der IP hilft, einen bösartigen Versuch von einer Fehlkonfiguration oder legitimen Automatisierung zu unterscheiden."
+  },
   "expected_evidence_types": ["ip_address"],
   "priority": "medium",
   "answers": [
     {
       "value": "malicious",
-      "label": "IP com reputação maliciosa",
+      "label": { "en": "IP with malicious reputation", "pt": "IP com reputação maliciosa", "de": "IP mit bösartigem Ruf" },
       "effects": [{ "hypothesis_id": "hypothesis.ssh_brute_force", "score_delta": 15 }]
     },
     {
       "value": "approved_scanner",
-      "label": "IP é um scanner autorizado",
+      "label": { "en": "IP is an authorized scanner", "pt": "IP é um scanner autorizado", "de": "IP ist ein autorisierter Scanner" },
       "effects": [{ "hypothesis_id": "hypothesis.ssh_brute_force", "score_delta": -40 }]
     },
     {
       "value": "unknown",
-      "label": "Não foi possível determinar",
+      "label": { "en": "Could not be determined", "pt": "Não foi possível determinar", "de": "Konnte nicht ermittelt werden" },
       "effects": []
     }
   ]

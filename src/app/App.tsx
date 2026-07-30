@@ -6,28 +6,30 @@ import { NodeLibrary } from '../features/canvas/components/NodeLibrary'
 import { Canvas } from '../features/canvas/components/Canvas'
 import { TopBar } from './TopBar'
 import { RightPanel } from './RightPanel'
+import { useI18n } from '../shared/i18n'
 import './App.css'
 
 export function App() {
   const { knowledgeBase, loading, error } = useKnowledgeBase()
   useCorrelation(knowledgeBase)
+  const { t, locale } = useI18n()
 
   const [isLibraryCollapsed, setLibraryCollapsed] = useState(false)
   const [isRightPanelCollapsed, setRightPanelCollapsed] = useState(false)
 
   const libraryItems = useMemo(
-    () => (knowledgeBase ? buildLibraryItems(knowledgeBase) : []),
-    [knowledgeBase],
+    () => (knowledgeBase ? buildLibraryItems(knowledgeBase, locale) : []),
+    [knowledgeBase, locale],
   )
 
   if (loading) {
-    return <div className="app-loading">Carregando base de conhecimento...</div>
+    return <div className="app-loading">{t('app.loading')}</div>
   }
 
   if (error) {
     return (
       <div className="app-error">
-        <h1>Falha ao carregar a base de conhecimento</h1>
+        <h1>{t('app.loadError')}</h1>
         <p>{error.message}</p>
       </div>
     )

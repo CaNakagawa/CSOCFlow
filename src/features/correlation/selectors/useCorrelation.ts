@@ -2,10 +2,12 @@ import { useEffect, useMemo, useRef } from 'react'
 import { createCorrelationEngine } from '../engine/CorrelationEngine'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
+import { useI18n } from '../../../shared/i18n'
 
 const DEBOUNCE_MS = 150
 
 export function useCorrelation(knowledgeBase: KnowledgeBase | null): void {
+  const { locale } = useI18n()
   const nodes = useInvestigationStore((s) => s.nodes)
   const manualEdges = useInvestigationStore((s) => s.manualEdges)
   const checkAnswers = useInvestigationStore((s) => s.checkAnswers)
@@ -21,7 +23,13 @@ export function useCorrelation(knowledgeBase: KnowledgeBase | null): void {
 
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     timeoutRef.current = setTimeout(() => {
-      const result = engine.evaluate({ nodes, edges: manualEdges, knowledgeBase, checkAnswers })
+      const result = engine.evaluate({
+        nodes,
+        edges: manualEdges,
+        knowledgeBase,
+        checkAnswers,
+        locale,
+      })
       setInferredEdges(result.inferredEdges)
       setHypothesisResults(result.hypotheses)
       setUseCaseSuggestions(result.useCaseSuggestions)
@@ -35,6 +43,7 @@ export function useCorrelation(knowledgeBase: KnowledgeBase | null): void {
     nodes,
     manualEdges,
     checkAnswers,
+    locale,
     engine,
     setInferredEdges,
     setHypothesisResults,

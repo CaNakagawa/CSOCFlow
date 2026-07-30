@@ -1,24 +1,36 @@
 {
   "id": "check.authentication_success",
-  "title": "Verificar autenticação bem-sucedida",
-  "description": "Determine se alguma conta conseguiu autenticar após a sequência de falhas.",
-  "reason": "Uma autenticação bem-sucedida após várias falhas pode indicar comprometimento de credenciais.",
+  "title": {
+    "en": "Check for a successful authentication",
+    "pt": "Verificar autenticação bem-sucedida",
+    "de": "Erfolgreiche Authentifizierung prüfen"
+  },
+  "description": {
+    "en": "Determine whether any account managed to authenticate after the sequence of failures.",
+    "pt": "Determine se alguma conta conseguiu autenticar após a sequência de falhas.",
+    "de": "Ermitteln Sie, ob sich nach der Reihe von Fehlversuchen ein Konto authentifizieren konnte."
+  },
+  "reason": {
+    "en": "A successful authentication after several failures may indicate compromised credentials.",
+    "pt": "Uma autenticação bem-sucedida após várias falhas pode indicar comprometimento de credenciais.",
+    "de": "Eine erfolgreiche Authentifizierung nach mehreren Fehlversuchen kann auf kompromittierte Anmeldedaten hindeuten."
+  },
   "expected_evidence_types": ["authentication_event", "user", "host", "ip_address"],
   "priority": "high",
   "answers": [
     {
       "value": "yes",
-      "label": "Sim, houve sucesso",
+      "label": { "en": "Yes, there was a success", "pt": "Sim, houve sucesso", "de": "Ja, es gab einen Erfolg" },
       "effects": [{ "hypothesis_id": "hypothesis.ssh_brute_force", "score_delta": 25 }]
     },
     {
       "value": "no",
-      "label": "Não houve sucesso",
+      "label": { "en": "No success occurred", "pt": "Não houve sucesso", "de": "Kein Erfolg" },
       "effects": [{ "hypothesis_id": "hypothesis.ssh_brute_force", "score_delta": -5 }]
     },
     {
       "value": "unknown",
-      "label": "Não foi possível determinar",
+      "label": { "en": "Could not be determined", "pt": "Não foi possível determinar", "de": "Konnte nicht ermittelt werden" },
       "effects": []
     }
   ]

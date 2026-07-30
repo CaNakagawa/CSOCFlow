@@ -20,13 +20,30 @@ import {
 import '@xyflow/react/dist/style.css'
 import { combineEdges, useInvestigationStore } from '../../investigation/store/investigationStore'
 import { GenericNode, type GenericNodeData } from '../nodeTypes/GenericNode'
-import { RELATIONSHIP_TYPE_LABELS } from '../utils/nodeVisuals'
+import { relationshipKey } from '../utils/nodeVisuals'
+import { useI18n } from '../../../shared/i18n'
 import type { RelationshipType } from '../../../shared/types/investigation'
 import './Canvas.css'
 
 const nodeTypes = { generic: GenericNode }
 
-const RELATIONSHIP_TYPES = Object.keys(RELATIONSHIP_TYPE_LABELS) as RelationshipType[]
+const RELATIONSHIP_TYPES: RelationshipType[] = [
+  'executed_by',
+  'executed_on',
+  'parent_of',
+  'child_of',
+  'connected_to',
+  'downloaded_from',
+  'resolved_to',
+  'authenticated_from',
+  'targeted',
+  'associated_with',
+  'supports_hypothesis',
+  'contradicts_hypothesis',
+  'maps_to',
+  'occurred_before',
+  'occurred_after',
+]
 
 interface FlowEdgeData extends Record<string, unknown> {
   automatic: boolean
@@ -42,6 +59,7 @@ interface CommentEditorState {
 }
 
 export function Canvas() {
+  const { t } = useI18n()
   const nodes = useInvestigationStore((s) => s.nodes)
   const manualEdges = useInvestigationStore((s) => s.manualEdges)
   const inferredEdges = useInvestigationStore((s) => s.inferredEdges)
@@ -183,7 +201,7 @@ export function Canvas() {
   }, [commentEditor, updateEdgeLabel, updateManualEdgeType])
 
   return (
-    <div className="canvas-area" role="application" aria-label="Canvas de investigação">
+    <div className="canvas-area" role="application" aria-label="Investigation canvas">
       <ReactFlow
         nodes={flowNodes}
         edges={flowEdges}
@@ -222,14 +240,14 @@ export function Canvas() {
           >
             {RELATIONSHIP_TYPES.map((type) => (
               <option key={type} value={type}>
-                {RELATIONSHIP_TYPE_LABELS[type]}
+                {t(relationshipKey(type))}
               </option>
             ))}
           </select>
           <input
             autoFocus
             type="text"
-            placeholder="Comentário da conexão..."
+            placeholder={t('canvas.commentPlaceholder')}
             value={commentEditor.value}
             onChange={(e) => setCommentEditor({ ...commentEditor, value: e.target.value })}
             onKeyDown={(e) => {
@@ -238,7 +256,7 @@ export function Canvas() {
             }}
           />
           <button type="button" onClick={commitComment}>
-            Salvar
+            {t('canvas.save')}
           </button>
         </div>
       )}

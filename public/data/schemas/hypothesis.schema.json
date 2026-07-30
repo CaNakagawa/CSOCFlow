@@ -22,9 +22,9 @@
   ],
   "properties": {
     "id": { "type": "string", "pattern": "^hypothesis\\." },
-    "name": { "type": "string", "minLength": 1 },
+    "name": { "$ref": "#/definitions/localizedText" },
     "category": { "type": "string", "minLength": 1 },
-    "description": { "type": "string", "minLength": 1 },
+    "description": { "$ref": "#/definitions/localizedText" },
     "mitre": { "type": "array", "items": { "type": "string" } },
     "base_score": { "type": "number" },
     "minimum_score": { "type": "number" },
@@ -43,23 +43,43 @@
       "additionalProperties": false,
       "required": ["summary", "missing", "counterpoints"],
       "properties": {
-        "summary": { "type": "string" },
-        "missing": { "type": "string" },
-        "counterpoints": { "type": "string" }
+        "summary": { "$ref": "#/definitions/localizedText" },
+        "missing": { "$ref": "#/definitions/localizedText" },
+        "counterpoints": { "$ref": "#/definitions/localizedText" }
       }
     },
-    "false_positive_context": { "type": "array", "items": { "type": "string" } },
+    "false_positive_context": { "$ref": "#/definitions/localizedList" },
     "report_template": {
       "type": "object",
       "additionalProperties": false,
       "required": ["title", "summary"],
       "properties": {
-        "title": { "type": "string" },
-        "summary": { "type": "string" }
+        "title": { "$ref": "#/definitions/localizedText" },
+        "summary": { "$ref": "#/definitions/localizedText" }
       }
     }
   },
   "definitions": {
+    "localizedText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "pt", "de"],
+      "properties": {
+        "en": { "type": "string", "minLength": 1 },
+        "pt": { "type": "string", "minLength": 1 },
+        "de": { "type": "string", "minLength": 1 }
+      }
+    },
+    "localizedList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "pt", "de"],
+      "properties": {
+        "en": { "type": "array", "items": { "type": "string" } },
+        "pt": { "type": "array", "items": { "type": "string" } },
+        "de": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "condition": {
       "type": "object",
       "additionalProperties": false,
@@ -89,7 +109,7 @@
         },
         "value": {},
         "weight": { "type": "number" },
-        "description": { "type": "string" }
+        "description": { "$ref": "#/definitions/localizedText" }
       }
     }
   }

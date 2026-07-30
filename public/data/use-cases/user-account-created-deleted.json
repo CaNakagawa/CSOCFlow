@@ -1,30 +1,54 @@
 {
   "id": "use-case.user_account_created_deleted",
-  "name": "User Account Created/Deleted",
-  "description": "Uma conta de usuário foi criada ou excluída no ambiente. Este caso de uso ajuda a diferenciar uma operação de gestão de identidade legítima de uma tentativa de manter acesso persistente através da manipulação de contas.",
+  "name": {
+    "en": "User Account Created/Deleted",
+    "pt": "User Account Created/Deleted",
+    "de": "Benutzerkonto erstellt/gelöscht"
+  },
+  "description": {
+    "en": "A user account was created or deleted in the environment. This use case helps distinguish a legitimate identity management operation from an attempt to maintain persistent access through account manipulation.",
+    "pt": "Uma conta de usuário foi criada ou excluída no ambiente. Este caso de uso ajuda a diferenciar uma operação de gestão de identidade legítima de uma tentativa de manter acesso persistente através da manipulação de contas.",
+    "de": "Ein Benutzerkonto wurde in der Umgebung erstellt oder gelöscht. Dieser Anwendungsfall hilft, eine legitime Identitätsverwaltungsoperation von einem Versuch zu unterscheiden, durch Kontomanipulation dauerhaften Zugriff zu behalten."
+  },
   "tactics": ["TA0003", "TA0004"],
   "techniques": ["T1098", "T1078"],
   "investigationSteps": [
     {
       "order": 1,
       "techniqueId": "T1098",
-      "instruction": "Determine quem criou ou excluiu a conta, em qual horário e quais permissões foram atribuídas. Verifique se a ação está associada a um processo de gestão de identidade conhecido (onboarding/offboarding, mudança aprovada).",
+      "instruction": {
+        "en": "Determine who created or deleted the account, at what time, and which permissions were assigned. Check whether the action is tied to a known identity management process (onboarding/offboarding, approved change).",
+        "pt": "Determine quem criou ou excluiu a conta, em qual horário e quais permissões foram atribuídas. Verifique se a ação está associada a um processo de gestão de identidade conhecido (onboarding/offboarding, mudança aprovada).",
+        "de": "Ermitteln Sie, wer das Konto erstellt oder gelöscht hat, zu welcher Zeit und welche Berechtigungen zugewiesen wurden. Prüfen Sie, ob die Aktion mit einem bekannten Identitätsmanagementprozess verknüpft ist (Onboarding/Offboarding, genehmigte Änderung)."
+      },
       "detectionStrategies": []
     },
     {
       "order": 2,
       "techniqueId": "T1078",
-      "instruction": "Valide se a conta que executou a criação/exclusão é ela própria legítima ou possivelmente comprometida. Como Account Manipulation costuma ser uma etapa posterior no ambiente comprometido, é preciso confirmar se houve abuso de uma conta válida para realizar essa ação.",
+      "instruction": {
+        "en": "Validate whether the account that performed the creation/deletion is itself legitimate or possibly compromised. Since Account Manipulation is often a later step in a compromised environment, it is necessary to confirm whether a valid account was abused to perform this action.",
+        "pt": "Valide se a conta que executou a criação/exclusão é ela própria legítima ou possivelmente comprometida. Como Account Manipulation costuma ser uma etapa posterior no ambiente comprometido, é preciso confirmar se houve abuso de uma conta válida para realizar essa ação.",
+        "de": "Prüfen Sie, ob das Konto, das die Erstellung/Löschung durchgeführt hat, selbst legitim oder möglicherweise kompromittiert ist. Da Kontomanipulation oft ein späterer Schritt in einer kompromittierten Umgebung ist, muss bestätigt werden, ob ein gültiges Konto für diese Aktion missbraucht wurde."
+      },
       "detectionStrategies": [
         {
           "id": "DET0560",
-          "name": "MITRE ATT&CK Detection Strategy para validar abuso de conta válida (Valid Accounts)",
+          "name": {
+            "en": "MITRE ATT&CK Detection Strategy to validate valid account abuse (Valid Accounts)",
+            "pt": "MITRE ATT&CK Detection Strategy para validar abuso de conta válida (Valid Accounts)",
+            "de": "MITRE ATT&CK Detection Strategy zur Validierung des Missbrauchs gültiger Konten (Valid Accounts)"
+          },
           "url": "https://attack.mitre.org/detectionstrategies/DET0560/"
         }
       ]
     }
   ],
-  "dataSources": ["Security Events (Windows)", "Diretório de identidade (Azure AD / Active Directory)"],
+  "dataSources": {
+    "en": ["Security Events (Windows)", "Identity directory (Azure AD / Active Directory)"],
+    "pt": ["Security Events (Windows)", "Diretório de identidade (Azure AD / Active Directory)"],
+    "de": ["Security Events (Windows)", "Identitätsverzeichnis (Azure AD / Active Directory)"]
+  },
   "relatedHypotheses": [],
   "sourceReference": {
     "title": "Microsoft Sentinel: User account created/deleted",

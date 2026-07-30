@@ -1,48 +1,30 @@
-import type {
-  CanvasNodeType,
-  NodeState,
-  RelationshipType,
-} from '../../../shared/types/investigation'
+import type { CanvasNodeType, NodeState, RelationshipType } from '../../../shared/types/investigation'
+import type { TranslationKey } from '../../../shared/i18n'
 
-export interface NodeVisual {
-  glyph: string
-  categoryLabel: string
-}
-
-export const NODE_VISUALS: Record<CanvasNodeType, NodeVisual> = {
-  mitre_tactic: { glyph: 'TA', categoryLabel: 'Tática MITRE' },
-  mitre_technique: { glyph: 'T', categoryLabel: 'Técnica MITRE' },
-  mitre_subtechnique: { glyph: 'T.', categoryLabel: 'Subtécnica MITRE' },
-  alert: { glyph: '!', categoryLabel: 'Alerta' },
-  authentication_event: { glyph: 'AUTH', categoryLabel: 'Evento de autenticação' },
-  process: { glyph: 'PROC', categoryLabel: 'Processo' },
-  command_line: { glyph: '>_', categoryLabel: 'Linha de comando' },
-  user: { glyph: 'USR', categoryLabel: 'Usuário' },
-  host: { glyph: 'HOST', categoryLabel: 'Host' },
-  ip_address: { glyph: 'IP', categoryLabel: 'Endereço IP' },
-  domain: { glyph: 'DNS', categoryLabel: 'Domínio' },
-  url: { glyph: 'URL', categoryLabel: 'URL' },
-  file: { glyph: 'FILE', categoryLabel: 'Arquivo' },
-  file_hash: { glyph: 'HASH', categoryLabel: 'Hash de arquivo' },
-  registry_key: { glyph: 'REG', categoryLabel: 'Chave de registro' },
-  service: { glyph: 'SVC', categoryLabel: 'Serviço' },
-  scheduled_task: { glyph: 'TASK', categoryLabel: 'Tarefa agendada' },
-  network_connection: { glyph: 'NET', categoryLabel: 'Conexão de rede' },
-  email: { glyph: '@', categoryLabel: 'E-mail' },
-  evidence: { glyph: 'EVD', categoryLabel: 'Evidência' },
-  analyst_note: { glyph: 'NOTE', categoryLabel: 'Observação do analista' },
-  hypothesis: { glyph: 'H', categoryLabel: 'Hipótese' },
-  detection_use_case: { glyph: 'UC', categoryLabel: 'Caso de uso de detecção' },
-}
-
-export const NODE_STATE_LABELS: Record<NodeState, string> = {
-  unknown: 'Desconhecido',
-  observed: 'Observado',
-  suspicious: 'Suspeito',
-  confirmed_malicious: 'Confirmado malicioso',
-  expected: 'Esperado',
-  false_positive: 'Falso positivo',
-  discarded: 'Descartado',
+export const NODE_GLYPHS: Record<CanvasNodeType, string> = {
+  mitre_tactic: 'TA',
+  mitre_technique: 'T',
+  mitre_subtechnique: 'T.',
+  alert: '!',
+  authentication_event: 'AUTH',
+  process: 'PROC',
+  command_line: '>_',
+  user: 'USR',
+  host: 'HOST',
+  ip_address: 'IP',
+  domain: 'DNS',
+  url: 'URL',
+  file: 'FILE',
+  file_hash: 'HASH',
+  registry_key: 'REG',
+  service: 'SVC',
+  scheduled_task: 'TASK',
+  network_connection: 'NET',
+  email: '@',
+  evidence: 'EVD',
+  analyst_note: 'NOTE',
+  hypothesis: 'H',
+  detection_use_case: 'UC',
 }
 
 export const NODE_STATE_MARKERS: Record<NodeState, string> = {
@@ -55,20 +37,14 @@ export const NODE_STATE_MARKERS: Record<NodeState, string> = {
   discarded: '--',
 }
 
-export const RELATIONSHIP_TYPE_LABELS: Record<RelationshipType, string> = {
-  executed_by: 'foi executado por',
-  executed_on: 'foi executado em',
-  parent_of: 'é pai de',
-  child_of: 'é filho de',
-  connected_to: 'conectou-se a',
-  downloaded_from: 'foi baixado de',
-  resolved_to: 'resolveu para',
-  authenticated_from: 'autenticou a partir de',
-  targeted: 'teve como alvo',
-  associated_with: 'está associado a',
-  supports_hypothesis: 'sustenta a hipótese',
-  contradicts_hypothesis: 'contradiz a hipótese',
-  maps_to: 'mapeia para',
-  occurred_before: 'ocorreu antes de',
-  occurred_after: 'ocorreu depois de',
+export function nodeCategoryKey(type: CanvasNodeType): TranslationKey {
+  return `nodeVisual.${type}` as TranslationKey
+}
+
+export function nodeStateKey(state: NodeState): TranslationKey {
+  return `nodeState.${state}` as TranslationKey
+}
+
+export function relationshipKey(type: RelationshipType): TranslationKey {
+  return `relationship.${type}` as TranslationKey
 }

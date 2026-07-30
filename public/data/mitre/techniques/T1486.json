@@ -4,29 +4,78 @@
   "type": "mitre_technique",
   "tactics": ["TA0040"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem criptografar dados em sistemas alvo para interromper a disponibilidade, tipicamente exigindo resgate para a chave de descriptografia (ransomware).",
+  "brief": {
+    "en": "Adversaries may encrypt data on target systems to disrupt availability, typically demanding a ransom for the decryption key (ransomware).",
+    "pt": "Adversários podem criptografar dados em sistemas alvo para interromper a disponibilidade, tipicamente exigindo resgate para a chave de descriptografia (ransomware).",
+    "de": "Angreifer können Daten auf Zielsystemen verschlüsseln, um die Verfügbarkeit zu stören, und typischerweise ein Lösegeld für den Entschlüsselungsschlüssel fordern (Ransomware)."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que arquivos estão sendo (ou foram) criptografados em massa em um ou mais hosts, tipicamente com extensão de arquivo alterada e nota de resgate.",
-    "why_it_matters": "É o estágio final e mais destrutivo de um ataque de ransomware; sua detecção precoce é crítica para limitar o número de hosts afetados.",
-    "suspicious_when": [
-      "Processo lendo e reescrevendo um grande volume de arquivos em curto período",
-      "Alteração em massa de extensões de arquivo",
-      "Criação de arquivos de nota de resgate em múltiplos diretórios",
-      "Exclusão de cópias de sombra (shadow copies) ou backups pouco antes do evento"
-    ],
-    "legitimate_when": [
-      "Ferramenta de backup ou criptografia de disco corporativa em execução programada",
-      "Atividade de compactação/criptografia documentada e aprovada"
-    ],
-    "common_mistakes": [
-      "Detectar o ransomware apenas na fase de criptografia, sem investigar o acesso inicial que o precedeu",
-      "Não verificar exclusão de backups como sinal de alerta antecipado",
-      "Restaurar sistemas sem antes identificar e conter a causa raiz do acesso"
-    ]
+    "what_it_means": {
+      "en": "Indicates that files are being (or were) encrypted en masse on one or more hosts, typically with a changed file extension and a ransom note.",
+      "pt": "Indica que arquivos estão sendo (ou foram) criptografados em massa em um ou mais hosts, tipicamente com extensão de arquivo alterada e nota de resgate.",
+      "de": "Zeigt an, dass Dateien auf einem oder mehreren Hosts massenhaft verschlüsselt werden (oder wurden), typischerweise mit geänderter Dateierweiterung und einer Lösegeldforderung."
+    },
+    "why_it_matters": {
+      "en": "It is the final and most destructive stage of a ransomware attack; detecting it early is critical to limit the number of affected hosts.",
+      "pt": "É o estágio final e mais destrutivo de um ataque de ransomware; sua detecção precoce é crítica para limitar o número de hosts afetados.",
+      "de": "Es ist die letzte und zerstörerischste Phase eines Ransomware-Angriffs; eine frühzeitige Erkennung ist entscheidend, um die Anzahl betroffener Hosts zu begrenzen."
+    },
+    "suspicious_when": {
+      "en": [
+        "A process reading and rewriting a large volume of files in a short period",
+        "Mass change of file extensions",
+        "Ransom note files created in multiple directories",
+        "Shadow copies or backups deleted shortly before the event"
+      ],
+      "pt": [
+        "Processo lendo e reescrevendo um grande volume de arquivos em curto período",
+        "Alteração em massa de extensões de arquivo",
+        "Criação de arquivos de nota de resgate em múltiplos diretórios",
+        "Exclusão de cópias de sombra (shadow copies) ou backups pouco antes do evento"
+      ],
+      "de": [
+        "Ein Prozess liest und schreibt in kurzer Zeit ein großes Volumen an Dateien um",
+        "Massenhafte Änderung von Dateierweiterungen",
+        "Erstellung von Lösegeldforderungsdateien in mehreren Verzeichnissen",
+        "Löschung von Schattenkopien oder Backups kurz vor dem Ereignis"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Corporate backup or disk encryption tool running on schedule",
+        "Documented and approved compression/encryption activity"
+      ],
+      "pt": [
+        "Ferramenta de backup ou criptografia de disco corporativa em execução programada",
+        "Atividade de compactação/criptografia documentada e aprovada"
+      ],
+      "de": [
+        "Planmäßig laufendes Unternehmens-Backup- oder Festplattenverschlüsselungstool",
+        "Dokumentierte und genehmigte Komprimierungs-/Verschlüsselungsaktivität"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Detecting ransomware only at the encryption stage, without investigating the initial access that preceded it",
+        "Not treating backup deletion as an early warning sign",
+        "Restoring systems before identifying and containing the root cause of access"
+      ],
+      "pt": [
+        "Detectar o ransomware apenas na fase de criptografia, sem investigar o acesso inicial que o precedeu",
+        "Não verificar exclusão de backups como sinal de alerta antecipado",
+        "Restaurar sistemas sem antes identificar e conter a causa raiz do acesso"
+      ],
+      "de": [
+        "Ransomware erst in der Verschlüsselungsphase zu erkennen, ohne den vorausgehenden Erstzugriff zu untersuchen",
+        "Backup-Löschung nicht als frühes Warnsignal zu behandeln",
+        "Systeme wiederherzustellen, bevor die Grundursache des Zugriffs identifiziert und eingedämmt wurde"
+      ]
+    }
   },
   "expected_evidence": ["file", "process", "host", "alert"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1486 Data Encrypted for Impact",

@@ -3,6 +3,7 @@ import { DetailsPanel } from '../features/investigation/components/DetailsPanel'
 import { HypothesisPanel } from '../features/hypotheses/components/HypothesisPanel'
 import { UseCasePanel } from '../features/use-cases/components/UseCasePanel'
 import type { KnowledgeBase } from '../shared/types/knowledge'
+import { useI18n } from '../shared/i18n'
 import './RightPanel.css'
 
 type Tab = 'details' | 'hypotheses' | 'useCases'
@@ -14,6 +15,7 @@ interface RightPanelProps {
 }
 
 export function RightPanel({ knowledgeBase, collapsed, onToggleCollapsed }: RightPanelProps) {
+  const { t } = useI18n()
   const [tab, setTab] = useState<Tab>('details')
 
   if (collapsed) {
@@ -23,8 +25,8 @@ export function RightPanel({ knowledgeBase, collapsed, onToggleCollapsed }: Righ
           type="button"
           className="right-panel__collapse-toggle"
           onClick={onToggleCollapsed}
-          aria-label="Expandir painel"
-          title="Expandir painel"
+          aria-label={t('rightPanel.expand')}
+          title={t('rightPanel.expand')}
         >
           «
         </button>
@@ -33,7 +35,7 @@ export function RightPanel({ knowledgeBase, collapsed, onToggleCollapsed }: Righ
   }
 
   return (
-    <aside className="right-panel" aria-label="Painel de detalhes e hipóteses">
+    <aside className="right-panel" aria-label={t('rightPanel.details')}>
       <div className="right-panel__tabs" role="tablist">
         <button
           type="button"
@@ -42,7 +44,7 @@ export function RightPanel({ knowledgeBase, collapsed, onToggleCollapsed }: Righ
           className={tab === 'details' ? 'active' : ''}
           onClick={() => setTab('details')}
         >
-          Detalhes
+          {t('rightPanel.details')}
         </button>
         <button
           type="button"
@@ -51,7 +53,7 @@ export function RightPanel({ knowledgeBase, collapsed, onToggleCollapsed }: Righ
           className={tab === 'hypotheses' ? 'active' : ''}
           onClick={() => setTab('hypotheses')}
         >
-          Hipóteses
+          {t('rightPanel.hypotheses')}
         </button>
         <button
           type="button"
@@ -60,14 +62,14 @@ export function RightPanel({ knowledgeBase, collapsed, onToggleCollapsed }: Righ
           className={tab === 'useCases' ? 'active' : ''}
           onClick={() => setTab('useCases')}
         >
-          Casos de Uso
+          {t('rightPanel.useCases')}
         </button>
         <button
           type="button"
           className="right-panel__collapse-toggle"
           onClick={onToggleCollapsed}
-          aria-label="Retrair painel"
-          title="Retrair painel"
+          aria-label={t('rightPanel.collapse')}
+          title={t('rightPanel.collapse')}
         >
           »
         </button>

@@ -4,26 +4,63 @@
   "type": "mitre_subtechnique",
   "tactics": ["TA0001"],
   "platforms": ["Windows", "Linux", "macOS", "Office 365", "Google Workspace"],
-  "brief": "Uma variante de phishing em que o vetor de acesso inicial é um anexo malicioso enviado por e-mail, direcionado a um alvo específico.",
+  "brief": {
+    "en": "A phishing variant where the initial access vector is a malicious attachment sent by email, targeted at a specific victim.",
+    "pt": "Uma variante de phishing em que o vetor de acesso inicial é um anexo malicioso enviado por e-mail, direcionado a um alvo específico.",
+    "de": "Eine Phishing-Variante, bei der der Erstzugriffsvektor ein bösartiger, per E-Mail versendeter Anhang ist, der auf ein bestimmtes Opfer abzielt."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que um e-mail direcionado contendo um anexo potencialmente malicioso foi entregue (e possivelmente aberto).",
-    "why_it_matters": "Diferente do phishing em massa, o spearphishing é direcionado, geralmente com maior sofisticação e taxa de sucesso.",
-    "suspicious_when": [
-      "Anexo do tipo documento com macro habilitada, script ou arquivo compactado protegido por senha",
-      "Anexo gera processo filho incomum ao ser aberto (ex: Word gerando PowerShell)",
-      "E-mail direcionado a cargos específicos (executivos, TI, financeiro)"
-    ],
-    "legitimate_when": [
-      "Anexo de fornecedor ou parceiro validado, com formato e comportamento esperados"
-    ],
-    "common_mistakes": [
-      "Não analisar a árvore de processos gerada após a abertura do anexo",
-      "Focar apenas na detecção de antivírus sobre o arquivo, ignorando o comportamento pós-abertura"
-    ]
+    "what_it_means": {
+      "en": "Indicates that a targeted email containing a potentially malicious attachment was delivered (and possibly opened).",
+      "pt": "Indica que um e-mail direcionado contendo um anexo potencialmente malicioso foi entregue (e possivelmente aberto).",
+      "de": "Zeigt an, dass eine gezielte E-Mail mit einem potenziell bösartigen Anhang zugestellt (und möglicherweise geöffnet) wurde."
+    },
+    "why_it_matters": {
+      "en": "Unlike mass phishing, spearphishing is targeted, usually with higher sophistication and success rate.",
+      "pt": "Diferente do phishing em massa, o spearphishing é direcionado, geralmente com maior sofisticação e taxa de sucesso.",
+      "de": "Im Gegensatz zu Massen-Phishing ist Spearphishing gezielt, meist mit höherer Raffinesse und Erfolgsquote."
+    },
+    "suspicious_when": {
+      "en": [
+        "Attachment is a document with an enabled macro, a script, or a password-protected archive",
+        "Attachment spawns an unusual child process when opened (e.g. Word spawning PowerShell)",
+        "Email targeted at specific roles (executives, IT, finance)"
+      ],
+      "pt": [
+        "Anexo do tipo documento com macro habilitada, script ou arquivo compactado protegido por senha",
+        "Anexo gera processo filho incomum ao ser aberto (ex: Word gerando PowerShell)",
+        "E-mail direcionado a cargos específicos (executivos, TI, financeiro)"
+      ],
+      "de": [
+        "Anhang ist ein Dokument mit aktiviertem Makro, ein Skript oder ein passwortgeschütztes Archiv",
+        "Anhang startet beim Öffnen einen ungewöhnlichen Kindprozess (z. B. Word startet PowerShell)",
+        "E-Mail richtet sich an bestimmte Rollen (Führungskräfte, IT, Finanzen)"
+      ]
+    },
+    "legitimate_when": {
+      "en": ["Attachment from a validated vendor or partner, with expected format and behavior"],
+      "pt": ["Anexo de fornecedor ou parceiro validado, com formato e comportamento esperados"],
+      "de": ["Anhang eines validierten Anbieters oder Partners mit erwartetem Format und Verhalten"]
+    },
+    "common_mistakes": {
+      "en": [
+        "Not analyzing the process tree generated after opening the attachment",
+        "Focusing only on antivirus detection of the file, ignoring post-open behavior"
+      ],
+      "pt": [
+        "Não analisar a árvore de processos gerada após a abertura do anexo",
+        "Focar apenas na detecção de antivírus sobre o arquivo, ignorando o comportamento pós-abertura"
+      ],
+      "de": [
+        "Den nach dem Öffnen des Anhangs erzeugten Prozessbaum nicht zu analysieren",
+        "Sich nur auf die Antiviren-Erkennung der Datei zu konzentrieren und das Verhalten nach dem Öffnen zu ignorieren"
+      ]
+    }
   },
   "expected_evidence": ["email", "file", "process", "user", "host"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1566.001 Spearphishing Attachment",

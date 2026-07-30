@@ -1,4 +1,5 @@
 import type { CanvasNodeType, RelationshipType } from './investigation'
+import type { LocalizedList, LocalizedText } from '../i18n/types'
 
 export interface MitreReference {
   title: string
@@ -6,11 +7,11 @@ export interface MitreReference {
 }
 
 export interface InvestigationContext {
-  what_it_means: string
-  why_it_matters: string
-  suspicious_when: string[]
-  legitimate_when: string[]
-  common_mistakes: string[]
+  what_it_means: LocalizedText
+  why_it_matters: LocalizedText
+  suspicious_when: LocalizedList
+  legitimate_when: LocalizedList
+  common_mistakes: LocalizedList
 }
 
 export interface MitreTactic {
@@ -19,17 +20,25 @@ export interface MitreTactic {
   shortName: string
 }
 
+export interface DetectionAnalytic {
+  id: string
+  detectionStrategyId: string
+  description: LocalizedText
+  url: string
+}
+
 export interface MitreTechnique {
   id: string
   name: string
   type: 'mitre_technique' | 'mitre_subtechnique'
   tactics: string[]
   platforms: string[]
-  brief: string
+  brief: LocalizedText
   investigation_context: InvestigationContext
   expected_evidence: CanvasNodeType[]
   related_hypotheses: string[]
   suggested_checks: string[]
+  detection_analytics: DetectionAnalytic[]
   references: MitreReference[]
 }
 
@@ -37,23 +46,23 @@ export type EvidenceFieldType = 'string' | 'number' | 'boolean' | 'ip' | 'dateti
 
 export interface EvidenceFieldDefinition {
   id: string
-  label: string
+  label: LocalizedText
   type: EvidenceFieldType
   required: boolean
 }
 
 export interface EvidenceEducationalContent {
-  why_it_matters: string
-  suspicious_when: string[]
-  legitimate_when: string[]
+  why_it_matters: LocalizedText
+  suspicious_when: LocalizedList
+  legitimate_when: LocalizedList
 }
 
 export interface EvidenceTypeDefinition {
   id: string
-  name: string
+  name: LocalizedText
   category: string
   node_type: CanvasNodeType
-  brief: string
+  brief: LocalizedText
   fields: EvidenceFieldDefinition[]
   educational_content: EvidenceEducationalContent
 }
@@ -82,25 +91,25 @@ export interface HypothesisCondition {
   operator: ConditionOperator
   value?: unknown
   weight: number
-  description: string
+  description: LocalizedText
 }
 
 export interface ExplanationTemplates {
-  summary: string
-  missing: string
-  counterpoints: string
+  summary: LocalizedText
+  missing: LocalizedText
+  counterpoints: LocalizedText
 }
 
 export interface HypothesisReportTemplate {
-  title: string
-  summary: string
+  title: LocalizedText
+  summary: LocalizedText
 }
 
 export interface HypothesisDefinition {
   id: string
-  name: string
+  name: LocalizedText
   category: string
-  description: string
+  description: LocalizedText
   mitre: string[]
   base_score: number
   minimum_score: number
@@ -109,7 +118,7 @@ export interface HypothesisDefinition {
   negative_conditions: HypothesisCondition[]
   recommended_checks: string[]
   explanation_templates: ExplanationTemplates
-  false_positive_context: string[]
+  false_positive_context: LocalizedList
   report_template: HypothesisReportTemplate
 }
 
@@ -122,15 +131,15 @@ export interface CheckAnswerEffect {
 
 export interface CheckAnswer {
   value: string
-  label: string
+  label: LocalizedText
   effects: CheckAnswerEffect[]
 }
 
 export interface RecommendedCheckDefinition {
   id: string
-  title: string
-  description: string
-  reason: string
+  title: LocalizedText
+  description: LocalizedText
+  reason: LocalizedText
   expected_evidence_types: CanvasNodeType[]
   priority: CheckPriority
   answers: CheckAnswer[]
@@ -138,14 +147,14 @@ export interface RecommendedCheckDefinition {
 
 export interface DetectionStrategyReference {
   id: string
-  name: string
+  name: LocalizedText
   url: string
 }
 
 export interface UseCaseInvestigationStep {
   order: number
   techniqueId: string
-  instruction: string
+  instruction: LocalizedText
   detectionStrategies: DetectionStrategyReference[]
 }
 
@@ -156,12 +165,12 @@ export interface SourceReference {
 
 export interface UseCaseDefinition {
   id: string
-  name: string
-  description: string
+  name: LocalizedText
+  description: LocalizedText
   tactics: string[]
   techniques: string[]
   investigationSteps: UseCaseInvestigationStep[]
-  dataSources: string[]
+  dataSources: LocalizedList
   relatedHypotheses: string[]
   sourceReference: SourceReference | null
 }
@@ -169,14 +178,14 @@ export interface UseCaseDefinition {
 export interface RelationshipRule {
   id: string
   type: RelationshipType
-  label: string
+  label: LocalizedText
   from: CanvasNodeType
   to: CanvasNodeType
   match: {
     sourceField: string
     targetField: string
   }
-  explanation: string
+  explanation: LocalizedText
   automatic: true
 }
 

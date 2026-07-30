@@ -2,27 +2,43 @@
   {
     "id": "rel.authentication_source_ip",
     "type": "authenticated_from",
-    "label": "autenticou a partir de",
+    "label": {
+      "en": "authenticated from",
+      "pt": "autenticou a partir de",
+      "de": "authentifiziert von"
+    },
     "from": "authentication_event",
     "to": "ip_address",
     "match": {
       "sourceField": "source_ip",
       "targetField": "value"
     },
-    "explanation": "O evento de autenticação registra este endereço IP como origem.",
+    "explanation": {
+      "en": "The authentication event records this IP address as the source.",
+      "pt": "O evento de autenticação registra este endereço IP como origem.",
+      "de": "Das Authentifizierungsereignis verzeichnet diese IP-Adresse als Quelle."
+    },
     "automatic": true
   },
   {
     "id": "rel.authentication_targeted_user",
     "type": "targeted",
-    "label": "teve como alvo",
+    "label": {
+      "en": "targeted",
+      "pt": "teve como alvo",
+      "de": "hatte als Ziel"
+    },
     "from": "authentication_event",
     "to": "user",
     "match": {
       "sourceField": "target_users",
       "targetField": "username"
     },
-    "explanation": "O usuário aparece como alvo do evento de autenticação.",
+    "explanation": {
+      "en": "The user appears as a target of the authentication event.",
+      "pt": "O usuário aparece como alvo do evento de autenticação.",
+      "de": "Der Benutzer erscheint als Ziel des Authentifizierungsereignisses."
+    },
     "automatic": true
   }
 ]

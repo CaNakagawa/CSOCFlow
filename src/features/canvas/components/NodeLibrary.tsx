@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import Fuse from 'fuse.js'
 import type { LibraryItem } from '../types/libraryItem'
+import { CATEGORY_TRANSLATION_KEYS } from '../types/libraryItem'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import { nextGridPosition } from '../../../shared/utils/layout'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
+import { useI18n, type TranslationKey } from '../../../shared/i18n'
 import './NodeLibrary.css'
 
 interface NodeLibraryProps {
@@ -13,37 +15,26 @@ interface NodeLibraryProps {
   onToggleCollapsed: () => void
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  authentication: 'Autenticação',
-  identity: 'Identidade',
-  infrastructure: 'Infraestrutura',
-}
-
 const CATEGORY_ORDER = [
-  'Táticas MITRE ATT&CK',
-  'Técnicas MITRE ATT&CK',
-  'Casos de Uso',
-  'Alertas',
-  'Autenticação',
-  'Identidade',
-  'Infraestrutura',
-  'Evidências',
-  'Observações do Analista',
+  'tactics',
+  'techniques',
+  'useCases',
+  'alerts',
+  'authentication',
+  'identity',
+  'infrastructure',
+  'evidence',
+  'analystNotes',
 ]
 
-const TECHNIQUES_CATEGORY = 'Técnicas MITRE ATT&CK'
-
-function categoryLabel(raw: string): string {
-  return CATEGORY_LABELS[raw] ?? raw
-}
+const TECHNIQUES_CATEGORY = 'techniques'
 
 function groupByCategory(items: LibraryItem[]): [string, LibraryItem[]][] {
   const groups = new Map<string, LibraryItem[]>()
   for (const item of items) {
-    const label = categoryLabel(item.category)
-    const bucket = groups.get(label)
+    const bucket = groups.get(item.category)
     if (bucket) bucket.push(item)
-    else groups.set(label, [item])
+    else groups.set(item.category, [item])
   }
   return Array.from(groups.entries()).sort(([a], [b]) => {
     const ia = CATEGORY_ORDER.indexOf(a)
@@ -64,12 +55,8 @@ function groupTechniquesByParent(items: LibraryItem[]) {
   }))
 }
 
-export function NodeLibrary({
-  items,
-  knowledgeBase,
-  collapsed,
-  onToggleCollapsed,
-}: NodeLibraryProps) {
+export function NodeLibrary({ items, knowledgeBase, collapsed, onToggleCollapsed }: NodeLibraryProps) {
+  const { t, locale } = useI18n()
   const [query, setQuery] = useState('')
   const [expandedTechniques, setExpandedTechniques] = useState<Set<string>>(new Set())
   const addNode = useInvestigationStore((s) => s.addNode)
@@ -88,6 +75,11 @@ export function NodeLibrary({
 
   const groups = useMemo(() => groupByCategory(items), [items])
 
+  function categoryLabel(category: string): string {
+    const key = CATEGORY_TRANSLATION_KEYS[category]
+    return key ? t(key as TranslationKey) : category
+  }
+
   function toggleExpanded(definitionId: string) {
     setExpandedTechniques((prev) => {
       const next = new Set(prev)
@@ -100,7 +92,7 @@ export function NodeLibrary({
   function handleItemClick(item: LibraryItem) {
     if (item.isUseCase && knowledgeBase) {
       const useCase = knowledgeBase.useCases.find((u) => u.id === item.definitionId)
-      if (useCase) applyUseCase(useCase, knowledgeBase)
+      if (useCase) applyUseCase(useCase, knowledgeBase, locale)
       return
     }
     addNode({
@@ -139,7 +131,9 @@ export function NodeLibrary({
                   <button
                     type="button"
                     className="node-library__expand"
-                    aria-label={expanded ? 'Recolher subtécnicas' : 'Expandir subtécnicas'}
+                    aria-label={
+                      expanded ? t('library.collapseSubtechniques') : t('library.expandSubtechniques')
+                    }
                     aria-expanded={expanded}
                     onClick={() => toggleExpanded(parent.definitionId)}
                   >
@@ -174,8 +168,8 @@ export function NodeLibrary({
           type="button"
           className="node-library__collapse-toggle"
           onClick={onToggleCollapsed}
-          aria-label="Expandir biblioteca"
-          title="Expandir biblioteca"
+          aria-label={t('library.expand')}
+          title={t('library.expand')}
         >
           »
         </button>
@@ -184,15 +178,15 @@ export function NodeLibrary({
   }
 
   return (
-    <aside className="node-library" aria-label="Biblioteca de elementos investigativos">
+    <aside className="node-library" aria-label={t('library.title')}>
       <div className="node-library__header">
-        <h2 className="node-library__title">Biblioteca</h2>
+        <h2 className="node-library__title">{t('library.title')}</h2>
         <button
           type="button"
           className="node-library__collapse-toggle"
           onClick={onToggleCollapsed}
-          aria-label="Retrair biblioteca"
-          title="Retrair biblioteca"
+          aria-label={t('library.collapse')}
+          title={t('library.collapse')}
         >
           «
         </button>
@@ -200,32 +194,28 @@ export function NodeLibrary({
       <input
         type="search"
         className="node-library__search"
-        placeholder="Buscar técnica, evidência..."
+        placeholder={t('library.searchPlaceholder')}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        aria-label="Buscar na biblioteca"
+        aria-label={t('library.searchLabel')}
       />
 
       {searchResults ? (
         <ul className="node-library__list">
           {searchResults.map((item) => renderItem(item))}
-          {searchResults.length === 0 && (
-            <li className="node-library__empty">Nenhum item encontrado.</li>
-          )}
+          {searchResults.length === 0 && <li className="node-library__empty">{t('library.empty')}</li>}
         </ul>
       ) : (
         <div className="node-library__groups">
-          {groups.map(([label, groupItems], index) => (
-            <details key={label} className="node-library__group" open={index === 0}>
+          {groups.map(([category, groupItems], index) => (
+            <details key={category} className="node-library__group" open={index === 0}>
               <summary className="node-library__group-summary">
-                {label}
+                {categoryLabel(category)}
                 <span className="node-library__group-count">{groupItems.length}</span>
               </summary>
-              {label === TECHNIQUES_CATEGORY ? (
-                renderTechniqueList(groupItems)
-              ) : (
-                <ul className="node-library__list">{groupItems.map((item) => renderItem(item))}</ul>
-              )}
+              {category === TECHNIQUES_CATEGORY
+                ? renderTechniqueList(groupItems)
+                : <ul className="node-library__list">{groupItems.map((item) => renderItem(item))}</ul>}
             </details>
           ))}
         </div>

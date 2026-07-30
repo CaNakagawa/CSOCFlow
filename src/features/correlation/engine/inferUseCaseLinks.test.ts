@@ -3,14 +3,17 @@ import { inferUseCaseLinks } from './inferUseCaseLinks'
 import type { InvestigationNode } from '../../../shared/types/investigation'
 import type { UseCaseDefinition } from '../../../shared/types/knowledge'
 
+const L = (text: string) => ({ en: text, pt: text, de: text })
+const LL = (items: string[]) => ({ en: items, pt: items, de: items })
+
 const useCase: UseCaseDefinition = {
   id: 'use-case.user_account_created_deleted',
-  name: 'User Account Created/Deleted',
-  description: '',
+  name: L('User Account Created/Deleted'),
+  description: L(''),
   tactics: ['TA0003', 'TA0004'],
   techniques: ['T1098', 'T1078'],
   investigationSteps: [],
-  dataSources: [],
+  dataSources: LL([]),
   relatedHypotheses: [],
   sourceReference: null,
 }
@@ -38,7 +41,7 @@ describe('inferUseCaseLinks', () => {
       node({ id: 't2', type: 'mitre_technique', definitionId: 'T1078' }),
     ]
 
-    const edges = inferUseCaseLinks(nodes, [useCase])
+    const edges = inferUseCaseLinks(nodes, [useCase], 'en')
 
     expect(edges).toHaveLength(2)
     expect(edges.every((e) => e.source === 'uc1' && e.type === 'maps_to' && e.automatic)).toBe(true)
@@ -51,7 +54,7 @@ describe('inferUseCaseLinks', () => {
       node({ id: 't1', type: 'mitre_technique', definitionId: 'T1098' }),
     ]
 
-    const edges = inferUseCaseLinks(nodes, [useCase])
+    const edges = inferUseCaseLinks(nodes, [useCase], 'en')
 
     expect(edges).toHaveLength(1)
     expect(edges[0].target).toBe('t1')
@@ -62,6 +65,6 @@ describe('inferUseCaseLinks', () => {
       node({ id: 't1', type: 'mitre_technique', definitionId: 'T1098' }),
     ]
 
-    expect(inferUseCaseLinks(nodes, [useCase])).toEqual([])
+    expect(inferUseCaseLinks(nodes, [useCase], 'en')).toEqual([])
   })
 })

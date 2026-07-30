@@ -4,29 +4,78 @@
   "type": "mitre_technique",
   "tactics": ["TA0011"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem se comunicar com sistemas comprometidos usando protocolos de camada de aplicação (HTTP, HTTPS, DNS etc.) para se misturar com o tráfego normal da rede.",
+  "brief": {
+    "en": "Adversaries may communicate with compromised systems using application layer protocols (HTTP, HTTPS, DNS, etc.) to blend in with normal network traffic.",
+    "pt": "Adversários podem se comunicar com sistemas comprometidos usando protocolos de camada de aplicação (HTTP, HTTPS, DNS etc.) para se misturar com o tráfego normal da rede.",
+    "de": "Angreifer können mit kompromittierten Systemen über Anwendungsschicht-Protokolle (HTTP, HTTPS, DNS usw.) kommunizieren, um sich im normalen Netzwerkverkehr zu tarnen."
+  },
   "investigation_context": {
-    "what_it_means": "Indica comunicação de rede usando um protocolo de aplicação comum, potencialmente como canal de comando e controle (C2).",
-    "why_it_matters": "Usar protocolos comuns dificulta a diferenciação entre tráfego legítimo e malicioso, já que o C2 se mistura ao tráfego web/DNS normal do ambiente.",
-    "suspicious_when": [
-      "Conexão para domínio recém-registrado ou com reputação suspeita",
-      "Padrão de beaconing (conexões periódicas e regulares para o mesmo destino)",
-      "Processo incomum realizando a conexão (ex: processo do sistema conectando à internet)",
-      "Volume ou horário de tráfego incompatível com o uso normal do host"
-    ],
-    "legitimate_when": [
-      "Conexão para serviço/domínio corporativo conhecido",
-      "Padrão de tráfego consistente com aplicações legítimas instaladas"
-    ],
-    "common_mistakes": [
-      "Assumir que tráfego HTTPS é sempre seguro por estar criptografado",
-      "Não avaliar reputação e idade do domínio de destino",
-      "Ignorar metadados de conexão (processo de origem, frequência, volume)"
-    ]
+    "what_it_means": {
+      "en": "Indicates network communication using a common application protocol, potentially as a command-and-control (C2) channel.",
+      "pt": "Indica comunicação de rede usando um protocolo de aplicação comum, potencialmente como canal de comando e controle (C2).",
+      "de": "Zeigt Netzwerkkommunikation über ein gängiges Anwendungsprotokoll an, möglicherweise als Command-and-Control-Kanal (C2)."
+    },
+    "why_it_matters": {
+      "en": "Using common protocols makes it harder to tell legitimate from malicious traffic, since C2 blends with normal web/DNS traffic in the environment.",
+      "pt": "Usar protocolos comuns dificulta a diferenciação entre tráfego legítimo e malicioso, já que o C2 se mistura ao tráfego web/DNS normal do ambiente.",
+      "de": "Die Verwendung gängiger Protokolle erschwert die Unterscheidung zwischen legitimem und bösartigem Verkehr, da sich C2 mit normalem Web-/DNS-Verkehr vermischt."
+    },
+    "suspicious_when": {
+      "en": [
+        "Connection to a recently registered or suspicious-reputation domain",
+        "Beaconing pattern (periodic, regular connections to the same destination)",
+        "Unusual process making the connection (e.g. a system process reaching the internet)",
+        "Traffic volume or timing inconsistent with normal host usage"
+      ],
+      "pt": [
+        "Conexão para domínio recém-registrado ou com reputação suspeita",
+        "Padrão de beaconing (conexões periódicas e regulares para o mesmo destino)",
+        "Processo incomum realizando a conexão (ex: processo do sistema conectando à internet)",
+        "Volume ou horário de tráfego incompatível com o uso normal do host"
+      ],
+      "de": [
+        "Verbindung zu einer kürzlich registrierten oder verdächtigen Domain",
+        "Beaconing-Muster (periodische, regelmäßige Verbindungen zum selben Ziel)",
+        "Ungewöhnlicher Prozess stellt die Verbindung her (z. B. ein Systemprozess mit Internetzugriff)",
+        "Verkehrsvolumen oder -zeitpunkt passt nicht zur normalen Hostnutzung"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Connection to a known corporate service/domain",
+        "Traffic pattern consistent with legitimate installed applications"
+      ],
+      "pt": [
+        "Conexão para serviço/domínio corporativo conhecido",
+        "Padrão de tráfego consistente com aplicações legítimas instaladas"
+      ],
+      "de": [
+        "Verbindung zu einem bekannten Unternehmensdienst/einer bekannten Domain",
+        "Verkehrsmuster stimmt mit legitim installierten Anwendungen überein"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Assuming HTTPS traffic is always safe because it is encrypted",
+        "Not assessing the reputation and age of the destination domain",
+        "Ignoring connection metadata (source process, frequency, volume)"
+      ],
+      "pt": [
+        "Assumir que tráfego HTTPS é sempre seguro por estar criptografado",
+        "Não avaliar reputação e idade do domínio de destino",
+        "Ignorar metadados de conexão (processo de origem, frequência, volume)"
+      ],
+      "de": [
+        "Anzunehmen, dass HTTPS-Verkehr immer sicher ist, weil er verschlüsselt ist",
+        "Reputation und Alter der Zieldomain nicht zu bewerten",
+        "Verbindungsmetadaten (Ursprungsprozess, Häufigkeit, Volumen) zu ignorieren"
+      ]
+    }
   },
   "expected_evidence": ["network_connection", "domain", "ip_address", "process"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1071 Application Layer Protocol",

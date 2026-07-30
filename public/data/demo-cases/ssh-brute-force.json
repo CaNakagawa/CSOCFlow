@@ -7,8 +7,8 @@
     "caseId": "DEMO-001",
     "createdAt": "2026-07-29T09:00:00.000Z",
     "updatedAt": "2026-07-29T09:00:00.000Z",
-    "analyst": "Analista de plantão",
-    "description": "Caso de demonstração: múltiplas tentativas de autenticação SSH a partir de um único IP com reputação maliciosa, seguidas de uma autenticação bem-sucedida.",
+    "analyst": "On-call analyst",
+    "description": "Demo case: multiple SSH authentication attempts from a single IP with a malicious reputation, followed by a successful authentication.",
     "status": "open",
     "conclusion": null
   },
@@ -19,7 +19,7 @@
         "id": "demo-node-failed-auth",
         "definitionId": "evidence.authentication.failed_ssh",
         "type": "authentication_event",
-        "label": "Falhas de autenticação SSH",
+        "label": "Failed SSH authentications",
         "state": "suspicious",
         "position": { "x": 80, "y": 80 },
         "fields": {
@@ -30,7 +30,7 @@
           "target_users": ["root", "admin", "deploy"],
           "timestamp": "2026-07-29T02:00:00.000Z"
         },
-        "notes": "Detectado pelo alerta de força bruta do EDR.",
+        "notes": "Detected by the EDR brute force alert.",
         "createdAt": "2026-07-29T09:00:00.000Z",
         "updatedAt": "2026-07-29T09:00:00.000Z"
       },
@@ -38,7 +38,7 @@
         "id": "demo-node-success-auth",
         "definitionId": "evidence.authentication.successful_login",
         "type": "authentication_event",
-        "label": "Autenticação bem-sucedida",
+        "label": "Successful authentication",
         "state": "suspicious",
         "position": { "x": 340, "y": 80 },
         "fields": {
@@ -48,7 +48,7 @@
           "target_users": ["root"],
           "timestamp": "2026-07-29T02:47:00.000Z"
         },
-        "notes": "Ocorreu 47 minutos após o início das falhas.",
+        "notes": "Occurred 47 minutes after the failures began.",
         "createdAt": "2026-07-29T09:00:00.000Z",
         "updatedAt": "2026-07-29T09:00:00.000Z"
       },
@@ -63,9 +63,9 @@
           "value": "198.51.100.23",
           "reputation": "malicious",
           "is_approved_scanner": false,
-          "country": "Desconhecido"
+          "country": "Unknown"
         },
-        "notes": "Classificado como malicioso por fonte de threat intelligence.",
+        "notes": "Classified as malicious by a threat intelligence source.",
         "createdAt": "2026-07-29T09:00:00.000Z",
         "updatedAt": "2026-07-29T09:00:00.000Z"
       },
@@ -95,7 +95,7 @@
           "hostname": "bastion-01",
           "internet_facing": true
         },
-        "notes": "Host exposto à internet para acesso administrativo remoto.",
+        "notes": "Internet-facing host used for remote administrative access.",
         "createdAt": "2026-07-29T09:00:00.000Z",
         "updatedAt": "2026-07-29T09:00:00.000Z"
       }
@@ -108,13 +108,13 @@
       "id": "demo-timeline-1",
       "nodeId": "demo-node-failed-auth",
       "timestamp": "2026-07-29T02:00:00.000Z",
-      "label": "Início das falhas de autenticação SSH"
+      "label": "Start of SSH authentication failures"
     },
     {
       "id": "demo-timeline-2",
       "nodeId": "demo-node-success-auth",
       "timestamp": "2026-07-29T02:47:00.000Z",
-      "label": "Autenticação bem-sucedida como root"
+      "label": "Successful authentication as root"
     }
   ],
   "report": {

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { generateId } from '../../../shared/utils/id'
 import type {
+  AnalyticStatus,
   CanvasNodeType,
   InvestigationEdge,
   InvestigationMeta,
@@ -19,6 +20,8 @@ import type {
   UseCaseSuggestion,
 } from '../../../shared/types/correlation'
 import type { Investigation } from '../../../shared/types/investigation'
+import { getStoredLocale, localize, type Locale } from '../../../shared/i18n/types'
+import { translate } from '../../../shared/i18n/translate'
 import { nextGridPosition } from '../../../shared/utils/layout'
 
 export interface Viewport {
@@ -58,7 +61,7 @@ function createMeta(): InvestigationMeta {
   const now = new Date().toISOString()
   return {
     id: generateId('investigation'),
-    title: 'Nova investigação',
+    title: translate(getStoredLocale(), 'investigation.untitled'),
     caseId: '',
     createdAt: now,
     updatedAt: now,
@@ -88,10 +91,11 @@ interface InvestigationState {
     position: { x: number; y: number }
     fieldDefinitions: EvidenceFieldDefinition[]
   }) => string
-  applyUseCase: (useCase: UseCaseDefinition, knowledgeBase: KnowledgeBase) => void
+  applyUseCase: (useCase: UseCaseDefinition, knowledgeBase: KnowledgeBase, locale: Locale) => void
   updateNodeFields: (nodeId: string, fields: Record<string, unknown>) => void
   updateNodeState: (nodeId: string, state: NodeState) => void
   updateNodeNotes: (nodeId: string, notes: string) => void
+  setAnalyticStatus: (nodeId: string, analyticId: string, status: AnalyticStatus) => void
   moveNode: (nodeId: string, position: { x: number; y: number }) => void
   removeNode: (nodeId: string) => void
   duplicateNode: (nodeId: string) => string | undefined
@@ -162,7 +166,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     return id
   },
 
-  applyUseCase: (useCase, knowledgeBase) => {
+  applyUseCase: (useCase, knowledgeBase, locale) => {
     set((state) => {
       const now = new Date().toISOString()
       const nodes = [...state.nodes]
@@ -175,7 +179,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
           id: generateId('node'),
           definitionId: useCase.id,
           type: 'detection_use_case',
-          label: useCase.name,
+          label: localize(useCase.name, locale),
           state: 'unknown',
           position: nextGridPosition(nodes.length),
           fields: {},
@@ -237,6 +241,20 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     set((state) => ({
       nodes: state.nodes.map((n) =>
         n.id === nodeId ? { ...n, notes, updatedAt: new Date().toISOString() } : n,
+      ),
+    }))
+  },
+
+  setAnalyticStatus: (nodeId, analyticId, status) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId
+          ? {
+              ...n,
+              analyticStatuses: { ...n.analyticStatuses, [analyticId]: status },
+              updatedAt: new Date().toISOString(),
+            }
+          : n,
       ),
     }))
   },

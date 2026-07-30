@@ -4,29 +4,78 @@
   "type": "mitre_technique",
   "tactics": ["TA0004", "TA0005"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem injetar código em processos legítimos para executar em seu contexto, evitando defesas baseadas em detecção de processo e possivelmente elevando privilégios.",
+  "brief": {
+    "en": "Adversaries may inject code into legitimate processes to execute in their context, evading process-based defenses and potentially elevating privileges.",
+    "pt": "Adversários podem injetar código em processos legítimos para executar em seu contexto, evitando defesas baseadas em detecção de processo e possivelmente elevando privilégios.",
+    "de": "Angreifer können Code in legitime Prozesse injizieren, um in deren Kontext ausgeführt zu werden, prozessbasierte Abwehrmaßnahmen zu umgehen und möglicherweise Rechte zu erweitern."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que código foi executado dentro do espaço de memória de outro processo, em vez de rodar como um processo próprio e independente.",
-    "why_it_matters": "É uma técnica de evasão de defesa muito usada, pois o código malicioso passa a operar sob a identidade de um processo confiável (ex: explorer.exe, svchost.exe), dificultando a detecção.",
-    "suspicious_when": [
-      "Processo legítimo do sistema com conexões de rede ou comportamento incomum",
-      "Chamadas de API associadas a injeção (CreateRemoteThread, VirtualAllocEx) sem contexto esperado",
-      "Processo confiável carregando módulos não assinados ou fora do padrão",
-      "Discrepância entre o processo esperado e sua árvore de processos/rede observada"
-    ],
-    "legitimate_when": [
-      "Uso por ferramentas de segurança, depuração ou virtualização conhecidas",
-      "Comportamento documentado de software de terceiros legítimo"
-    ],
-    "common_mistakes": [
-      "Confiar apenas no nome do processo sem validar seu comportamento",
-      "Não correlacionar o processo injetado com a atividade de rede/arquivo observada",
-      "Ignorar sinais de injeção por não haver um novo processo criado"
-    ]
+    "what_it_means": {
+      "en": "Indicates that code ran inside the memory space of another process, instead of running as its own independent process.",
+      "pt": "Indica que código foi executado dentro do espaço de memória de outro processo, em vez de rodar como um processo próprio e independente.",
+      "de": "Zeigt an, dass Code innerhalb des Speicherbereichs eines anderen Prozesses ausgeführt wurde, statt als eigener unabhängiger Prozess."
+    },
+    "why_it_matters": {
+      "en": "It is a widely used defense evasion technique, since the malicious code ends up running under the identity of a trusted process (e.g. explorer.exe, svchost.exe), making detection harder.",
+      "pt": "É uma técnica de evasão de defesa muito usada, pois o código malicioso passa a operar sob a identidade de um processo confiável (ex: explorer.exe, svchost.exe), dificultando a detecção.",
+      "de": "Es ist eine weit verbreitete Technik zur Umgehung von Abwehrmaßnahmen, da der bösartige Code unter der Identität eines vertrauenswürdigen Prozesses (z. B. explorer.exe, svchost.exe) läuft, was die Erkennung erschwert."
+    },
+    "suspicious_when": {
+      "en": [
+        "A legitimate system process with unusual network connections or behavior",
+        "API calls associated with injection (CreateRemoteThread, VirtualAllocEx) without expected context",
+        "Trusted process loading unsigned or unusual modules",
+        "Mismatch between the expected process and its observed process tree/network activity"
+      ],
+      "pt": [
+        "Processo legítimo do sistema com conexões de rede ou comportamento incomum",
+        "Chamadas de API associadas a injeção (CreateRemoteThread, VirtualAllocEx) sem contexto esperado",
+        "Processo confiável carregando módulos não assinados ou fora do padrão",
+        "Discrepância entre o processo esperado e sua árvore de processos/rede observada"
+      ],
+      "de": [
+        "Legitimer Systemprozess mit ungewöhnlichen Netzwerkverbindungen oder Verhalten",
+        "API-Aufrufe im Zusammenhang mit Injektion (CreateRemoteThread, VirtualAllocEx) ohne erwarteten Kontext",
+        "Vertrauenswürdiger Prozess lädt unsignierte oder unübliche Module",
+        "Diskrepanz zwischen erwartetem Prozess und beobachtetem Prozessbaum/Netzwerkverhalten"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Used by known security, debugging or virtualization tools",
+        "Documented behavior of legitimate third-party software"
+      ],
+      "pt": [
+        "Uso por ferramentas de segurança, depuração ou virtualização conhecidas",
+        "Comportamento documentado de software de terceiros legítimo"
+      ],
+      "de": [
+        "Verwendung durch bekannte Sicherheits-, Debugging- oder Virtualisierungstools",
+        "Dokumentiertes Verhalten legitimer Drittanbietersoftware"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Trusting only the process name without validating its behavior",
+        "Not correlating the injected process with observed file/network activity",
+        "Ignoring injection signs because no new process was created"
+      ],
+      "pt": [
+        "Confiar apenas no nome do processo sem validar seu comportamento",
+        "Não correlacionar o processo injetado com a atividade de rede/arquivo observada",
+        "Ignorar sinais de injeção por não haver um novo processo criado"
+      ],
+      "de": [
+        "Sich nur auf den Prozessnamen zu verlassen, ohne dessen Verhalten zu validieren",
+        "Den injizierten Prozess nicht mit beobachteter Netzwerk-/Dateiaktivität zu korrelieren",
+        "Anzeichen von Injektion zu ignorieren, weil kein neuer Prozess erstellt wurde"
+      ]
+    }
   },
   "expected_evidence": ["process", "host", "network_connection"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1055 Process Injection",

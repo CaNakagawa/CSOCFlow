@@ -44,6 +44,12 @@ const relationshipTypeSchema = z.enum([
   'occurred_after',
 ])
 
+const localizedTextSchema = z.object({
+  en: z.string(),
+  pt: z.string(),
+  de: z.string(),
+})
+
 export const mitreTacticSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -53,13 +59,13 @@ export const mitreTacticSchema = z.object({
 export const relationshipRuleSchema = z.object({
   id: z.string(),
   type: relationshipTypeSchema,
-  label: z.string(),
+  label: localizedTextSchema,
   from: canvasNodeTypeSchema,
   to: canvasNodeTypeSchema,
   match: z.object({
     sourceField: z.string(),
     targetField: z.string(),
   }),
-  explanation: z.string(),
+  explanation: localizedTextSchema,
   automatic: z.literal(true),
 })

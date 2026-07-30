@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { combineEdges, useInvestigationStore } from './investigationStore'
 import type { KnowledgeBase, UseCaseDefinition } from '../../../shared/types/knowledge'
 
+const L = (text: string) => ({ en: text, pt: text, de: text })
+const LL = (items: string[]) => ({ en: items, pt: items, de: items })
+
 function makeKnowledgeBaseWithTechniques(): KnowledgeBase {
   return {
     version: '1.0.0',
@@ -13,14 +16,15 @@ function makeKnowledgeBaseWithTechniques(): KnowledgeBase {
         type: 'mitre_technique',
         tactics: ['TA0003'],
         platforms: [],
-        brief: '',
+        brief: L(''),
         investigation_context: {
-          what_it_means: '',
-          why_it_matters: '',
-          suspicious_when: [],
-          legitimate_when: [],
-          common_mistakes: [],
+          what_it_means: L(''),
+          why_it_matters: L(''),
+          suspicious_when: LL([]),
+          legitimate_when: LL([]),
+          common_mistakes: LL([]),
         },
+        detection_analytics: [],
         expected_evidence: [],
         related_hypotheses: [],
         suggested_checks: [],
@@ -32,14 +36,15 @@ function makeKnowledgeBaseWithTechniques(): KnowledgeBase {
         type: 'mitre_technique',
         tactics: ['TA0003'],
         platforms: [],
-        brief: '',
+        brief: L(''),
         investigation_context: {
-          what_it_means: '',
-          why_it_matters: '',
-          suspicious_when: [],
-          legitimate_when: [],
-          common_mistakes: [],
+          what_it_means: L(''),
+          why_it_matters: L(''),
+          suspicious_when: LL([]),
+          legitimate_when: LL([]),
+          common_mistakes: LL([]),
         },
+        detection_analytics: [],
         expected_evidence: [],
         related_hypotheses: [],
         suggested_checks: [],
@@ -56,12 +61,12 @@ function makeKnowledgeBaseWithTechniques(): KnowledgeBase {
 
 const userAccountUseCase: UseCaseDefinition = {
   id: 'use-case.user_account_created_deleted',
-  name: 'User Account Created/Deleted',
-  description: '',
+  name: L('User Account Created/Deleted'),
+  description: L(''),
   tactics: ['TA0003', 'TA0004'],
   techniques: ['T1098', 'T1078'],
   investigationSteps: [],
-  dataSources: [],
+  dataSources: LL([]),
   relatedHypotheses: [],
   sourceReference: null,
 }
@@ -79,9 +84,9 @@ describe('investigationStore', () => {
       label: '198.51.100.23',
       position: { x: 10, y: 20 },
       fieldDefinitions: [
-        { id: 'value', label: 'IP', type: 'ip', required: true },
-        { id: 'is_approved_scanner', label: 'Scanner?', type: 'boolean', required: false },
-        { id: 'tags', label: 'Tags', type: 'string_array', required: false },
+        { id: 'value', label: L('IP'), type: 'ip', required: true },
+        { id: 'is_approved_scanner', label: L('Scanner?'), type: 'boolean', required: false },
+        { id: 'tags', label: L('Tags'), type: 'string_array', required: false },
       ],
     })
 
@@ -100,7 +105,7 @@ describe('investigationStore', () => {
       definitionId: 'evidence.identity.user',
       label: 'root',
       position: { x: 0, y: 0 },
-      fieldDefinitions: [{ id: 'username', label: 'Usuário', type: 'string', required: true }],
+      fieldDefinitions: [{ id: 'username', label: L('Username'), type: 'string', required: true }],
     })
 
     updateNodeFields(nodeId, { username: 'root' })
@@ -142,7 +147,7 @@ describe('investigationStore', () => {
     const { applyUseCase } = useInvestigationStore.getState()
     const knowledgeBase = makeKnowledgeBaseWithTechniques()
 
-    applyUseCase(userAccountUseCase, knowledgeBase)
+    applyUseCase(userAccountUseCase, knowledgeBase, 'en')
 
     const state = useInvestigationStore.getState()
     const hub = state.nodes.find((n) => n.type === 'detection_use_case')
@@ -168,8 +173,8 @@ describe('investigationStore', () => {
       fieldDefinitions: [],
     })
 
-    applyUseCase(userAccountUseCase, knowledgeBase)
-    applyUseCase(userAccountUseCase, knowledgeBase)
+    applyUseCase(userAccountUseCase, knowledgeBase, 'en')
+    applyUseCase(userAccountUseCase, knowledgeBase, 'en')
 
     const state = useInvestigationStore.getState()
     expect(state.nodes.filter((n) => n.type === 'detection_use_case')).toHaveLength(1)
@@ -232,7 +237,7 @@ describe('investigationStore', () => {
       definitionId: 'evidence.identity.user',
       label: 'root',
       position: { x: 10, y: 20 },
-      fieldDefinitions: [{ id: 'username', label: 'Usuário', type: 'string', required: true }],
+      fieldDefinitions: [{ id: 'username', label: L('Username'), type: 'string', required: true }],
     })
     const { updateNodeFields, updateNodeState } = useInvestigationStore.getState()
     updateNodeFields(originalId, { username: 'root' })

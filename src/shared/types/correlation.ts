@@ -1,5 +1,6 @@
 import type { InvestigationEdge, InvestigationNode, ConfidenceLevel } from './investigation'
 import type { HypothesisCondition, KnowledgeBase, RecommendedCheckDefinition } from './knowledge'
+import type { Locale } from '../i18n/types'
 
 export interface ConditionResult {
   condition: HypothesisCondition
@@ -31,6 +32,7 @@ export interface CorrelationInput {
   edges: InvestigationEdge[]
   knowledgeBase: KnowledgeBase
   checkAnswers: CheckAnswerRecord[]
+  locale: Locale
 }
 
 export interface UseCaseSuggestion {

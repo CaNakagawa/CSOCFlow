@@ -13,12 +13,14 @@ import { explainHypothesis } from '../explainers/explainHypothesis'
 import { inferRelationships } from './inferRelationships'
 import { inferUseCaseLinks } from './inferUseCaseLinks'
 import { suggestUseCases } from './suggestUseCases'
+import type { Locale } from '../../../shared/i18n/types'
 
 function evaluateHypothesis(
   hypothesis: HypothesisDefinition,
   ctx: EngineContext,
   checkScoreDelta: number,
   checksById: Map<string, CorrelationInput['knowledgeBase']['checks'][number]>,
+  locale: Locale,
 ): HypothesisResult {
   const matched: ConditionResult[] = []
   const missing: ConditionResult[] = []
@@ -75,6 +77,7 @@ function evaluateHypothesis(
       matched,
       missing,
       contradicted,
+      locale,
     ),
     recommendedChecks,
   }
@@ -94,7 +97,7 @@ export function createCorrelationEngine(): CorrelationEngine {
             const effect = chosenAnswer?.effects.find((e) => e.hypothesis_id === hypothesis.id)
             return acc + (effect?.score_delta ?? 0)
           }, 0)
-          return evaluateHypothesis(hypothesis, ctx, checkScoreDelta, checksById)
+          return evaluateHypothesis(hypothesis, ctx, checkScoreDelta, checksById, input.locale)
         })
         .filter((result) => {
           const hypothesis = input.knowledgeBase.hypotheses.find(
@@ -105,8 +108,8 @@ export function createCorrelationEngine(): CorrelationEngine {
         .sort((a, b) => b.normalizedScore - a.normalizedScore)
 
       const inferredEdges = [
-        ...inferRelationships(input.nodes, input.knowledgeBase.relationshipRules),
-        ...inferUseCaseLinks(input.nodes, input.knowledgeBase.useCases),
+        ...inferRelationships(input.nodes, input.knowledgeBase.relationshipRules, input.locale),
+        ...inferUseCaseLinks(input.nodes, input.knowledgeBase.useCases, input.locale),
       ]
 
       const useCaseSuggestions = suggestUseCases(input.nodes, input.knowledgeBase.useCases)

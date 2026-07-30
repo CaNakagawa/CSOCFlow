@@ -1,5 +1,6 @@
 import type { InvestigationEdge, InvestigationNode } from '../../../shared/types/investigation'
 import type { RelationshipRule } from '../../../shared/types/knowledge'
+import { localize, type Locale } from '../../../shared/i18n/types'
 
 const AUTOMATIC_EDGE_CONFIDENCE = 90
 
@@ -17,6 +18,7 @@ function fieldsEqual(a: unknown, b: unknown): boolean {
 export function inferRelationships(
   nodes: InvestigationNode[],
   rules: RelationshipRule[],
+  locale: Locale,
 ): InvestigationEdge[] {
   const edges: InvestigationEdge[] = []
 
@@ -38,10 +40,10 @@ export function inferRelationships(
           sourceHandle: 'bottom',
           targetHandle: 'top',
           type: rule.type,
-          label: rule.label,
+          label: localize(rule.label, locale),
           automatic: true,
           confidence: AUTOMATIC_EDGE_CONFIDENCE,
-          explanation: rule.explanation,
+          explanation: localize(rule.explanation, locale),
         })
       }
     }

@@ -5,9 +5,16 @@ import {
   InvalidInvestigationFileError,
 } from '../features/investigation/repository/InvestigationRepository'
 import { DEMO_CASES, loadDemoCase } from '../features/investigation/services/demoCaseService'
+import { useI18n, LOCALES, type Locale } from '../shared/i18n'
 import './TopBar.css'
 
 const repository = createInvestigationRepository()
+
+const LOCALE_LABELS: Record<Locale, string> = {
+  en: 'English',
+  pt: 'Português',
+  de: 'Deutsch',
+}
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
@@ -19,6 +26,7 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export function TopBar() {
+  const { t, locale, setLocale } = useI18n()
   const meta = useInvestigationStore((s) => s.meta)
   const setMeta = useInvestigationStore((s) => s.setMeta)
   const newInvestigation = useInvestigationStore((s) => s.newInvestigation)
@@ -32,13 +40,13 @@ export function TopBar() {
 
   async function handleSave() {
     await repository.save(toDocument())
-    setStatus('Investigação salva localmente.')
+    setStatus(t('topBar.statusSaved'))
   }
 
   async function handleLoadDemo() {
     const investigation = await loadDemoCase(DEMO_CASES[0])
     loadInvestigation(investigation)
-    setStatus(`Caso de demonstração "${DEMO_CASES[0].title}" carregado.`)
+    setStatus(t('topBar.statusDemoLoaded', { name: DEMO_CASES[0].title }))
   }
 
   function handleExport() {
@@ -53,12 +61,12 @@ export function TopBar() {
       const data: unknown = JSON.parse(text)
       const investigation = await repository.import(data)
       loadInvestigation(investigation)
-      setStatus('Investigação importada com sucesso.')
+      setStatus(t('topBar.statusImported'))
     } catch (error) {
       if (error instanceof InvalidInvestigationFileError) {
         setStatus(error.message)
       } else {
-        setStatus('Não foi possível importar o arquivo selecionado.')
+        setStatus(t('topBar.statusImportFailedGeneric'))
       }
     }
   }
@@ -69,21 +77,21 @@ export function TopBar() {
         className="top-bar__title"
         value={meta.title}
         onChange={(e) => setMeta({ title: e.target.value })}
-        aria-label="Nome da investigação"
+        aria-label={t('topBar.investigationName')}
       />
 
       <div className="top-bar__actions">
         <button type="button" onClick={() => newInvestigation()}>
-          Nova investigação
+          {t('topBar.newInvestigation')}
         </button>
         <button type="button" onClick={handleLoadDemo}>
-          Carregar caso de demonstração
+          {t('topBar.loadDemo')}
         </button>
         <button type="button" onClick={handleSave}>
-          Salvar localmente
+          {t('topBar.save')}
         </button>
         <button type="button" onClick={() => fileInputRef.current?.click()}>
-          Importar JSON
+          {t('topBar.import')}
         </button>
         <input
           ref={fileInputRef}
@@ -97,13 +105,25 @@ export function TopBar() {
           }}
         />
         <button type="button" onClick={handleExport}>
-          Exportar JSON
+          {t('topBar.export')}
         </button>
         <button type="button" onClick={() => clearCanvas()}>
-          Limpar canvas
+          {t('topBar.clear')}
         </button>
+        <select
+          className="top-bar__language"
+          value={locale}
+          onChange={(e) => setLocale(e.target.value as Locale)}
+          aria-label={t('topBar.language')}
+        >
+          {LOCALES.map((l) => (
+            <option key={l} value={l}>
+              {LOCALE_LABELS[l]}
+            </option>
+          ))}
+        </select>
         <button type="button" onClick={() => setShowHelp((v) => !v)} aria-expanded={showHelp}>
-          Ajuda
+          {t('topBar.help')}
         </button>
       </div>
 
@@ -114,14 +134,10 @@ export function TopBar() {
       )}
 
       {showHelp && (
-        <div className="top-bar__help" role="dialog" aria-label="Ajuda">
-          <p>
-            Adicione elementos pela biblioteca à esquerda, preencha os campos no painel de detalhes
-            e acompanhe as hipóteses sugeridas no painel à direita. A pontuação das hipóteses é
-            recalculada automaticamente a cada mudança no canvas.
-          </p>
+        <div className="top-bar__help" role="dialog" aria-label={t('topBar.help')}>
+          <p>{t('topBar.helpText')}</p>
           <button type="button" onClick={() => setShowHelp(false)}>
-            Fechar
+            {t('topBar.close')}
           </button>
         </div>
       )}

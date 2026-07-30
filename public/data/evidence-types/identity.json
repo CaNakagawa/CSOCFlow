@@ -1,43 +1,95 @@
 [
   {
     "id": "evidence.identity.user",
-    "name": "Usuário",
+    "name": { "en": "User", "pt": "Usuário", "de": "Benutzer" },
     "category": "identity",
     "node_type": "user",
-    "brief": "Uma conta de usuário envolvida na atividade investigada, seja como alvo ou como origem.",
+    "brief": {
+      "en": "A user account involved in the investigated activity, either as a target or as a source.",
+      "pt": "Uma conta de usuário envolvida na atividade investigada, seja como alvo ou como origem.",
+      "de": "Ein Benutzerkonto, das an der untersuchten Aktivität beteiligt ist, entweder als Ziel oder als Quelle."
+    },
     "fields": [
-      { "id": "username", "label": "Nome de usuário", "type": "string", "required": true },
-      { "id": "is_privileged", "label": "Conta privilegiada?", "type": "boolean", "required": false }
+      {
+        "id": "username",
+        "label": { "en": "Username", "pt": "Nome de usuário", "de": "Benutzername" },
+        "type": "string",
+        "required": true
+      },
+      {
+        "id": "is_privileged",
+        "label": { "en": "Privileged account?", "pt": "Conta privilegiada?", "de": "Privilegiertes Konto?" },
+        "type": "boolean",
+        "required": false
+      }
     ],
     "educational_content": {
-      "why_it_matters": "Contas privilegiadas ou administrativas comprometidas representam um risco maior do que contas comuns.",
-      "suspicious_when": [
-        "Conta privilegiada alvo de múltiplas tentativas de autenticação",
-        "Conta utilizada fora do padrão normal de acesso"
-      ],
-      "legitimate_when": [
-        "Atividade compatível com o horário e local habituais do usuário"
-      ]
+      "why_it_matters": {
+        "en": "Privileged or administrative accounts that are compromised represent a higher risk than regular accounts.",
+        "pt": "Contas privilegiadas ou administrativas comprometidas representam um risco maior do que contas comuns.",
+        "de": "Kompromittierte privilegierte oder administrative Konten stellen ein höheres Risiko dar als normale Konten."
+      },
+      "suspicious_when": {
+        "en": [
+          "Privileged account targeted by multiple authentication attempts",
+          "Account used outside the user's normal access pattern"
+        ],
+        "pt": [
+          "Conta privilegiada alvo de múltiplas tentativas de autenticação",
+          "Conta utilizada fora do padrão normal de acesso"
+        ],
+        "de": [
+          "Privilegiertes Konto ist Ziel mehrerer Authentifizierungsversuche",
+          "Konto wird außerhalb des normalen Zugriffsmusters genutzt"
+        ]
+      },
+      "legitimate_when": {
+        "en": ["Activity consistent with the user's usual time and location"],
+        "pt": ["Atividade compatível com o horário e local habituais do usuário"],
+        "de": ["Aktivität stimmt mit der üblichen Zeit und dem üblichen Ort des Benutzers überein"]
+      }
     }
   },
   {
     "id": "evidence.identity.host",
-    "name": "Host",
+    "name": { "en": "Host", "pt": "Host", "de": "Host" },
     "category": "identity",
     "node_type": "host",
-    "brief": "Um host (servidor ou estação de trabalho) envolvido na atividade investigada.",
+    "brief": {
+      "en": "A host (server or workstation) involved in the investigated activity.",
+      "pt": "Um host (servidor ou estação de trabalho) envolvido na atividade investigada.",
+      "de": "Ein Host (Server oder Arbeitsstation), der an der untersuchten Aktivität beteiligt ist."
+    },
     "fields": [
-      { "id": "hostname", "label": "Nome do host", "type": "string", "required": true },
-      { "id": "internet_facing", "label": "Exposto à internet?", "type": "boolean", "required": false }
+      {
+        "id": "hostname",
+        "label": { "en": "Hostname", "pt": "Nome do host", "de": "Hostname" },
+        "type": "string",
+        "required": true
+      },
+      {
+        "id": "internet_facing",
+        "label": { "en": "Internet-facing?", "pt": "Exposto à internet?", "de": "Mit dem Internet verbunden?" },
+        "type": "boolean",
+        "required": false
+      }
     ],
     "educational_content": {
-      "why_it_matters": "Hosts expostos à internet são alvos mais comuns de tentativas de força bruta e varreduras automatizadas.",
-      "suspicious_when": [
-        "Host exposto diretamente à internet recebendo tentativas de autenticação de múltiplas origens"
-      ],
-      "legitimate_when": [
-        "Host interno acessado apenas pela rede corporativa"
-      ]
+      "why_it_matters": {
+        "en": "Internet-facing hosts are more common targets for brute force attempts and automated scanning.",
+        "pt": "Hosts expostos à internet são alvos mais comuns de tentativas de força bruta e varreduras automatizadas.",
+        "de": "Mit dem Internet verbundene Hosts sind häufigere Ziele für Brute-Force-Versuche und automatisiertes Scannen."
+      },
+      "suspicious_when": {
+        "en": ["Internet-facing host receiving authentication attempts from multiple sources"],
+        "pt": ["Host exposto diretamente à internet recebendo tentativas de autenticação de múltiplas origens"],
+        "de": ["Direkt mit dem Internet verbundener Host erhält Authentifizierungsversuche aus mehreren Quellen"]
+      },
+      "legitimate_when": {
+        "en": ["Internal host accessed only through the corporate network"],
+        "pt": ["Host interno acessado apenas pela rede corporativa"],
+        "de": ["Interner Host, der nur über das Unternehmensnetzwerk zugänglich ist"]
+      }
     }
   }
 ]

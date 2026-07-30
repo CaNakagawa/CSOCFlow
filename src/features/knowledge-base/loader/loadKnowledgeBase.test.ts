@@ -8,20 +8,24 @@ import hypothesisSchema from '../../../../public/data/schemas/hypothesis.schema.
 import checkSchema from '../../../../public/data/schemas/check.schema.json'
 import useCaseSchema from '../../../../public/data/schemas/use-case.schema.json'
 
+const L = (text: string) => ({ en: text, pt: text, de: text })
+const LL = (items: string[]) => ({ en: items, pt: items, de: items })
+
 const validTechnique = {
   id: 'T1110',
   name: 'Brute Force',
   type: 'mitre_technique',
   tactics: ['TA0006'],
   platforms: ['Linux'],
-  brief: 'Tentativas repetidas de autenticação.',
+  brief: L('Repeated authentication attempts.'),
   investigation_context: {
-    what_it_means: '...',
-    why_it_matters: '...',
-    suspicious_when: [],
-    legitimate_when: [],
-    common_mistakes: [],
+    what_it_means: L('...'),
+    why_it_matters: L('...'),
+    suspicious_when: LL([]),
+    legitimate_when: LL([]),
+    common_mistakes: LL([]),
   },
+  detection_analytics: [],
   expected_evidence: ['authentication_event'],
   related_hypotheses: ['hypothesis.ssh_brute_force'],
   suggested_checks: [],

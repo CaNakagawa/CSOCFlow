@@ -4,30 +4,81 @@
   "type": "mitre_technique",
   "tactics": ["TA0002", "TA0003", "TA0004"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem abusar de recursos de agendamento de tarefas (Agendador de Tarefas do Windows, cron, launchd) para executar programas automaticamente em um horário ou evento específico.",
+  "brief": {
+    "en": "Adversaries may abuse task scheduling features (Windows Task Scheduler, cron, launchd) to run programs automatically at a specific time or event.",
+    "pt": "Adversários podem abusar de recursos de agendamento de tarefas (Agendador de Tarefas do Windows, cron, launchd) para executar programas automaticamente em um horário ou evento específico.",
+    "de": "Angreifer können Funktionen zur Aufgabenplanung (Windows-Taskplaner, cron, launchd) missbrauchen, um Programme automatisch zu einem bestimmten Zeitpunkt oder Ereignis auszuführen."
+  },
   "investigation_context": {
-    "what_it_means": "Indica a criação, modificação ou execução de uma tarefa agendada.",
-    "why_it_matters": "É uma técnica comum de persistência: a tarefa garante que o código do atacante volte a executar mesmo após reinicializações ou encerramento do processo inicial.",
-    "suspicious_when": [
-      "Tarefa criada por um processo incomum ou por um usuário sem privilégio de administração de tarefas",
-      "Nome da tarefa mimetiza tarefas do sistema, mas aponta para um binário/script suspeito",
-      "Tarefa configurada para rodar com privilégios elevados ou em contas de sistema",
-      "Criação de tarefa seguida de execução imediata do binário referenciado"
-    ],
-    "legitimate_when": [
-      "Tarefa criada por processo de instalação de software conhecido",
-      "Tarefa documentada em processo de manutenção ou backup",
-      "Nome, caminho e agendamento consistentes com o propósito declarado"
-    ],
-    "common_mistakes": [
-      "Ignorar tarefas agendadas ao investigar persistência",
-      "Não verificar o binário/script real referenciado pela tarefa",
-      "Assumir que tarefas do sistema operacional nunca são abusadas"
-    ]
+    "what_it_means": {
+      "en": "Indicates the creation, modification or execution of a scheduled task.",
+      "pt": "Indica a criação, modificação ou execução de uma tarefa agendada.",
+      "de": "Zeigt die Erstellung, Änderung oder Ausführung einer geplanten Aufgabe an."
+    },
+    "why_it_matters": {
+      "en": "It is a common persistence technique: the task ensures the attacker's code runs again even after reboots or after the initial process ends.",
+      "pt": "É uma técnica comum de persistência: a tarefa garante que o código do atacante volte a executar mesmo após reinicializações ou encerramento do processo inicial.",
+      "de": "Es ist eine gängige Persistenztechnik: Die Aufgabe stellt sicher, dass der Code des Angreifers auch nach Neustarts oder Beendigung des ursprünglichen Prozesses erneut ausgeführt wird."
+    },
+    "suspicious_when": {
+      "en": [
+        "Task created by an unusual process or by a user without task administration privileges",
+        "Task name mimics system tasks but points to a suspicious binary/script",
+        "Task configured to run with elevated privileges or under system accounts",
+        "Task creation immediately followed by execution of the referenced binary"
+      ],
+      "pt": [
+        "Tarefa criada por um processo incomum ou por um usuário sem privilégio de administração de tarefas",
+        "Nome da tarefa mimetiza tarefas do sistema, mas aponta para um binário/script suspeito",
+        "Tarefa configurada para rodar com privilégios elevados ou em contas de sistema",
+        "Criação de tarefa seguida de execução imediata do binário referenciado"
+      ],
+      "de": [
+        "Aufgabe wurde von einem ungewöhnlichen Prozess oder einem Benutzer ohne Aufgabenverwaltungsrechte erstellt",
+        "Aufgabenname ahmt Systemaufgaben nach, verweist jedoch auf ein verdächtiges Binary/Skript",
+        "Aufgabe so konfiguriert, dass sie mit erhöhten Rechten oder unter Systemkonten läuft",
+        "Aufgabenerstellung unmittelbar gefolgt von der Ausführung des referenzierten Binarys"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Task created by a known software installation process",
+        "Task documented in a maintenance or backup process",
+        "Name, path and schedule consistent with the stated purpose"
+      ],
+      "pt": [
+        "Tarefa criada por processo de instalação de software conhecido",
+        "Tarefa documentada em processo de manutenção ou backup",
+        "Nome, caminho e agendamento consistentes com o propósito declarado"
+      ],
+      "de": [
+        "Aufgabe wurde von einem bekannten Softwareinstallationsprozess erstellt",
+        "Aufgabe ist in einem Wartungs- oder Backup-Prozess dokumentiert",
+        "Name, Pfad und Zeitplan stimmen mit dem angegebenen Zweck überein"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Ignoring scheduled tasks when investigating persistence",
+        "Not checking the actual binary/script referenced by the task",
+        "Assuming operating system tasks are never abused"
+      ],
+      "pt": [
+        "Ignorar tarefas agendadas ao investigar persistência",
+        "Não verificar o binário/script real referenciado pela tarefa",
+        "Assumir que tarefas do sistema operacional nunca são abusadas"
+      ],
+      "de": [
+        "Geplante Aufgaben bei der Untersuchung von Persistenz zu ignorieren",
+        "Das tatsächlich referenzierte Binary/Skript der Aufgabe nicht zu prüfen",
+        "Anzunehmen, dass Betriebssystemaufgaben nie missbraucht werden"
+      ]
+    }
   },
   "expected_evidence": ["scheduled_task", "process", "user", "host"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1053 Scheduled Task/Job",

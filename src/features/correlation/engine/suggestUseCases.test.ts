@@ -3,15 +3,18 @@ import { suggestUseCases } from './suggestUseCases'
 import type { InvestigationNode } from '../../../shared/types/investigation'
 import type { UseCaseDefinition } from '../../../shared/types/knowledge'
 
+const L = (text: string) => ({ en: text, pt: text, de: text })
+const LL = (items: string[]) => ({ en: items, pt: items, de: items })
+
 function makeUseCase(
   partial: Partial<UseCaseDefinition> & Pick<UseCaseDefinition, 'id' | 'techniques'>,
 ): UseCaseDefinition {
   return {
-    name: partial.id,
-    description: '',
+    name: L(partial.id),
+    description: L(''),
     tactics: [],
     investigationSteps: [],
-    dataSources: [],
+    dataSources: LL([]),
     relatedHypotheses: [],
     sourceReference: null,
     ...partial,

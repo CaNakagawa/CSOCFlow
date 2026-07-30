@@ -34,6 +34,8 @@ export type NodeState =
 
 export type ConfidenceLevel = 'low' | 'possible' | 'probable' | 'high'
 
+export type AnalyticStatus = 'pending' | 'confirmed' | 'not_confirmed'
+
 export type RelationshipType =
   | 'executed_by'
   | 'executed_on'
@@ -63,6 +65,7 @@ export interface InvestigationNode {
   }
   fields: Record<string, unknown>
   notes?: string
+  analyticStatuses?: Record<string, AnalyticStatus>
   createdAt: string
   updatedAt: string
 }

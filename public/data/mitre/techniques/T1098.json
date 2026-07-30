@@ -4,28 +4,75 @@
   "type": "mitre_technique",
   "tactics": ["TA0003", "TA0004"],
   "platforms": ["Windows", "Linux", "macOS", "Azure AD", "Office 365", "SaaS", "IaaS", "Google Workspace"],
-  "brief": "Adversários podem manipular contas para manter o acesso a um ambiente comprometido, alterando permissões, credenciais ou propriedades de uma conta (incluindo a criação e exclusão de contas).",
+  "brief": {
+    "en": "Adversaries may manipulate accounts to maintain access to a compromised environment, changing permissions, credentials or account properties (including creating and deleting accounts).",
+    "pt": "Adversários podem manipular contas para manter o acesso a um ambiente comprometido, alterando permissões, credenciais ou propriedades de uma conta (incluindo a criação e exclusão de contas).",
+    "de": "Angreifer können Konten manipulieren, um den Zugriff auf eine kompromittierte Umgebung aufrechtzuerhalten, indem sie Berechtigungen, Anmeldedaten oder Kontoeigenschaften ändern (einschließlich Erstellen und Löschen von Konten)."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que uma conta foi criada, excluída ou teve suas permissões/credenciais alteradas de forma a manter ou expandir o acesso do adversário.",
-    "why_it_matters": "É uma técnica comum de persistência: mesmo que a credencial inicial usada para entrar seja revogada, uma conta manipulada (nova conta, permissões adicionadas, credencial adicionada) permite que o atacante continue com acesso.",
-    "suspicious_when": [
-      "Criação ou exclusão de conta fora do processo normal de gestão de identidade",
-      "Conta criada por outra conta que não pertence à equipe de TI/identidade",
-      "Adição de permissões privilegiadas a uma conta logo após criação",
-      "Exclusão de conta seguida de atividade suspeita da conta que a excluiu"
-    ],
-    "legitimate_when": [
-      "Processo automatizado de provisionamento/desprovisionamento (onboarding/offboarding)",
-      "Ação realizada por administrador de identidade dentro de uma janela de mudança aprovada"
-    ],
-    "common_mistakes": [
-      "Tratar toda criação/exclusão de conta como maliciosa sem checar o processo de gestão de identidade",
-      "Não verificar quem executou a ação (ator) e sua legitimidade"
-    ]
+    "what_it_means": {
+      "en": "Indicates that an account was created, deleted, or had its permissions/credentials changed in a way that maintains or expands the adversary's access.",
+      "pt": "Indica que uma conta foi criada, excluída ou teve suas permissões/credenciais alteradas de forma a manter ou expandir o acesso do adversário.",
+      "de": "Zeigt an, dass ein Konto erstellt, gelöscht oder in seinen Berechtigungen/Anmeldedaten so geändert wurde, dass der Zugriff des Angreifers erhalten oder erweitert wird."
+    },
+    "why_it_matters": {
+      "en": "It is a common persistence technique: even if the initial credential used to get in is revoked, a manipulated account (new account, added permissions, added credential) lets the attacker keep access.",
+      "pt": "É uma técnica comum de persistência: mesmo que a credencial inicial usada para entrar seja revogada, uma conta manipulada (nova conta, permissões adicionadas, credencial adicionada) permite que o atacante continue com acesso.",
+      "de": "Es ist eine gängige Persistenztechnik: Selbst wenn die ursprünglich verwendete Anmeldedaten widerrufen werden, ermöglicht ein manipuliertes Konto (neues Konto, hinzugefügte Berechtigungen, hinzugefügte Anmeldedaten) dem Angreifer, den Zugriff zu behalten."
+    },
+    "suspicious_when": {
+      "en": [
+        "Account created or deleted outside the normal identity management process",
+        "Account created by another account that does not belong to the IT/identity team",
+        "Privileged permissions added to an account right after creation",
+        "Account deletion followed by suspicious activity from the account that deleted it"
+      ],
+      "pt": [
+        "Criação ou exclusão de conta fora do processo normal de gestão de identidade",
+        "Conta criada por outra conta que não pertence à equipe de TI/identidade",
+        "Adição de permissões privilegiadas a uma conta logo após criação",
+        "Exclusão de conta seguida de atividade suspeita da conta que a excluiu"
+      ],
+      "de": [
+        "Konto wurde außerhalb des normalen Identitätsmanagementprozesses erstellt oder gelöscht",
+        "Konto wurde von einem anderen Konto erstellt, das nicht zum IT-/Identitätsteam gehört",
+        "Privilegierte Berechtigungen wurden kurz nach der Erstellung hinzugefügt",
+        "Kontolöschung gefolgt von verdächtiger Aktivität des löschenden Kontos"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Automated provisioning/deprovisioning process (onboarding/offboarding)",
+        "Action performed by an identity administrator within an approved change window"
+      ],
+      "pt": [
+        "Processo automatizado de provisionamento/desprovisionamento (onboarding/offboarding)",
+        "Ação realizada por administrador de identidade dentro de uma janela de mudança aprovada"
+      ],
+      "de": [
+        "Automatisierter Provisionierungs-/Deprovisionierungsprozess (Onboarding/Offboarding)",
+        "Aktion eines Identitätsadministrators innerhalb eines genehmigten Änderungsfensters"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Treating every account creation/deletion as malicious without checking the identity management process",
+        "Not verifying who performed the action and whether it was legitimate"
+      ],
+      "pt": [
+        "Tratar toda criação/exclusão de conta como maliciosa sem checar o processo de gestão de identidade",
+        "Não verificar quem executou a ação (ator) e sua legitimidade"
+      ],
+      "de": [
+        "Jede Kontoerstellung/-löschung als bösartig zu behandeln, ohne den Identitätsmanagementprozess zu prüfen",
+        "Nicht zu prüfen, wer die Aktion durchgeführt hat und ob sie legitim war"
+      ]
+    }
   },
   "expected_evidence": ["authentication_event", "user", "alert"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1098 Account Manipulation",

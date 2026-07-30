@@ -4,27 +4,72 @@
   "type": "mitre_technique",
   "tactics": ["TA0007"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem tentar obter informações detalhadas sobre o sistema operacional e hardware, incluindo versão, patches, arquitetura e configurações.",
+  "brief": {
+    "en": "Adversaries may try to get detailed information about the operating system and hardware, including version, patches, architecture and configuration.",
+    "pt": "Adversários podem tentar obter informações detalhadas sobre o sistema operacional e hardware, incluindo versão, patches, arquitetura e configurações.",
+    "de": "Angreifer können versuchen, detaillierte Informationen über Betriebssystem und Hardware zu erhalten, einschließlich Version, Patches, Architektur und Konfiguration."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que comandos de reconhecimento do sistema (ex: systeminfo, uname, hostname) foram executados.",
-    "why_it_matters": "É um passo comum de reconhecimento pós-comprometimento, usado para decidir próximos passos (exploits aplicáveis, valor do alvo).",
-    "suspicious_when": [
-      "Sequência de múltiplos comandos de reconhecimento em curto intervalo",
-      "Executado por processo ou usuário sem relação com administração do sistema",
-      "Seguido de tentativas de exploração ou escalonamento de privilégio"
-    ],
-    "legitimate_when": [
-      "Executado por ferramenta de inventário ou monitoramento corporativo",
-      "Ação rotineira de administrador de sistemas"
-    ],
-    "common_mistakes": [
-      "Ignorar comandos de reconhecimento por parecerem inofensivos isoladamente",
-      "Não correlacionar reconhecimento com atividades subsequentes no mesmo host"
-    ]
+    "what_it_means": {
+      "en": "Indicates that system reconnaissance commands (e.g. systeminfo, uname, hostname) were executed.",
+      "pt": "Indica que comandos de reconhecimento do sistema (ex: systeminfo, uname, hostname) foram executados.",
+      "de": "Zeigt an, dass Systemerkundungsbefehle (z. B. systeminfo, uname, hostname) ausgeführt wurden."
+    },
+    "why_it_matters": {
+      "en": "It is a common reconnaissance step after compromise, used to decide next steps (applicable exploits, value of the target).",
+      "pt": "É um passo comum de reconhecimento pós-comprometimento, usado para decidir próximos passos (exploits aplicáveis, valor do alvo).",
+      "de": "Es ist ein häufiger Erkundungsschritt nach einer Kompromittierung, der zur Entscheidung über nächste Schritte dient (anwendbare Exploits, Wert des Ziels)."
+    },
+    "suspicious_when": {
+      "en": [
+        "Sequence of multiple reconnaissance commands in a short interval",
+        "Executed by a process or user unrelated to system administration",
+        "Followed by exploitation attempts or privilege escalation"
+      ],
+      "pt": [
+        "Sequência de múltiplos comandos de reconhecimento em curto intervalo",
+        "Executado por processo ou usuário sem relação com administração do sistema",
+        "Seguido de tentativas de exploração ou escalonamento de privilégio"
+      ],
+      "de": [
+        "Abfolge mehrerer Erkundungsbefehle in kurzer Zeit",
+        "Ausgeführt von einem Prozess oder Benutzer ohne Bezug zur Systemadministration",
+        "Gefolgt von Exploit-Versuchen oder Rechteerweiterung"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Executed by a corporate inventory or monitoring tool",
+        "Routine action by a systems administrator"
+      ],
+      "pt": [
+        "Executado por ferramenta de inventário ou monitoramento corporativo",
+        "Ação rotineira de administrador de sistemas"
+      ],
+      "de": [
+        "Ausgeführt von einem Unternehmens-Inventar- oder Überwachungstool",
+        "Routinemäßige Aktion eines Systemadministrators"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Ignoring reconnaissance commands because they look harmless in isolation",
+        "Not correlating reconnaissance with subsequent activity on the same host"
+      ],
+      "pt": [
+        "Ignorar comandos de reconhecimento por parecerem inofensivos isoladamente",
+        "Não correlacionar reconhecimento com atividades subsequentes no mesmo host"
+      ],
+      "de": [
+        "Erkundungsbefehle zu ignorieren, weil sie isoliert betrachtet harmlos wirken",
+        "Erkundung nicht mit nachfolgender Aktivität auf demselben Host zu korrelieren"
+      ]
+    }
   },
   "expected_evidence": ["process", "command_line", "host", "user"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1082 System Information Discovery",

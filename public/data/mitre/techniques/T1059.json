@@ -4,30 +4,81 @@
   "type": "mitre_technique",
   "tactics": ["TA0002"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem abusar de interpretadores de comando e script (PowerShell, cmd, bash, Python etc.) para executar comandos, scripts ou binários.",
+  "brief": {
+    "en": "Adversaries may abuse command and script interpreters (PowerShell, cmd, bash, Python, etc.) to execute commands, scripts or binaries.",
+    "pt": "Adversários podem abusar de interpretadores de comando e script (PowerShell, cmd, bash, Python etc.) para executar comandos, scripts ou binários.",
+    "de": "Angreifer können Befehls- und Skriptinterpreter (PowerShell, cmd, bash, Python usw.) missbrauchen, um Befehle, Skripte oder Binärdateien auszuführen."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que um interpretador de comandos ou linguagem de script foi usado para executar algo no host.",
-    "why_it_matters": "É uma das formas mais comuns de execução, tanto legítima (automação, administração) quanto maliciosa (execução de payloads, reconhecimento, movimentação lateral).",
-    "suspicious_when": [
-      "Processo pai é um aplicativo de escritório, navegador ou cliente de e-mail",
-      "Linha de comando contém codificação (base64), ofuscação ou downloads remotos",
-      "Execução em horário incomum ou por usuário sem histórico de uso do interpretador",
-      "Cadeia de processos incomum (ex: interpretador gerando outro interpretador)"
-    ],
-    "legitimate_when": [
-      "Uso por administradores ou ferramentas de gestão de configuração conhecidas",
-      "Scripts corporativos assinados e versionados",
-      "Automação recorrente e documentada"
-    ],
-    "common_mistakes": [
-      "Tratar todo uso de shell/script como malicioso",
-      "Não observar o processo pai e o usuário que executou o comando",
-      "Ignorar o conteúdo da linha de comando ao avaliar a legitimidade"
-    ]
+    "what_it_means": {
+      "en": "Indicates that a command interpreter or scripting language was used to execute something on the host.",
+      "pt": "Indica que um interpretador de comandos ou linguagem de script foi usado para executar algo no host.",
+      "de": "Zeigt an, dass ein Befehlsinterpreter oder eine Skriptsprache verwendet wurde, um etwas auf dem Host auszuführen."
+    },
+    "why_it_matters": {
+      "en": "It is one of the most common forms of execution, both legitimate (automation, administration) and malicious (payload execution, reconnaissance, lateral movement).",
+      "pt": "É uma das formas mais comuns de execução, tanto legítima (automação, administração) quanto maliciosa (execução de payloads, reconhecimento, movimentação lateral).",
+      "de": "Es ist eine der häufigsten Ausführungsformen, sowohl legitim (Automatisierung, Administration) als auch bösartig (Ausführung von Payloads, Reconnaissance, laterale Bewegung)."
+    },
+    "suspicious_when": {
+      "en": [
+        "Parent process is an office application, browser or email client",
+        "Command line contains encoding (base64), obfuscation or remote downloads",
+        "Executed at an unusual time or by a user without a history of using the interpreter",
+        "Unusual process chain (e.g. an interpreter spawning another interpreter)"
+      ],
+      "pt": [
+        "Processo pai é um aplicativo de escritório, navegador ou cliente de e-mail",
+        "Linha de comando contém codificação (base64), ofuscação ou downloads remotos",
+        "Execução em horário incomum ou por usuário sem histórico de uso do interpretador",
+        "Cadeia de processos incomum (ex: interpretador gerando outro interpretador)"
+      ],
+      "de": [
+        "Übergeordneter Prozess ist eine Office-Anwendung, ein Browser oder ein E-Mail-Client",
+        "Befehlszeile enthält Kodierung (base64), Verschleierung oder Remote-Downloads",
+        "Ausführung zu ungewöhnlicher Zeit oder durch einen Benutzer ohne Historie der Interpreter-Nutzung",
+        "Ungewöhnliche Prozesskette (z. B. ein Interpreter startet einen weiteren Interpreter)"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Used by known corporate administration or configuration tools",
+        "Signed and version-controlled corporate scripts",
+        "Recurring, documented automation"
+      ],
+      "pt": [
+        "Uso por administradores ou ferramentas de gestão de configuração conhecidas",
+        "Scripts corporativos assinados e versionados",
+        "Automação recorrente e documentada"
+      ],
+      "de": [
+        "Verwendung durch bekannte Administrations- oder Konfigurationsmanagement-Tools",
+        "Signierte und versionierte Unternehmensskripte",
+        "Wiederkehrende, dokumentierte Automatisierung"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Treating any shell/script use as malicious",
+        "Not looking at the parent process and the user who ran the command",
+        "Ignoring the command-line content when assessing legitimacy"
+      ],
+      "pt": [
+        "Tratar todo uso de shell/script como malicioso",
+        "Não observar o processo pai e o usuário que executou o comando",
+        "Ignorar o conteúdo da linha de comando ao avaliar a legitimidade"
+      ],
+      "de": [
+        "Jede Shell-/Skriptnutzung als bösartig zu behandeln",
+        "Den übergeordneten Prozess und den ausführenden Benutzer nicht zu beachten",
+        "Den Inhalt der Befehlszeile bei der Legitimitätsbewertung zu ignorieren"
+      ]
+    }
   },
   "expected_evidence": ["process", "command_line", "user", "host"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1059 Command and Scripting Interpreter",

@@ -90,3 +90,61 @@
   opacity: 0.7;
   margin: 0 0 4px;
 }
+
+.details-panel__analytics {
+  list-style: none;
+  padding-left: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.details-panel__analytic {
+  border: 1px solid var(--panel-border, #334155);
+  border-left: 3px solid #64748b;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.details-panel__analytic--confirmed {
+  border-left-color: #22c55e;
+}
+
+.details-panel__analytic--not_confirmed {
+  border-left-color: #ef4444;
+  opacity: 0.75;
+}
+
+.details-panel__analytic-id {
+  margin: 0;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.details-panel__analytic-description {
+  margin: 4px 0;
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.details-panel__analytic-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.details-panel__analytic-actions button {
+  font: inherit;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border, #334155);
+  background: var(--input-bg, #1e293b);
+  color: inherit;
+  cursor: pointer;
+}
+
+.details-panel__analytic-actions button.active {
+  background: #334155;
+  border-color: #94a3b8;
+  font-weight: 600;
+}

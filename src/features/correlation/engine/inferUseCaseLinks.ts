@@ -1,5 +1,6 @@
 import type { InvestigationEdge, InvestigationNode } from '../../../shared/types/investigation'
 import type { UseCaseDefinition } from '../../../shared/types/knowledge'
+import { localize, translate, type Locale } from '../../../shared/i18n'
 
 const USE_CASE_LINK_CONFIDENCE = 100
 
@@ -10,6 +11,7 @@ function isTechniqueNode(node: InvestigationNode): boolean {
 export function inferUseCaseLinks(
   nodes: InvestigationNode[],
   useCases: UseCaseDefinition[],
+  locale: Locale,
 ): InvestigationEdge[] {
   const useCasesById = new Map(useCases.map((u) => [u.id, u]))
   const techniqueNodes = nodes.filter(isTechniqueNode)
@@ -30,10 +32,10 @@ export function inferUseCaseLinks(
         sourceHandle: 'bottom',
         targetHandle: 'top',
         type: 'maps_to',
-        label: 'mapeia para',
+        label: translate(locale, 'relationship.maps_to'),
         automatic: true,
         confidence: USE_CASE_LINK_CONFIDENCE,
-        explanation: `Técnica associada ao caso de uso "${definition.name}".`,
+        explanation: `${localize(definition.name, locale)} -> ${techniqueNode.label}`,
       })
     }
   }

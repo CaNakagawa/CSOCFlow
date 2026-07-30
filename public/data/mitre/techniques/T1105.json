@@ -4,29 +4,78 @@
   "type": "mitre_technique",
   "tactics": ["TA0011"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem transferir ferramentas ou outros arquivos de um sistema externo para o ambiente comprometido, geralmente para dar continuidade ao ataque.",
+  "brief": {
+    "en": "Adversaries may transfer tools or other files from an external system into the compromised environment, usually to continue the attack.",
+    "pt": "Adversários podem transferir ferramentas ou outros arquivos de um sistema externo para o ambiente comprometido, geralmente para dar continuidade ao ataque.",
+    "de": "Angreifer können Tools oder andere Dateien von einem externen System in die kompromittierte Umgebung übertragen, meist um den Angriff fortzusetzen."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que um arquivo foi baixado de uma origem externa para dentro do ambiente após o comprometimento inicial.",
-    "why_it_matters": "Frequentemente é o passo que introduz ferramentas adicionais (malware secundário, utilitários de exfiltração, ferramentas de movimentação lateral) no ambiente.",
-    "suspicious_when": [
-      "Download realizado por um processo de script/interpretador logo após execução inicial",
-      "Origem do download é um domínio ou IP com reputação suspeita",
-      "Arquivo baixado para diretório temporário e executado em seguida",
-      "Ferramenta de administração remota ou de rede baixando executáveis sem contexto de mudança aprovada"
-    ],
-    "legitimate_when": [
-      "Download realizado por gerenciador de pacotes ou ferramenta de atualização corporativa",
-      "Origem é um repositório interno ou fornecedor de software conhecido"
-    ],
-    "common_mistakes": [
-      "Não relacionar o download com a execução subsequente do arquivo",
-      "Ignorar downloads por serem feitos via HTTPS (assumindo legitimidade)",
-      "Focar apenas no arquivo baixado sem investigar o processo que o baixou"
-    ]
+    "what_it_means": {
+      "en": "Indicates that a file was downloaded from an external source into the environment after the initial compromise.",
+      "pt": "Indica que um arquivo foi baixado de uma origem externa para dentro do ambiente após o comprometimento inicial.",
+      "de": "Zeigt an, dass nach der initialen Kompromittierung eine Datei aus einer externen Quelle in die Umgebung heruntergeladen wurde."
+    },
+    "why_it_matters": {
+      "en": "It is often the step that introduces additional tools (secondary malware, exfiltration utilities, lateral movement tools) into the environment.",
+      "pt": "Frequentemente é o passo que introduz ferramentas adicionais (malware secundário, utilitários de exfiltração, ferramentas de movimentação lateral) no ambiente.",
+      "de": "Es ist oft der Schritt, der zusätzliche Tools (Sekundärmalware, Exfiltrationswerkzeuge, Tools für laterale Bewegung) in die Umgebung einbringt."
+    },
+    "suspicious_when": {
+      "en": [
+        "Download performed by a script/interpreter process right after initial execution",
+        "Download origin is a domain or IP with suspicious reputation",
+        "File downloaded to a temporary directory and executed right after",
+        "Remote administration or network tool downloading executables without an approved change context"
+      ],
+      "pt": [
+        "Download realizado por um processo de script/interpretador logo após execução inicial",
+        "Origem do download é um domínio ou IP com reputação suspeita",
+        "Arquivo baixado para diretório temporário e executado em seguida",
+        "Ferramenta de administração remota ou de rede baixando executáveis sem contexto de mudança aprovada"
+      ],
+      "de": [
+        "Download durch einen Skript-/Interpreterprozess unmittelbar nach der initialen Ausführung",
+        "Downloadquelle ist eine Domain oder IP mit verdächtigem Ruf",
+        "Datei in ein temporäres Verzeichnis heruntergeladen und anschließend ausgeführt",
+        "Remote-Administrations- oder Netzwerktool lädt ausführbare Dateien ohne genehmigten Änderungskontext herunter"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Download performed by a package manager or corporate update tool",
+        "Origin is an internal repository or known software vendor"
+      ],
+      "pt": [
+        "Download realizado por gerenciador de pacotes ou ferramenta de atualização corporativa",
+        "Origem é um repositório interno ou fornecedor de software conhecido"
+      ],
+      "de": [
+        "Download durch einen Paketmanager oder ein Unternehmens-Update-Tool",
+        "Ursprung ist ein internes Repository oder ein bekannter Softwareanbieter"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Not linking the download to the subsequent execution of the file",
+        "Ignoring downloads because they happen over HTTPS (assuming legitimacy)",
+        "Focusing only on the downloaded file without investigating the process that downloaded it"
+      ],
+      "pt": [
+        "Não relacionar o download com a execução subsequente do arquivo",
+        "Ignorar downloads por serem feitos via HTTPS (assumindo legitimidade)",
+        "Focar apenas no arquivo baixado sem investigar o processo que o baixou"
+      ],
+      "de": [
+        "Den Download nicht mit der anschließenden Ausführung der Datei zu verknüpfen",
+        "Downloads zu ignorieren, weil sie über HTTPS erfolgen (Legitimität wird angenommen)",
+        "Sich nur auf die heruntergeladene Datei zu konzentrieren, ohne den herunterladenden Prozess zu untersuchen"
+      ]
+    }
   },
   "expected_evidence": ["file", "network_connection", "domain", "ip_address", "process"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1105 Ingress Tool Transfer",

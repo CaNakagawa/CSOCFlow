@@ -4,32 +4,87 @@
   "type": "mitre_subtechnique",
   "tactics": ["TA0002"],
   "platforms": ["Windows"],
-  "brief": "PowerShell é uma ferramenta legítima de automação do Windows que também pode ser utilizada por atacantes para executar comandos, baixar arquivos e operar sem criar executáveis tradicionais.",
+  "brief": {
+    "en": "PowerShell is a legitimate Windows automation tool that can also be used by attackers to run commands, download files and operate without creating traditional executables.",
+    "pt": "PowerShell é uma ferramenta legítima de automação do Windows que também pode ser utilizada por atacantes para executar comandos, baixar arquivos e operar sem criar executáveis tradicionais.",
+    "de": "PowerShell ist ein legitimes Windows-Automatisierungstool, das auch von Angreifern verwendet werden kann, um Befehle auszuführen, Dateien herunterzuladen und ohne traditionelle ausführbare Dateien zu agieren."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que o PowerShell foi utilizado em alguma atividade observada.",
-    "why_it_matters": "PowerShell é legítimo, mas frequentemente utilizado para execução, download e evasão por sua profunda integração com o Windows e capacidade de operar apenas em memória.",
-    "suspicious_when": [
-      "Executado por navegador ou aplicativo Office",
-      "Uso de parâmetros de codificação ou ocultação (-EncodedCommand, -WindowStyle Hidden)",
-      "Download de conteúdo remoto (Invoke-WebRequest, IEX)",
-      "Execução a partir de diretórios temporários",
-      "Criação de processos incomuns a partir do PowerShell"
-    ],
-    "legitimate_when": [
-      "Executado por ferramentas corporativas autorizadas",
-      "Script conhecido e assinado",
-      "Comando recorrente no mesmo host",
-      "Atividade associada a uma mudança aprovada"
-    ],
-    "common_mistakes": [
-      "Classificar toda execução de PowerShell como maliciosa",
-      "Analisar apenas o nome do processo",
-      "Ignorar processo pai, usuário e linha de comando"
-    ]
+    "what_it_means": {
+      "en": "Indicates that PowerShell was used in some observed activity.",
+      "pt": "Indica que o PowerShell foi utilizado em alguma atividade observada.",
+      "de": "Zeigt an, dass PowerShell bei einer beobachteten Aktivität verwendet wurde."
+    },
+    "why_it_matters": {
+      "en": "PowerShell is legitimate, but frequently used for execution, download and evasion due to its deep integration with Windows and ability to operate purely in memory.",
+      "pt": "PowerShell é legítimo, mas frequentemente utilizado para execução, download e evasão por sua profunda integração com o Windows e capacidade de operar apenas em memória.",
+      "de": "PowerShell ist legitim, wird aber wegen seiner tiefen Windows-Integration und Fähigkeit, rein im Speicher zu agieren, häufig für Ausführung, Download und Umgehung genutzt."
+    },
+    "suspicious_when": {
+      "en": [
+        "Executed by a browser or Office application",
+        "Use of encoding or hiding parameters (-EncodedCommand, -WindowStyle Hidden)",
+        "Downloading remote content (Invoke-WebRequest, IEX)",
+        "Executed from temporary directories",
+        "Creating unusual processes from PowerShell"
+      ],
+      "pt": [
+        "Executado por navegador ou aplicativo Office",
+        "Uso de parâmetros de codificação ou ocultação (-EncodedCommand, -WindowStyle Hidden)",
+        "Download de conteúdo remoto (Invoke-WebRequest, IEX)",
+        "Execução a partir de diretórios temporários",
+        "Criação de processos incomuns a partir do PowerShell"
+      ],
+      "de": [
+        "Ausgeführt durch einen Browser oder eine Office-Anwendung",
+        "Verwendung von Kodierungs- oder Verschleierungsparametern (-EncodedCommand, -WindowStyle Hidden)",
+        "Herunterladen von Remote-Inhalten (Invoke-WebRequest, IEX)",
+        "Ausführung aus temporären Verzeichnissen",
+        "Erstellung ungewöhnlicher Prozesse aus PowerShell heraus"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Run by authorized corporate tools",
+        "Known and signed script",
+        "Recurring command on the same host",
+        "Activity tied to an approved change"
+      ],
+      "pt": [
+        "Executado por ferramentas corporativas autorizadas",
+        "Script conhecido e assinado",
+        "Comando recorrente no mesmo host",
+        "Atividade associada a uma mudança aprovada"
+      ],
+      "de": [
+        "Ausgeführt von autorisierten Unternehmenstools",
+        "Bekanntes und signiertes Skript",
+        "Wiederkehrender Befehl auf demselben Host",
+        "Aktivität im Zusammenhang mit einer genehmigten Änderung"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Classifying every PowerShell execution as malicious",
+        "Analyzing only the process name",
+        "Ignoring parent process, user and command line"
+      ],
+      "pt": [
+        "Classificar toda execução de PowerShell como maliciosa",
+        "Analisar apenas o nome do processo",
+        "Ignorar processo pai, usuário e linha de comando"
+      ],
+      "de": [
+        "Jede PowerShell-Ausführung als bösartig einzustufen",
+        "Nur den Prozessnamen zu analysieren",
+        "Übergeordneten Prozess, Benutzer und Befehlszeile zu ignorieren"
+      ]
+    }
   },
   "expected_evidence": ["process", "command_line", "user", "host", "network_connection"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1059.001 PowerShell",

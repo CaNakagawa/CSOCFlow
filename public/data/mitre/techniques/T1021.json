@@ -4,29 +4,78 @@
   "type": "mitre_technique",
   "tactics": ["TA0008"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem usar credenciais válidas para se conectar a serviços remotos (RDP, SSH, SMB, WinRM) e mover-se lateralmente pela rede.",
+  "brief": {
+    "en": "Adversaries may use valid credentials to log into remote services (RDP, SSH, SMB, WinRM) and move laterally across the network.",
+    "pt": "Adversários podem usar credenciais válidas para se conectar a serviços remotos (RDP, SSH, SMB, WinRM) e mover-se lateralmente pela rede.",
+    "de": "Angreifer können gültige Anmeldedaten verwenden, um sich bei Remote-Diensten (RDP, SSH, SMB, WinRM) anzumelden und sich lateral im Netzwerk zu bewegen."
+  },
   "investigation_context": {
-    "what_it_means": "Indica uma conexão remota interativa ou administrativa entre dois hosts do ambiente.",
-    "why_it_matters": "É a forma mais comum de movimentação lateral, geralmente usando credenciais legítimas já obtidas, o que a torna difícil de distinguir de uso administrativo normal.",
-    "suspicious_when": [
-      "Conexão entre hosts que normalmente não se comunicam",
-      "Conta de usuário comum realizando conexões administrativas remotas",
-      "Conexão seguida de execução de ferramentas de reconhecimento ou dump de credenciais no host de destino",
-      "Horário ou origem incomum para o padrão do usuário"
-    ],
-    "legitimate_when": [
-      "Conexão de administrador de TI para manutenção documentada",
-      "Padrão consistente com o uso normal daquele usuário/host"
-    ],
-    "common_mistakes": [
-      "Tratar todo uso de RDP/SSH como suspeito",
-      "Não mapear a topologia normal de comunicação entre hosts antes de avaliar uma conexão como anômala",
-      "Ignorar a atividade realizada após a conexão remota"
-    ]
+    "what_it_means": {
+      "en": "Indicates an interactive or administrative remote connection between two hosts in the environment.",
+      "pt": "Indica uma conexão remota interativa ou administrativa entre dois hosts do ambiente.",
+      "de": "Zeigt eine interaktive oder administrative Remote-Verbindung zwischen zwei Hosts in der Umgebung an."
+    },
+    "why_it_matters": {
+      "en": "It is the most common form of lateral movement, usually using already obtained legitimate credentials, which makes it hard to distinguish from normal administrative use.",
+      "pt": "É a forma mais comum de movimentação lateral, geralmente usando credenciais legítimas já obtidas, o que a torna difícil de distinguir de uso administrativo normal.",
+      "de": "Es ist die häufigste Form der lateralen Bewegung, meist mit bereits erlangten legitimen Anmeldedaten, was die Unterscheidung von normaler administrativer Nutzung erschwert."
+    },
+    "suspicious_when": {
+      "en": [
+        "Connection between hosts that do not normally communicate",
+        "A regular user account performing administrative remote connections",
+        "Connection followed by reconnaissance or credential dumping tools on the destination host",
+        "Unusual time or origin for that user's pattern"
+      ],
+      "pt": [
+        "Conexão entre hosts que normalmente não se comunicam",
+        "Conta de usuário comum realizando conexões administrativas remotas",
+        "Conexão seguida de execução de ferramentas de reconhecimento ou dump de credenciais no host de destino",
+        "Horário ou origem incomum para o padrão do usuário"
+      ],
+      "de": [
+        "Verbindung zwischen Hosts, die normalerweise nicht kommunizieren",
+        "Ein normales Benutzerkonto führt administrative Remote-Verbindungen durch",
+        "Verbindung gefolgt von Erkundungs- oder Credential-Dumping-Tools auf dem Zielhost",
+        "Ungewöhnliche Zeit oder Herkunft für das Muster dieses Benutzers"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "IT administrator connection for documented maintenance",
+        "Pattern consistent with the historical usage of that host/user"
+      ],
+      "pt": [
+        "Conexão de administrador de TI para manutenção documentada",
+        "Padrão consistente com o uso normal daquele usuário/host"
+      ],
+      "de": [
+        "Verbindung eines IT-Administrators für dokumentierte Wartung",
+        "Muster stimmt mit der historischen Nutzung dieses Hosts/Benutzers überein"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Treating all RDP/SSH usage as suspicious",
+        "Not mapping the normal communication topology between hosts before flagging a connection as anomalous",
+        "Ignoring the activity performed after the remote connection"
+      ],
+      "pt": [
+        "Tratar todo uso de RDP/SSH como suspeito",
+        "Não mapear a topologia normal de comunicação entre hosts antes de avaliar uma conexão como anômala",
+        "Ignorar a atividade realizada após a conexão remota"
+      ],
+      "de": [
+        "Jede RDP-/SSH-Nutzung als verdächtig zu behandeln",
+        "Die normale Kommunikationstopologie zwischen Hosts nicht zu kartieren, bevor eine Verbindung als anomal eingestuft wird",
+        "Die nach der Remote-Verbindung durchgeführte Aktivität zu ignorieren"
+      ]
+    }
   },
   "expected_evidence": ["authentication_event", "host", "user", "network_connection"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1021 Remote Services",

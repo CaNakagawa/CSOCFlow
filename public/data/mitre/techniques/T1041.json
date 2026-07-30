@@ -4,29 +4,78 @@
   "type": "mitre_technique",
   "tactics": ["TA0010"],
   "platforms": ["Windows", "Linux", "macOS"],
-  "brief": "Adversários podem furtar dados usando o mesmo canal de comando e controle já estabelecido, em vez de um canal separado de exfiltração.",
+  "brief": {
+    "en": "Adversaries may steal data by using the already-established command-and-control channel, instead of a separate exfiltration channel.",
+    "pt": "Adversários podem furtar dados usando o mesmo canal de comando e controle já estabelecido, em vez de um canal separado de exfiltração.",
+    "de": "Angreifer können Daten über den bereits etablierten Command-and-Control-Kanal stehlen, statt einen separaten Exfiltrationskanal zu nutzen."
+  },
   "investigation_context": {
-    "what_it_means": "Indica que dados estão sendo transmitidos para fora do ambiente através do mesmo canal usado para comandos do atacante.",
-    "why_it_matters": "Representa a concretização de perda de dados; identificar esse estágio rapidamente é essencial para dimensionar o impacto real do incidente.",
-    "suspicious_when": [
-      "Volume de tráfego de saída muito maior que o padrão do host/usuário",
-      "Transferência de dados para o mesmo destino já identificado como C2",
-      "Compactação ou criptografia de arquivos pouco antes do envio",
-      "Transferência ocorrendo fora do horário normal de atividade"
-    ],
-    "legitimate_when": [
-      "Transferência para serviço de backup ou sincronização corporativo aprovado",
-      "Volume de dados consistente com o uso normal do host"
-    ],
-    "common_mistakes": [
-      "Focar apenas no volume de dados sem considerar o destino da transferência",
-      "Não relacionar a exfiltração com o canal de C2 já identificado",
-      "Investigar exfiltração apenas após confirmação de vazamento, em vez de monitorar continuamente"
-    ]
+    "what_it_means": {
+      "en": "Indicates that data is being transmitted out of the environment through the same channel used for the attacker's commands.",
+      "pt": "Indica que dados estão sendo transmitidos para fora do ambiente através do mesmo canal usado para comandos do atacante.",
+      "de": "Zeigt an, dass Daten über denselben Kanal, der für die Befehle des Angreifers genutzt wird, aus der Umgebung übertragen werden."
+    },
+    "why_it_matters": {
+      "en": "It represents the actual realization of data loss; identifying this stage quickly is essential to scope the real impact of the incident.",
+      "pt": "Representa a concretização de perda de dados; identificar esse estágio rapidamente é essencial para dimensionar o impacto real do incidente.",
+      "de": "Es stellt die tatsächliche Umsetzung des Datenverlusts dar; diese Phase schnell zu erkennen ist entscheidend, um das reale Ausmaß des Vorfalls einzuschätzen."
+    },
+    "suspicious_when": {
+      "en": [
+        "Outbound traffic volume much larger than the host/user baseline",
+        "Data transfer to the same destination already identified as C2",
+        "Files compressed or encrypted shortly before being sent",
+        "Transfer occurring outside the normal activity hours"
+      ],
+      "pt": [
+        "Volume de tráfego de saída muito maior que o padrão do host/usuário",
+        "Transferência de dados para o mesmo destino já identificado como C2",
+        "Compactação ou criptografia de arquivos pouco antes do envio",
+        "Transferência ocorrendo fora do horário normal de atividade"
+      ],
+      "de": [
+        "Ausgehendes Verkehrsvolumen deutlich größer als die Grundlinie von Host/Benutzer",
+        "Datenübertragung zum selben Ziel, das bereits als C2 identifiziert wurde",
+        "Dateien kurz vor dem Versand komprimiert oder verschlüsselt",
+        "Übertragung außerhalb der normalen Aktivitätszeiten"
+      ]
+    },
+    "legitimate_when": {
+      "en": [
+        "Transfer to an approved corporate backup or sync service",
+        "Data volume consistent with normal host usage"
+      ],
+      "pt": [
+        "Transferência para serviço de backup ou sincronização corporativo aprovado",
+        "Volume de dados consistente com o uso normal do host"
+      ],
+      "de": [
+        "Übertragung an einen genehmigten Unternehmens-Backup- oder Sync-Dienst",
+        "Datenvolumen entspricht der normalen Hostnutzung"
+      ]
+    },
+    "common_mistakes": {
+      "en": [
+        "Focusing only on data volume without considering the transfer destination",
+        "Not relating the exfiltration to the already identified C2 channel",
+        "Investigating exfiltration only after confirming a leak, instead of continuous monitoring"
+      ],
+      "pt": [
+        "Focar apenas no volume de dados sem considerar o destino da transferência",
+        "Não relacionar a exfiltração com o canal de C2 já identificado",
+        "Investigar exfiltração apenas após confirmação de vazamento, em vez de monitorar continuamente"
+      ],
+      "de": [
+        "Sich nur auf das Datenvolumen zu konzentrieren, ohne das Übertragungsziel zu berücksichtigen",
+        "Die Exfiltration nicht mit dem bereits identifizierten C2-Kanal in Verbindung zu bringen",
+        "Exfiltration erst nach Bestätigung eines Lecks statt kontinuierlich zu überwachen"
+      ]
+    }
   },
   "expected_evidence": ["network_connection", "domain", "ip_address", "file"],
   "related_hypotheses": [],
   "suggested_checks": [],
+  "detection_analytics": [],
   "references": [
     {
       "title": "MITRE ATT&CK - T1041 Exfiltration Over C2 Channel",
