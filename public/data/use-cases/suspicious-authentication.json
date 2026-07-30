@@ -1,0 +1,24 @@
+{
+  "id": "use-case.suspicious_authentication",
+  "name": "Autenticação suspeita (força bruta / password guessing)",
+  "description": "Padrão de múltiplas tentativas de autenticação, possivelmente seguidas de sucesso, indicando tentativa de descoberta de credenciais válidas.",
+  "tactics": ["TA0006"],
+  "techniques": ["T1110", "T1110.001"],
+  "investigationSteps": [
+    {
+      "order": 1,
+      "techniqueId": "T1110",
+      "instruction": "Confirme o volume, a janela de tempo e a origem das tentativas de autenticação malsucedidas. Verifique se houve uma autenticação bem-sucedida após as falhas.",
+      "detectionStrategies": []
+    },
+    {
+      "order": 2,
+      "techniqueId": "T1110.001",
+      "instruction": "Se poucas contas foram alvo com muitas tentativas cada, avalie se as senhas testadas correspondem a listas conhecidas ou vazadas (password guessing), em vez de um ataque de força bruta genérico.",
+      "detectionStrategies": []
+    }
+  ],
+  "dataSources": ["Logs de autenticação SSH", "Alertas de EDR/IDS"],
+  "relatedHypotheses": ["hypothesis.ssh_brute_force"],
+  "sourceReference": null
+}

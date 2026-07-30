@@ -3,7 +3,23 @@
   "tactics": "mitre/tactics.json",
   "techniques": [
     "mitre/techniques/T1110.json",
-    "mitre/techniques/T1110.001.json"
+    "mitre/techniques/T1110.001.json",
+    "mitre/techniques/T1098.json",
+    "mitre/techniques/T1078.json",
+    "mitre/techniques/T1059.json",
+    "mitre/techniques/T1059.001.json",
+    "mitre/techniques/T1053.json",
+    "mitre/techniques/T1055.json",
+    "mitre/techniques/T1071.json",
+    "mitre/techniques/T1027.json",
+    "mitre/techniques/T1105.json",
+    "mitre/techniques/T1486.json",
+    "mitre/techniques/T1003.json",
+    "mitre/techniques/T1566.json",
+    "mitre/techniques/T1566.001.json",
+    "mitre/techniques/T1082.json",
+    "mitre/techniques/T1021.json",
+    "mitre/techniques/T1041.json"
   ],
   "evidenceTypes": [
     "evidence-types/authentication.json",
@@ -17,8 +33,9 @@
     "checks/authentication-success.json",
     "checks/source-ip-reputation.json"
   ],
-  "investigationPatterns": [
-    "investigation-patterns/suspicious-authentication.json"
+  "useCases": [
+    "use-cases/suspicious-authentication.json",
+    "use-cases/user-account-created-deleted.json"
   ],
   "relationships": [
     "relationships/relationships.json"

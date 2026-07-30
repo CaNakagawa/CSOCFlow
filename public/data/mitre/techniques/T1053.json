@@ -1,0 +1,37 @@
+{
+  "id": "T1053",
+  "name": "Scheduled Task/Job",
+  "type": "mitre_technique",
+  "tactics": ["TA0002", "TA0003", "TA0004"],
+  "platforms": ["Windows", "Linux", "macOS"],
+  "brief": "Adversários podem abusar de recursos de agendamento de tarefas (Agendador de Tarefas do Windows, cron, launchd) para executar programas automaticamente em um horário ou evento específico.",
+  "investigation_context": {
+    "what_it_means": "Indica a criação, modificação ou execução de uma tarefa agendada.",
+    "why_it_matters": "É uma técnica comum de persistência: a tarefa garante que o código do atacante volte a executar mesmo após reinicializações ou encerramento do processo inicial.",
+    "suspicious_when": [
+      "Tarefa criada por um processo incomum ou por um usuário sem privilégio de administração de tarefas",
+      "Nome da tarefa mimetiza tarefas do sistema, mas aponta para um binário/script suspeito",
+      "Tarefa configurada para rodar com privilégios elevados ou em contas de sistema",
+      "Criação de tarefa seguida de execução imediata do binário referenciado"
+    ],
+    "legitimate_when": [
+      "Tarefa criada por processo de instalação de software conhecido",
+      "Tarefa documentada em processo de manutenção ou backup",
+      "Nome, caminho e agendamento consistentes com o propósito declarado"
+    ],
+    "common_mistakes": [
+      "Ignorar tarefas agendadas ao investigar persistência",
+      "Não verificar o binário/script real referenciado pela tarefa",
+      "Assumir que tarefas do sistema operacional nunca são abusadas"
+    ]
+  },
+  "expected_evidence": ["scheduled_task", "process", "user", "host"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1053 Scheduled Task/Job",
+      "url": "https://attack.mitre.org/techniques/T1053/"
+    }
+  ]
+}

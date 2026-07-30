@@ -89,6 +89,8 @@
               "id": { "type": "string" },
               "source": { "type": "string" },
               "target": { "type": "string" },
+              "sourceHandle": { "type": "string" },
+              "targetHandle": { "type": "string" },
               "type": { "type": "string" },
               "label": { "type": "string" },
               "automatic": { "type": "boolean" },

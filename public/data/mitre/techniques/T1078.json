@@ -1,0 +1,35 @@
+{
+  "id": "T1078",
+  "name": "Valid Accounts",
+  "type": "mitre_technique",
+  "tactics": ["TA0001", "TA0003", "TA0004"],
+  "platforms": ["Windows", "Linux", "macOS", "Azure AD", "Office 365", "SaaS", "IaaS", "Google Workspace", "Containers"],
+  "brief": "Adversários podem obter e abusar de credenciais de contas existentes como forma de obter acesso inicial, manter persistência, escalar privilégios ou evitar detecção.",
+  "investigation_context": {
+    "what_it_means": "Indica que uma conta legítima (não uma conta criada pelo atacante) foi usada para realizar a atividade observada — a diferença chave em relação a outras técnicas é que a credencial é válida, tornando a detecção mais difícil.",
+    "why_it_matters": "O uso de contas válidas se mistura com o comportamento normal do ambiente. É frequentemente a explicação raiz por trás de outras técnicas observadas, como manipulação de conta (T1098): é preciso determinar de onde veio o acesso à conta usada para a manipulação.",
+    "suspicious_when": [
+      "Conta usada em horário ou localização incomum para o usuário",
+      "Conta usada para realizar ações fora do seu padrão normal de uso (ex: uma conta de serviço realizando login interativo)",
+      "Conta associada a alertas prévios de comprometimento de credenciais",
+      "Uso da conta seguido imediatamente por ações de persistência ou escalonamento de privilégio"
+    ],
+    "legitimate_when": [
+      "Uso da conta é consistente com o padrão histórico do usuário",
+      "Atividade coincide com uma mudança aprovada ou tarefa administrativa esperada"
+    ],
+    "common_mistakes": [
+      "Assumir que, por a credencial ser válida, a atividade é automaticamente legítima",
+      "Não correlacionar o uso da conta com eventos subsequentes de manipulação ou escalonamento"
+    ]
+  },
+  "expected_evidence": ["authentication_event", "user", "host", "ip_address"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1078 Valid Accounts",
+      "url": "https://attack.mitre.org/techniques/T1078/"
+    }
+  ]
+}

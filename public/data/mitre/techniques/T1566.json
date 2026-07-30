@@ -1,0 +1,36 @@
+{
+  "id": "T1566",
+  "name": "Phishing",
+  "type": "mitre_technique",
+  "tactics": ["TA0001"],
+  "platforms": ["Windows", "Linux", "macOS", "Office 365", "Google Workspace"],
+  "brief": "Adversários podem enviar mensagens de phishing para obter acesso a sistemas, geralmente contendo anexos ou links maliciosos.",
+  "investigation_context": {
+    "what_it_means": "Indica o recebimento de uma mensagem (geralmente e-mail) projetada para enganar o destinatário e obter acesso inicial ou credenciais.",
+    "why_it_matters": "É um dos vetores de acesso inicial mais comuns, pois explora o fator humano em vez de vulnerabilidades técnicas.",
+    "suspicious_when": [
+      "Remetente ou domínio de origem inconsistente com o suposto emissor",
+      "Anexo com macro, script ou extensão executável disfarçada",
+      "Link para domínio recém-registrado ou visualmente similar a um serviço legítimo",
+      "Linguagem de urgência ou apelo incomum para o contexto do destinatário"
+    ],
+    "legitimate_when": [
+      "Comunicação legítima de parceiro ou fornecedor conhecido, apenas mal classificada por filtros",
+      "Simulação de phishing autorizada pela equipe de segurança (treinamento)"
+    ],
+    "common_mistakes": [
+      "Analisar apenas o conteúdo do e-mail sem verificar anexos/links tecnicamente",
+      "Não correlacionar o e-mail com a atividade subsequente do usuário que o recebeu",
+      "Assumir que o usuário não interagiu com o e-mail sem confirmar"
+    ]
+  },
+  "expected_evidence": ["email", "user", "url", "file", "host"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1566 Phishing",
+      "url": "https://attack.mitre.org/techniques/T1566/"
+    }
+  ]
+}

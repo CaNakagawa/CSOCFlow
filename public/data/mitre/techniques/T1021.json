@@ -1,0 +1,36 @@
+{
+  "id": "T1021",
+  "name": "Remote Services",
+  "type": "mitre_technique",
+  "tactics": ["TA0008"],
+  "platforms": ["Windows", "Linux", "macOS"],
+  "brief": "Adversários podem usar credenciais válidas para se conectar a serviços remotos (RDP, SSH, SMB, WinRM) e mover-se lateralmente pela rede.",
+  "investigation_context": {
+    "what_it_means": "Indica uma conexão remota interativa ou administrativa entre dois hosts do ambiente.",
+    "why_it_matters": "É a forma mais comum de movimentação lateral, geralmente usando credenciais legítimas já obtidas, o que a torna difícil de distinguir de uso administrativo normal.",
+    "suspicious_when": [
+      "Conexão entre hosts que normalmente não se comunicam",
+      "Conta de usuário comum realizando conexões administrativas remotas",
+      "Conexão seguida de execução de ferramentas de reconhecimento ou dump de credenciais no host de destino",
+      "Horário ou origem incomum para o padrão do usuário"
+    ],
+    "legitimate_when": [
+      "Conexão de administrador de TI para manutenção documentada",
+      "Padrão consistente com o uso normal daquele usuário/host"
+    ],
+    "common_mistakes": [
+      "Tratar todo uso de RDP/SSH como suspeito",
+      "Não mapear a topologia normal de comunicação entre hosts antes de avaliar uma conexão como anômala",
+      "Ignorar a atividade realizada após a conexão remota"
+    ]
+  },
+  "expected_evidence": ["authentication_event", "host", "user", "network_connection"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1021 Remote Services",
+      "url": "https://attack.mitre.org/techniques/T1021/"
+    }
+  ]
+}

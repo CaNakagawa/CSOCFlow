@@ -1,0 +1,36 @@
+{
+  "id": "T1027",
+  "name": "Obfuscated Files or Information",
+  "type": "mitre_technique",
+  "tactics": ["TA0005"],
+  "platforms": ["Windows", "Linux", "macOS"],
+  "brief": "Adversários podem tentar tornar um arquivo ou informação executável mais difícil de descobrir ou analisar, ofuscando seu conteúdo (codificação, empacotamento, criptografia).",
+  "investigation_context": {
+    "what_it_means": "Indica que um arquivo, script ou comando foi deliberadamente codificado, compactado ou disfarçado para dificultar a análise.",
+    "why_it_matters": "A ofuscação é usada para evitar assinaturas de antivírus e dificultar a análise humana rápida do conteúdo malicioso.",
+    "suspicious_when": [
+      "Comando com grandes blocos de texto em base64 ou hexadecimal",
+      "Arquivo com entropia muito alta ou empacotado (packer) sem motivo aparente",
+      "Nome de arquivo/extensão não corresponde ao conteúdo real",
+      "Uso de técnicas de camuflagem (extensões duplas, espaços, caracteres especiais no nome)"
+    ],
+    "legitimate_when": [
+      "Empacotamento/minificação padrão de builds de software legítimo",
+      "Uso de criptografia por ferramentas corporativas de proteção de dados"
+    ],
+    "common_mistakes": [
+      "Assumir que todo conteúdo ofuscado é malicioso sem decodificar e analisar",
+      "Não tentar decodificar comandos codificados antes de descartar o alerta",
+      "Ignorar ofuscação por não haver assinatura de antivírus correspondente"
+    ]
+  },
+  "expected_evidence": ["file", "file_hash", "command_line", "process"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1027 Obfuscated Files or Information",
+      "url": "https://attack.mitre.org/techniques/T1027/"
+    }
+  ]
+}

@@ -136,12 +136,34 @@ export interface RecommendedCheckDefinition {
   answers: CheckAnswer[]
 }
 
-export interface InvestigationPatternDefinition {
+export interface DetectionStrategyReference {
+  id: string
+  name: string
+  url: string
+}
+
+export interface UseCaseInvestigationStep {
+  order: number
+  techniqueId: string
+  instruction: string
+  detectionStrategies: DetectionStrategyReference[]
+}
+
+export interface SourceReference {
+  title: string
+  url: string
+}
+
+export interface UseCaseDefinition {
   id: string
   name: string
   description: string
-  hypotheses: string[]
-  suggested_evidence: string[]
+  tactics: string[]
+  techniques: string[]
+  investigationSteps: UseCaseInvestigationStep[]
+  dataSources: string[]
+  relatedHypotheses: string[]
+  sourceReference: SourceReference | null
 }
 
 export interface RelationshipRule {
@@ -165,7 +187,7 @@ export interface KnowledgeManifest {
   evidenceTypes: string[]
   hypotheses: string[]
   checks: string[]
-  investigationPatterns: string[]
+  useCases: string[]
   relationships: string[]
 }
 
@@ -176,6 +198,6 @@ export interface KnowledgeBase {
   evidenceTypes: EvidenceTypeDefinition[]
   hypotheses: HypothesisDefinition[]
   checks: RecommendedCheckDefinition[]
-  investigationPatterns: InvestigationPatternDefinition[]
+  useCases: UseCaseDefinition[]
   relationshipRules: RelationshipRule[]
 }

@@ -23,7 +23,7 @@ async function main() {
       `${knowledgeBase.evidenceTypes.length} evidence types, ` +
       `${knowledgeBase.hypotheses.length} hypotheses, ` +
       `${knowledgeBase.checks.length} checks, ` +
-      `${knowledgeBase.investigationPatterns.length} investigation patterns, ` +
+      `${knowledgeBase.useCases.length} use cases, ` +
       `${knowledgeBase.relationshipRules.length} relationship rules.`,
   )
 }

@@ -1,0 +1,37 @@
+{
+  "id": "T1059",
+  "name": "Command and Scripting Interpreter",
+  "type": "mitre_technique",
+  "tactics": ["TA0002"],
+  "platforms": ["Windows", "Linux", "macOS"],
+  "brief": "Adversários podem abusar de interpretadores de comando e script (PowerShell, cmd, bash, Python etc.) para executar comandos, scripts ou binários.",
+  "investigation_context": {
+    "what_it_means": "Indica que um interpretador de comandos ou linguagem de script foi usado para executar algo no host.",
+    "why_it_matters": "É uma das formas mais comuns de execução, tanto legítima (automação, administração) quanto maliciosa (execução de payloads, reconhecimento, movimentação lateral).",
+    "suspicious_when": [
+      "Processo pai é um aplicativo de escritório, navegador ou cliente de e-mail",
+      "Linha de comando contém codificação (base64), ofuscação ou downloads remotos",
+      "Execução em horário incomum ou por usuário sem histórico de uso do interpretador",
+      "Cadeia de processos incomum (ex: interpretador gerando outro interpretador)"
+    ],
+    "legitimate_when": [
+      "Uso por administradores ou ferramentas de gestão de configuração conhecidas",
+      "Scripts corporativos assinados e versionados",
+      "Automação recorrente e documentada"
+    ],
+    "common_mistakes": [
+      "Tratar todo uso de shell/script como malicioso",
+      "Não observar o processo pai e o usuário que executou o comando",
+      "Ignorar o conteúdo da linha de comando ao avaliar a legitimidade"
+    ]
+  },
+  "expected_evidence": ["process", "command_line", "user", "host"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1059 Command and Scripting Interpreter",
+      "url": "https://attack.mitre.org/techniques/T1059/"
+    }
+  ]
+}

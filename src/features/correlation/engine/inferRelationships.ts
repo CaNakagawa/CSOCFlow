@@ -35,6 +35,8 @@ export function inferRelationships(
           id: `auto-${rule.id}-${source.id}-${target.id}`,
           source: source.id,
           target: target.id,
+          sourceHandle: 'bottom',
+          targetHandle: 'top',
           type: rule.type,
           label: rule.label,
           automatic: true,

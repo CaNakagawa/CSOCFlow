@@ -1,7 +1,0 @@
-{
-  "id": "pattern.suspicious_authentication",
-  "name": "Autenticação suspeita",
-  "description": "Padrão investigativo para cenários com múltiplas tentativas de autenticação, possíveis credenciais comprometidas e origens de reputação duvidosa.",
-  "hypotheses": ["hypothesis.ssh_brute_force"],
-  "suggested_evidence": ["evidence.authentication.failed_ssh", "evidence.authentication.successful_login", "evidence.network.ip_address"]
-}

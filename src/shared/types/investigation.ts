@@ -21,6 +21,7 @@ export type CanvasNodeType =
   | 'evidence'
   | 'analyst_note'
   | 'hypothesis'
+  | 'detection_use_case'
 
 export type NodeState =
   | 'unknown'
@@ -70,6 +71,8 @@ export interface InvestigationEdge {
   id: string
   source: string
   target: string
+  sourceHandle?: string
+  targetHandle?: string
   type: RelationshipType
   label?: string
   automatic: boolean

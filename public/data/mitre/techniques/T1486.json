@@ -1,0 +1,36 @@
+{
+  "id": "T1486",
+  "name": "Data Encrypted for Impact",
+  "type": "mitre_technique",
+  "tactics": ["TA0040"],
+  "platforms": ["Windows", "Linux", "macOS"],
+  "brief": "Adversários podem criptografar dados em sistemas alvo para interromper a disponibilidade, tipicamente exigindo resgate para a chave de descriptografia (ransomware).",
+  "investigation_context": {
+    "what_it_means": "Indica que arquivos estão sendo (ou foram) criptografados em massa em um ou mais hosts, tipicamente com extensão de arquivo alterada e nota de resgate.",
+    "why_it_matters": "É o estágio final e mais destrutivo de um ataque de ransomware; sua detecção precoce é crítica para limitar o número de hosts afetados.",
+    "suspicious_when": [
+      "Processo lendo e reescrevendo um grande volume de arquivos em curto período",
+      "Alteração em massa de extensões de arquivo",
+      "Criação de arquivos de nota de resgate em múltiplos diretórios",
+      "Exclusão de cópias de sombra (shadow copies) ou backups pouco antes do evento"
+    ],
+    "legitimate_when": [
+      "Ferramenta de backup ou criptografia de disco corporativa em execução programada",
+      "Atividade de compactação/criptografia documentada e aprovada"
+    ],
+    "common_mistakes": [
+      "Detectar o ransomware apenas na fase de criptografia, sem investigar o acesso inicial que o precedeu",
+      "Não verificar exclusão de backups como sinal de alerta antecipado",
+      "Restaurar sistemas sem antes identificar e conter a causa raiz do acesso"
+    ]
+  },
+  "expected_evidence": ["file", "process", "host", "alert"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1486 Data Encrypted for Impact",
+      "url": "https://attack.mitre.org/techniques/T1486/"
+    }
+  ]
+}

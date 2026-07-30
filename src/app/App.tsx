@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useKnowledgeBase } from '../features/knowledge-base/hooks/useKnowledgeBase'
 import { useCorrelation } from '../features/correlation/selectors/useCorrelation'
 import { buildLibraryItems } from '../features/canvas/types/libraryItem'
@@ -11,6 +11,9 @@ import './App.css'
 export function App() {
   const { knowledgeBase, loading, error } = useKnowledgeBase()
   useCorrelation(knowledgeBase)
+
+  const [isLibraryCollapsed, setLibraryCollapsed] = useState(false)
+  const [isRightPanelCollapsed, setRightPanelCollapsed] = useState(false)
 
   const libraryItems = useMemo(
     () => (knowledgeBase ? buildLibraryItems(knowledgeBase) : []),
@@ -34,9 +37,18 @@ export function App() {
     <div className="app-shell">
       <TopBar />
       <div className="app-body">
-        <NodeLibrary items={libraryItems} />
+        <NodeLibrary
+          items={libraryItems}
+          knowledgeBase={knowledgeBase}
+          collapsed={isLibraryCollapsed}
+          onToggleCollapsed={() => setLibraryCollapsed((v) => !v)}
+        />
         <Canvas />
-        <RightPanel knowledgeBase={knowledgeBase} />
+        <RightPanel
+          knowledgeBase={knowledgeBase}
+          collapsed={isRightPanelCollapsed}
+          onToggleCollapsed={() => setRightPanelCollapsed((v) => !v)}
+        />
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import { useInvestigationStore } from '../store/investigationStore'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import type { NodeState } from '../../../shared/types/investigation'
 import { NODE_STATE_LABELS } from '../../canvas/utils/nodeVisuals'
+import { UseCaseCard } from '../../use-cases/components/UseCaseCard'
 import './DetailsPanel.css'
 
 const NODE_STATES: NodeState[] = [
@@ -18,8 +19,12 @@ function findEducationalContent(knowledgeBase: KnowledgeBase | null, definitionI
   if (!knowledgeBase) return null
   const technique = knowledgeBase.techniques.find((t) => t.id === definitionId)
   if (technique) {
+    const tacticNames = technique.tactics.map(
+      (tacticId) => knowledgeBase.tactics.find((t) => t.id === tacticId)?.name ?? tacticId,
+    )
     return {
       title: `${technique.id} - ${technique.name}`,
+      tactics: tacticNames,
       whatItMeans: technique.investigation_context.what_it_means,
       whyItMatters: technique.investigation_context.why_it_matters,
       suspiciousWhen: technique.investigation_context.suspicious_when,
@@ -31,6 +36,7 @@ function findEducationalContent(knowledgeBase: KnowledgeBase | null, definitionI
   if (evidenceType) {
     return {
       title: evidenceType.name,
+      tactics: [] as string[],
       whatItMeans: evidenceType.brief,
       whyItMatters: evidenceType.educational_content.why_it_matters,
       suspiciousWhen: evidenceType.educational_content.suspicious_when,
@@ -49,13 +55,27 @@ export function DetailsPanel({ knowledgeBase }: DetailsPanelProps) {
   const nodes = useInvestigationStore((s) => s.nodes)
   const selectedNodeId = useInvestigationStore((s) => s.selectedNodeId)
   const node = nodes.find((n) => n.id === selectedNodeId)
+  const useCaseSuggestions = useInvestigationStore((s) => s.useCaseSuggestions)
   const updateNodeFields = useInvestigationStore((s) => s.updateNodeFields)
   const updateNodeState = useInvestigationStore((s) => s.updateNodeState)
   const updateNodeNotes = useInvestigationStore((s) => s.updateNodeNotes)
+  const duplicateNode = useInvestigationStore((s) => s.duplicateNode)
+  const removeNode = useInvestigationStore((s) => s.removeNode)
 
   if (!node) {
     return (
       <p className="details-panel__empty">Selecione um elemento no canvas para ver os detalhes.</p>
+    )
+  }
+
+  if (node.type === 'detection_use_case' && knowledgeBase) {
+    const suggestion = useCaseSuggestions.find((s) => s.useCaseId === node.definitionId)
+    return (
+      <UseCaseCard
+        useCaseId={node.definitionId}
+        knowledgeBase={knowledgeBase}
+        suggestion={suggestion}
+      />
     )
   }
 
@@ -64,6 +84,15 @@ export function DetailsPanel({ knowledgeBase }: DetailsPanelProps) {
   return (
     <div className="details-panel">
       <h3 className="details-panel__label">{node.label}</h3>
+
+      <div className="details-panel__toolbar">
+        <button type="button" onClick={() => duplicateNode(node.id)}>
+          Duplicar
+        </button>
+        <button type="button" onClick={() => removeNode(node.id)}>
+          Excluir
+        </button>
+      </div>
 
       <label className="details-panel__field">
         <span>Estado investigativo</span>
@@ -127,6 +156,9 @@ export function DetailsPanel({ knowledgeBase }: DetailsPanelProps) {
       {education && (
         <div className="details-panel__education">
           <h4>{education.title}</h4>
+          {education.tactics.length > 0 && (
+            <p className="details-panel__tactics">Táticas: {education.tactics.join(', ')}</p>
+          )}
           <p>{education.whatItMeans}</p>
           <p className="details-panel__why">{education.whyItMatters}</p>
           {education.suspiciousWhen.length > 0 && (

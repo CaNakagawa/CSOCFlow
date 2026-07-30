@@ -1,4 +1,8 @@
-import type { CanvasNodeType, NodeState } from '../../../shared/types/investigation'
+import type {
+  CanvasNodeType,
+  NodeState,
+  RelationshipType,
+} from '../../../shared/types/investigation'
 
 export interface NodeVisual {
   glyph: string
@@ -28,6 +32,7 @@ export const NODE_VISUALS: Record<CanvasNodeType, NodeVisual> = {
   evidence: { glyph: 'EVD', categoryLabel: 'Evidência' },
   analyst_note: { glyph: 'NOTE', categoryLabel: 'Observação do analista' },
   hypothesis: { glyph: 'H', categoryLabel: 'Hipótese' },
+  detection_use_case: { glyph: 'UC', categoryLabel: 'Caso de uso de detecção' },
 }
 
 export const NODE_STATE_LABELS: Record<NodeState, string> = {
@@ -48,4 +53,22 @@ export const NODE_STATE_MARKERS: Record<NodeState, string> = {
   expected: 'ok',
   false_positive: 'fp',
   discarded: '--',
+}
+
+export const RELATIONSHIP_TYPE_LABELS: Record<RelationshipType, string> = {
+  executed_by: 'foi executado por',
+  executed_on: 'foi executado em',
+  parent_of: 'é pai de',
+  child_of: 'é filho de',
+  connected_to: 'conectou-se a',
+  downloaded_from: 'foi baixado de',
+  resolved_to: 'resolveu para',
+  authenticated_from: 'autenticou a partir de',
+  targeted: 'teve como alvo',
+  associated_with: 'está associado a',
+  supports_hypothesis: 'sustenta a hipótese',
+  contradicts_hypothesis: 'contradiz a hipótese',
+  maps_to: 'mapeia para',
+  occurred_before: 'ocorreu antes de',
+  occurred_after: 'ocorreu depois de',
 }

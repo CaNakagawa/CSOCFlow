@@ -27,6 +27,8 @@ const investigationEdgeSchema = z.object({
   id: z.string(),
   source: z.string(),
   target: z.string(),
+  sourceHandle: z.string().optional(),
+  targetHandle: z.string().optional(),
   type: z.string(),
   label: z.string().optional(),
   automatic: z.boolean(),

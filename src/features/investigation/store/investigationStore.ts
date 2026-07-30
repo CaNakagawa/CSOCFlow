@@ -8,9 +8,18 @@ import type {
   NodeState,
   RelationshipType,
 } from '../../../shared/types/investigation'
-import type { EvidenceFieldDefinition } from '../../../shared/types/knowledge'
-import type { CheckAnswerRecord, HypothesisResult } from '../../../shared/types/correlation'
+import type {
+  EvidenceFieldDefinition,
+  KnowledgeBase,
+  UseCaseDefinition,
+} from '../../../shared/types/knowledge'
+import type {
+  CheckAnswerRecord,
+  HypothesisResult,
+  UseCaseSuggestion,
+} from '../../../shared/types/correlation'
 import type { Investigation } from '../../../shared/types/investigation'
+import { nextGridPosition } from '../../../shared/utils/layout'
 
 export interface Viewport {
   x: number
@@ -69,6 +78,7 @@ interface InvestigationState {
   selectedNodeId: string | null
   checkAnswers: CheckAnswerRecord[]
   hypothesisResults: HypothesisResult[]
+  useCaseSuggestions: UseCaseSuggestion[]
   analystNotes: string
 
   addNode: (params: {
@@ -78,13 +88,28 @@ interface InvestigationState {
     position: { x: number; y: number }
     fieldDefinitions: EvidenceFieldDefinition[]
   }) => string
+  applyUseCase: (useCase: UseCaseDefinition, knowledgeBase: KnowledgeBase) => void
   updateNodeFields: (nodeId: string, fields: Record<string, unknown>) => void
   updateNodeState: (nodeId: string, state: NodeState) => void
   updateNodeNotes: (nodeId: string, notes: string) => void
   moveNode: (nodeId: string, position: { x: number; y: number }) => void
   removeNode: (nodeId: string) => void
+  duplicateNode: (nodeId: string) => string | undefined
   selectNode: (nodeId: string | null) => void
-  addManualEdge: (source: string, target: string, type: RelationshipType, label?: string) => void
+  addManualEdge: (
+    source: string,
+    target: string,
+    type: RelationshipType,
+    label?: string,
+    sourceHandle?: string,
+    targetHandle?: string,
+  ) => void
+  updateManualEdgeConnection: (
+    edgeId: string,
+    connection: { source: string; target: string; sourceHandle?: string; targetHandle?: string },
+  ) => void
+  updateEdgeLabel: (edgeId: string, label: string) => void
+  updateManualEdgeType: (edgeId: string, type: RelationshipType) => void
   removeEdge: (edgeId: string) => void
   setViewport: (viewport: Viewport) => void
   recordCheckAnswer: (checkId: string, value: string) => void
@@ -92,6 +117,7 @@ interface InvestigationState {
   setAnalystNotes: (notes: string) => void
   setInferredEdges: (edges: InvestigationEdge[]) => void
   setHypothesisResults: (results: HypothesisResult[]) => void
+  setUseCaseSuggestions: (suggestions: UseCaseSuggestion[]) => void
   loadInvestigation: (doc: Investigation) => void
   toDocument: () => Investigation
   newInvestigation: () => void
@@ -110,6 +136,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   selectedNodeId: null,
   checkAnswers: [],
   hypothesisResults: [],
+  useCaseSuggestions: [],
   analystNotes: '',
 
   addNode: ({ nodeType, definitionId, label, position, fieldDefinitions }) => {
@@ -133,6 +160,59 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     }
     set((state) => ({ nodes: [...state.nodes, node], selectedNodeId: id }))
     return id
+  },
+
+  applyUseCase: (useCase, knowledgeBase) => {
+    set((state) => {
+      const now = new Date().toISOString()
+      const nodes = [...state.nodes]
+
+      let useCaseNode = nodes.find(
+        (n) => n.type === 'detection_use_case' && n.definitionId === useCase.id,
+      )
+      if (!useCaseNode) {
+        useCaseNode = {
+          id: generateId('node'),
+          definitionId: useCase.id,
+          type: 'detection_use_case',
+          label: useCase.name,
+          state: 'unknown',
+          position: nextGridPosition(nodes.length),
+          fields: {},
+          notes: '',
+          createdAt: now,
+          updatedAt: now,
+        }
+        nodes.push(useCaseNode)
+      }
+
+      for (const techniqueId of useCase.techniques) {
+        const alreadyPresent = nodes.some(
+          (n) =>
+            (n.type === 'mitre_technique' || n.type === 'mitre_subtechnique') &&
+            n.definitionId === techniqueId,
+        )
+        if (alreadyPresent) continue
+
+        const techniqueDef = knowledgeBase.techniques.find((t) => t.id === techniqueId)
+        if (!techniqueDef) continue
+
+        nodes.push({
+          id: generateId('node'),
+          definitionId: techniqueDef.id,
+          type: techniqueDef.type,
+          label: `${techniqueDef.id} - ${techniqueDef.name}`,
+          state: 'unknown',
+          position: nextGridPosition(nodes.length),
+          fields: {},
+          notes: '',
+          createdAt: now,
+          updatedAt: now,
+        })
+      }
+
+      return { nodes, selectedNodeId: useCaseNode.id }
+    })
   },
 
   updateNodeFields: (nodeId, fields) => {
@@ -176,14 +256,69 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     }))
   },
 
+  duplicateNode: (nodeId) => {
+    const original = get().nodes.find((n) => n.id === nodeId)
+    if (!original) return undefined
+
+    const now = new Date().toISOString()
+    const copy: InvestigationNode = {
+      ...original,
+      id: generateId('node'),
+      label: `${original.label} (cópia)`,
+      position: { x: original.position.x + 30, y: original.position.y + 30 },
+      fields: { ...original.fields },
+      createdAt: now,
+      updatedAt: now,
+    }
+    set((state) => ({ nodes: [...state.nodes, copy], selectedNodeId: copy.id }))
+    return copy.id
+  },
+
   selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
 
-  addManualEdge: (source, target, type, label) => {
+  addManualEdge: (source, target, type, label, sourceHandle, targetHandle) => {
     set((state) => ({
       manualEdges: [
         ...state.manualEdges,
-        { id: generateId('edge'), source, target, type, label, automatic: false },
+        {
+          id: generateId('edge'),
+          source,
+          target,
+          sourceHandle,
+          targetHandle,
+          type,
+          label,
+          automatic: false,
+        },
       ],
+    }))
+  },
+
+  updateManualEdgeConnection: (edgeId, connection) => {
+    set((state) => ({
+      manualEdges: state.manualEdges.map((e) =>
+        e.id === edgeId
+          ? {
+              ...e,
+              source: connection.source,
+              target: connection.target,
+              sourceHandle: connection.sourceHandle,
+              targetHandle: connection.targetHandle,
+            }
+          : e,
+      ),
+    }))
+  },
+
+  updateEdgeLabel: (edgeId, label) => {
+    set((state) => ({
+      manualEdges: state.manualEdges.map((e) => (e.id === edgeId ? { ...e, label } : e)),
+    }))
+  },
+
+  updateManualEdgeType: (edgeId, type) => {
+    set((state) => ({
+      manualEdges: state.manualEdges.map((e) => (e.id === edgeId ? { ...e, type } : e)),
     }))
   },
 
@@ -212,6 +347,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
 
   setInferredEdges: (edges) => set({ inferredEdges: edges }),
   setHypothesisResults: (results) => set({ hypothesisResults: results }),
+  setUseCaseSuggestions: (suggestions) => set({ useCaseSuggestions: suggestions }),
 
   loadInvestigation: (doc) => {
     set({
@@ -223,6 +359,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       selectedNodeId: null,
       checkAnswers: [],
       hypothesisResults: [],
+      useCaseSuggestions: [],
       analystNotes: doc.report.analystNotes,
     })
   },
@@ -260,6 +397,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       selectedNodeId: null,
       checkAnswers: [],
       hypothesisResults: [],
+      useCaseSuggestions: [],
       analystNotes: '',
     })
   },
@@ -271,6 +409,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       inferredEdges: [],
       selectedNodeId: null,
       hypothesisResults: [],
+      useCaseSuggestions: [],
     })
   },
 }))

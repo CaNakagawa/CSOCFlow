@@ -11,6 +11,7 @@ export function useCorrelation(knowledgeBase: KnowledgeBase | null): void {
   const checkAnswers = useInvestigationStore((s) => s.checkAnswers)
   const setInferredEdges = useInvestigationStore((s) => s.setInferredEdges)
   const setHypothesisResults = useInvestigationStore((s) => s.setHypothesisResults)
+  const setUseCaseSuggestions = useInvestigationStore((s) => s.setUseCaseSuggestions)
 
   const engine = useMemo(() => createCorrelationEngine(), [])
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -23,6 +24,7 @@ export function useCorrelation(knowledgeBase: KnowledgeBase | null): void {
       const result = engine.evaluate({ nodes, edges: manualEdges, knowledgeBase, checkAnswers })
       setInferredEdges(result.inferredEdges)
       setHypothesisResults(result.hypotheses)
+      setUseCaseSuggestions(result.useCaseSuggestions)
     }, DEBOUNCE_MS)
 
     return () => {
@@ -36,5 +38,6 @@ export function useCorrelation(knowledgeBase: KnowledgeBase | null): void {
     engine,
     setInferredEdges,
     setHypothesisResults,
+    setUseCaseSuggestions,
   ])
 }

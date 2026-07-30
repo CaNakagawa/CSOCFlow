@@ -1,0 +1,33 @@
+{
+  "id": "use-case.user_account_created_deleted",
+  "name": "User Account Created/Deleted",
+  "description": "Uma conta de usuário foi criada ou excluída no ambiente. Este caso de uso ajuda a diferenciar uma operação de gestão de identidade legítima de uma tentativa de manter acesso persistente através da manipulação de contas.",
+  "tactics": ["TA0003", "TA0004"],
+  "techniques": ["T1098", "T1078"],
+  "investigationSteps": [
+    {
+      "order": 1,
+      "techniqueId": "T1098",
+      "instruction": "Determine quem criou ou excluiu a conta, em qual horário e quais permissões foram atribuídas. Verifique se a ação está associada a um processo de gestão de identidade conhecido (onboarding/offboarding, mudança aprovada).",
+      "detectionStrategies": []
+    },
+    {
+      "order": 2,
+      "techniqueId": "T1078",
+      "instruction": "Valide se a conta que executou a criação/exclusão é ela própria legítima ou possivelmente comprometida. Como Account Manipulation costuma ser uma etapa posterior no ambiente comprometido, é preciso confirmar se houve abuso de uma conta válida para realizar essa ação.",
+      "detectionStrategies": [
+        {
+          "id": "DET0560",
+          "name": "MITRE ATT&CK Detection Strategy para validar abuso de conta válida (Valid Accounts)",
+          "url": "https://attack.mitre.org/detectionstrategies/DET0560/"
+        }
+      ]
+    }
+  ],
+  "dataSources": ["Security Events (Windows)", "Diretório de identidade (Azure AD / Active Directory)"],
+  "relatedHypotheses": [],
+  "sourceReference": {
+    "title": "Microsoft Sentinel: User account created/deleted",
+    "url": "https://github.com/Azure/Azure-Sentinel/blob/master/Detections/SecurityEvent/UserAccountCreatedDeleted_10m.yaml"
+  }
+}

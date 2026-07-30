@@ -17,7 +17,8 @@ export function GenericNode({ data, selected }: NodeProps) {
     <div
       className={`generic-node generic-node--${state}${selected ? ' generic-node--selected' : ''}`}
     >
-      <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Top} id="top" />
+      <Handle type="target" position={Position.Left} id="left" />
       <div className="generic-node__header">
         <span className="generic-node__glyph" aria-hidden="true">
           {visual.glyph}
@@ -28,7 +29,8 @@ export function GenericNode({ data, selected }: NodeProps) {
       <div className="generic-node__state" title={`Estado: ${NODE_STATE_LABELS[state]}`}>
         <span aria-hidden="true">{NODE_STATE_MARKERS[state]}</span> {NODE_STATE_LABELS[state]}
       </div>
-      <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position={Position.Bottom} id="bottom" />
+      <Handle type="source" position={Position.Right} id="right" />
     </div>
   )
 }

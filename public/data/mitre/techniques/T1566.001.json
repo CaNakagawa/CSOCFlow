@@ -1,0 +1,33 @@
+{
+  "id": "T1566.001",
+  "name": "Spearphishing Attachment",
+  "type": "mitre_subtechnique",
+  "tactics": ["TA0001"],
+  "platforms": ["Windows", "Linux", "macOS", "Office 365", "Google Workspace"],
+  "brief": "Uma variante de phishing em que o vetor de acesso inicial é um anexo malicioso enviado por e-mail, direcionado a um alvo específico.",
+  "investigation_context": {
+    "what_it_means": "Indica que um e-mail direcionado contendo um anexo potencialmente malicioso foi entregue (e possivelmente aberto).",
+    "why_it_matters": "Diferente do phishing em massa, o spearphishing é direcionado, geralmente com maior sofisticação e taxa de sucesso.",
+    "suspicious_when": [
+      "Anexo do tipo documento com macro habilitada, script ou arquivo compactado protegido por senha",
+      "Anexo gera processo filho incomum ao ser aberto (ex: Word gerando PowerShell)",
+      "E-mail direcionado a cargos específicos (executivos, TI, financeiro)"
+    ],
+    "legitimate_when": [
+      "Anexo de fornecedor ou parceiro validado, com formato e comportamento esperados"
+    ],
+    "common_mistakes": [
+      "Não analisar a árvore de processos gerada após a abertura do anexo",
+      "Focar apenas na detecção de antivírus sobre o arquivo, ignorando o comportamento pós-abertura"
+    ]
+  },
+  "expected_evidence": ["email", "file", "process", "user", "host"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1566.001 Spearphishing Attachment",
+      "url": "https://attack.mitre.org/techniques/T1566/001/"
+    }
+  ]
+}

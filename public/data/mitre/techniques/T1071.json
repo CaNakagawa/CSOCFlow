@@ -1,0 +1,36 @@
+{
+  "id": "T1071",
+  "name": "Application Layer Protocol",
+  "type": "mitre_technique",
+  "tactics": ["TA0011"],
+  "platforms": ["Windows", "Linux", "macOS"],
+  "brief": "Adversários podem se comunicar com sistemas comprometidos usando protocolos de camada de aplicação (HTTP, HTTPS, DNS etc.) para se misturar com o tráfego normal da rede.",
+  "investigation_context": {
+    "what_it_means": "Indica comunicação de rede usando um protocolo de aplicação comum, potencialmente como canal de comando e controle (C2).",
+    "why_it_matters": "Usar protocolos comuns dificulta a diferenciação entre tráfego legítimo e malicioso, já que o C2 se mistura ao tráfego web/DNS normal do ambiente.",
+    "suspicious_when": [
+      "Conexão para domínio recém-registrado ou com reputação suspeita",
+      "Padrão de beaconing (conexões periódicas e regulares para o mesmo destino)",
+      "Processo incomum realizando a conexão (ex: processo do sistema conectando à internet)",
+      "Volume ou horário de tráfego incompatível com o uso normal do host"
+    ],
+    "legitimate_when": [
+      "Conexão para serviço/domínio corporativo conhecido",
+      "Padrão de tráfego consistente com aplicações legítimas instaladas"
+    ],
+    "common_mistakes": [
+      "Assumir que tráfego HTTPS é sempre seguro por estar criptografado",
+      "Não avaliar reputação e idade do domínio de destino",
+      "Ignorar metadados de conexão (processo de origem, frequência, volume)"
+    ]
+  },
+  "expected_evidence": ["network_connection", "domain", "ip_address", "process"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1071 Application Layer Protocol",
+      "url": "https://attack.mitre.org/techniques/T1071/"
+    }
+  ]
+}

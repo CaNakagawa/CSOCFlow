@@ -7,7 +7,7 @@ export const manifestSchema = z.object({
   evidenceTypes: z.array(z.string()),
   hypotheses: z.array(z.string()),
   checks: z.array(z.string()),
-  investigationPatterns: z.array(z.string()),
+  useCases: z.array(z.string()),
   relationships: z.array(z.string()),
 })
 

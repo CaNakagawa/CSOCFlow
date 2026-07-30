@@ -11,6 +11,8 @@ import type { EngineContext } from './facts'
 import { normalizeScore, confidenceLevelFor } from './scoring'
 import { explainHypothesis } from '../explainers/explainHypothesis'
 import { inferRelationships } from './inferRelationships'
+import { inferUseCaseLinks } from './inferUseCaseLinks'
+import { suggestUseCases } from './suggestUseCases'
 
 function evaluateHypothesis(
   hypothesis: HypothesisDefinition,
@@ -102,9 +104,14 @@ export function createCorrelationEngine(): CorrelationEngine {
         })
         .sort((a, b) => b.normalizedScore - a.normalizedScore)
 
-      const inferredEdges = inferRelationships(input.nodes, input.knowledgeBase.relationshipRules)
+      const inferredEdges = [
+        ...inferRelationships(input.nodes, input.knowledgeBase.relationshipRules),
+        ...inferUseCaseLinks(input.nodes, input.knowledgeBase.useCases),
+      ]
 
-      return { hypotheses, inferredEdges }
+      const useCaseSuggestions = suggestUseCases(input.nodes, input.knowledgeBase.useCases)
+
+      return { hypotheses, inferredEdges, useCaseSuggestions }
     },
   }
 }

@@ -1,19 +1,15 @@
 import type {
   EvidenceTypeDefinition,
   HypothesisDefinition,
-  InvestigationPatternDefinition,
   KnowledgeBase,
   MitreTactic,
   MitreTechnique,
   RecommendedCheckDefinition,
   RelationshipRule,
+  UseCaseDefinition,
 } from '../../../shared/types/knowledge'
 import { manifestSchema } from './manifestSchema'
-import {
-  mitreTacticSchema,
-  investigationPatternSchema,
-  relationshipRuleSchema,
-} from './lightSchemas'
+import { mitreTacticSchema, relationshipRuleSchema } from './lightSchemas'
 import { createSchemaValidator } from './schemaValidator'
 import type { KnowledgeSource } from './source'
 import { KnowledgeLoadError } from './errors'
@@ -23,6 +19,7 @@ const SCHEMA_PATHS = {
   evidence: 'schemas/evidence.schema.json',
   hypothesis: 'schemas/hypothesis.schema.json',
   check: 'schemas/check.schema.json',
+  useCase: 'schemas/use-case.schema.json',
 } as const
 
 export interface LoadKnowledgeBaseOptions {
@@ -103,10 +100,13 @@ export async function loadKnowledgeBase(
     },
   )
 
-  const investigationPatterns = await loadArray<InvestigationPatternDefinition>(
+  const useCases = await loadArray<UseCaseDefinition>(
     source,
-    manifest.investigationPatterns,
-    (data) => investigationPatternSchema.parse(data),
+    manifest.useCases,
+    async (data, path) => {
+      if (validate) await schemaValidator.validate(SCHEMA_PATHS.useCase, path, data)
+      return data as UseCaseDefinition
+    },
   )
 
   const relationshipRules: RelationshipRule[] = []
@@ -123,7 +123,7 @@ export async function loadKnowledgeBase(
     evidenceTypes,
     hypotheses,
     checks,
-    investigationPatterns,
+    useCases,
     relationshipRules,
   }
 }

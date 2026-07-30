@@ -1,0 +1,39 @@
+{
+  "id": "T1059.001",
+  "name": "PowerShell",
+  "type": "mitre_subtechnique",
+  "tactics": ["TA0002"],
+  "platforms": ["Windows"],
+  "brief": "PowerShell é uma ferramenta legítima de automação do Windows que também pode ser utilizada por atacantes para executar comandos, baixar arquivos e operar sem criar executáveis tradicionais.",
+  "investigation_context": {
+    "what_it_means": "Indica que o PowerShell foi utilizado em alguma atividade observada.",
+    "why_it_matters": "PowerShell é legítimo, mas frequentemente utilizado para execução, download e evasão por sua profunda integração com o Windows e capacidade de operar apenas em memória.",
+    "suspicious_when": [
+      "Executado por navegador ou aplicativo Office",
+      "Uso de parâmetros de codificação ou ocultação (-EncodedCommand, -WindowStyle Hidden)",
+      "Download de conteúdo remoto (Invoke-WebRequest, IEX)",
+      "Execução a partir de diretórios temporários",
+      "Criação de processos incomuns a partir do PowerShell"
+    ],
+    "legitimate_when": [
+      "Executado por ferramentas corporativas autorizadas",
+      "Script conhecido e assinado",
+      "Comando recorrente no mesmo host",
+      "Atividade associada a uma mudança aprovada"
+    ],
+    "common_mistakes": [
+      "Classificar toda execução de PowerShell como maliciosa",
+      "Analisar apenas o nome do processo",
+      "Ignorar processo pai, usuário e linha de comando"
+    ]
+  },
+  "expected_evidence": ["process", "command_line", "user", "host", "network_connection"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1059.001 PowerShell",
+      "url": "https://attack.mitre.org/techniques/T1059/001/"
+    }
+  ]
+}

@@ -7,6 +7,39 @@
   background: var(--panel-bg);
 }
 
+.right-panel--collapsed {
+  width: 28px;
+  align-items: center;
+  padding-top: 12px;
+}
+
+.right-panel__collapse-toggle {
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--panel-border, #334155);
+  background: var(--input-bg, #1e293b);
+  color: inherit;
+  cursor: pointer;
+}
+
+.right-panel__tabs .right-panel__collapse-toggle {
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  opacity: 0.7;
+  padding: 10px;
+}
+
+.right-panel__tabs .right-panel__collapse-toggle:hover {
+  opacity: 1;
+  background: var(--input-bg, #1e293b);
+}
+
 .right-panel__tabs {
   display: flex;
   border-bottom: 1px solid var(--panel-border);

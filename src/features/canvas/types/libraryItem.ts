@@ -8,6 +8,7 @@ export interface LibraryItem {
   category: string
   brief?: string
   fieldDefinitions: EvidenceFieldDefinition[]
+  isUseCase?: boolean
 }
 
 const GENERIC_ITEMS: LibraryItem[] = [
@@ -35,18 +36,26 @@ const GENERIC_ITEMS: LibraryItem[] = [
     definitionId: 'generic.analyst_note',
     nodeType: 'analyst_note',
     label: 'Observação do analista',
-    category: 'Observações do analista',
+    category: 'Observações do Analista',
     brief: 'Uma anotação livre do analista sobre a investigação.',
     fieldDefinitions: [{ id: 'text', label: 'Texto', type: 'string', required: false }],
   },
 ]
 
 export function buildLibraryItems(knowledgeBase: KnowledgeBase): LibraryItem[] {
+  const tacticItems: LibraryItem[] = knowledgeBase.tactics.map((tactic) => ({
+    definitionId: tactic.id,
+    nodeType: 'mitre_tactic',
+    label: `${tactic.id} - ${tactic.name}`,
+    category: 'Táticas MITRE ATT&CK',
+    fieldDefinitions: [],
+  }))
+
   const techniqueItems: LibraryItem[] = knowledgeBase.techniques.map((technique) => ({
     definitionId: technique.id,
     nodeType: technique.type,
     label: `${technique.id} - ${technique.name}`,
-    category: 'MITRE ATT&CK',
+    category: 'Técnicas MITRE ATT&CK',
     brief: technique.brief,
     fieldDefinitions: [],
   }))
@@ -60,5 +69,15 @@ export function buildLibraryItems(knowledgeBase: KnowledgeBase): LibraryItem[] {
     fieldDefinitions: evidenceType.fields,
   }))
 
-  return [...techniqueItems, ...evidenceItems, ...GENERIC_ITEMS]
+  const useCaseItems: LibraryItem[] = knowledgeBase.useCases.map((useCase) => ({
+    definitionId: useCase.id,
+    nodeType: 'detection_use_case',
+    label: useCase.name,
+    category: 'Casos de Uso',
+    brief: useCase.description,
+    fieldDefinitions: [],
+    isUseCase: true,
+  }))
+
+  return [...tacticItems, ...techniqueItems, ...evidenceItems, ...useCaseItems, ...GENERIC_ITEMS]
 }

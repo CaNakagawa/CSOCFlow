@@ -6,6 +6,7 @@ import techniqueSchema from '../../../../public/data/schemas/technique.schema.js
 import evidenceSchema from '../../../../public/data/schemas/evidence.schema.json'
 import hypothesisSchema from '../../../../public/data/schemas/hypothesis.schema.json'
 import checkSchema from '../../../../public/data/schemas/check.schema.json'
+import useCaseSchema from '../../../../public/data/schemas/use-case.schema.json'
 
 const validTechnique = {
   id: 'T1110',
@@ -33,6 +34,7 @@ function baseFiles() {
     'schemas/evidence.schema.json': evidenceSchema,
     'schemas/hypothesis.schema.json': hypothesisSchema,
     'schemas/check.schema.json': checkSchema,
+    'schemas/use-case.schema.json': useCaseSchema,
     'mitre/tactics.json': [
       { id: 'TA0006', name: 'Credential Access', shortName: 'credential-access' },
     ],
@@ -50,7 +52,7 @@ describe('loadKnowledgeBase', () => {
         evidenceTypes: [],
         hypotheses: [],
         checks: [],
-        investigationPatterns: [],
+        useCases: [],
         relationships: ['relationships/relationships.json'],
       },
       ...baseFiles(),
@@ -74,7 +76,7 @@ describe('loadKnowledgeBase', () => {
         evidenceTypes: [],
         hypotheses: [],
         checks: [],
-        investigationPatterns: [],
+        useCases: [],
         relationships: [],
       },
       ...baseFiles(),
@@ -94,7 +96,7 @@ describe('loadKnowledgeBase', () => {
         evidenceTypes: [],
         hypotheses: [],
         checks: [],
-        investigationPatterns: [],
+        useCases: [],
         relationships: [],
       },
       ...baseFiles(),

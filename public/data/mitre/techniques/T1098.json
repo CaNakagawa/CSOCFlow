@@ -1,0 +1,35 @@
+{
+  "id": "T1098",
+  "name": "Account Manipulation",
+  "type": "mitre_technique",
+  "tactics": ["TA0003", "TA0004"],
+  "platforms": ["Windows", "Linux", "macOS", "Azure AD", "Office 365", "SaaS", "IaaS", "Google Workspace"],
+  "brief": "Adversários podem manipular contas para manter o acesso a um ambiente comprometido, alterando permissões, credenciais ou propriedades de uma conta (incluindo a criação e exclusão de contas).",
+  "investigation_context": {
+    "what_it_means": "Indica que uma conta foi criada, excluída ou teve suas permissões/credenciais alteradas de forma a manter ou expandir o acesso do adversário.",
+    "why_it_matters": "É uma técnica comum de persistência: mesmo que a credencial inicial usada para entrar seja revogada, uma conta manipulada (nova conta, permissões adicionadas, credencial adicionada) permite que o atacante continue com acesso.",
+    "suspicious_when": [
+      "Criação ou exclusão de conta fora do processo normal de gestão de identidade",
+      "Conta criada por outra conta que não pertence à equipe de TI/identidade",
+      "Adição de permissões privilegiadas a uma conta logo após criação",
+      "Exclusão de conta seguida de atividade suspeita da conta que a excluiu"
+    ],
+    "legitimate_when": [
+      "Processo automatizado de provisionamento/desprovisionamento (onboarding/offboarding)",
+      "Ação realizada por administrador de identidade dentro de uma janela de mudança aprovada"
+    ],
+    "common_mistakes": [
+      "Tratar toda criação/exclusão de conta como maliciosa sem checar o processo de gestão de identidade",
+      "Não verificar quem executou a ação (ator) e sua legitimidade"
+    ]
+  },
+  "expected_evidence": ["authentication_event", "user", "alert"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1098 Account Manipulation",
+      "url": "https://attack.mitre.org/techniques/T1098/"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "T1003",
+  "name": "OS Credential Dumping",
+  "type": "mitre_technique",
+  "tactics": ["TA0006"],
+  "platforms": ["Windows", "Linux", "macOS"],
+  "brief": "Adversários podem tentar extrair credenciais de contas na forma de hashes ou senhas em texto claro a partir do sistema operacional (ex: LSASS, SAM, /etc/shadow).",
+  "investigation_context": {
+    "what_it_means": "Indica uma tentativa de acessar ou extrair credenciais armazenadas localmente no sistema operacional.",
+    "why_it_matters": "Credenciais obtidas dessa forma frequentemente permitem movimentação lateral e escalonamento de privilégio no ambiente, incluindo contas administrativas.",
+    "suspicious_when": [
+      "Acesso ao processo LSASS por uma ferramenta que não seja o próprio sistema operacional",
+      "Uso de utilitários conhecidos de dump de credenciais (ex: Mimikatz) ou comportamento equivalente",
+      "Cópia ou leitura de arquivos como SAM, SYSTEM ou /etc/shadow fora de rotina de backup",
+      "Ferramenta de dump executada logo após obtenção de privilégio elevado"
+    ],
+    "legitimate_when": [
+      "Ferramenta de segurança corporativa autorizada realizando auditoria de credenciais",
+      "Processo de backup de sistema documentado"
+    ],
+    "common_mistakes": [
+      "Focar apenas na assinatura da ferramenta e ignorar o comportamento de acesso ao LSASS",
+      "Não verificar o que foi feito com as credenciais após o dump (uso subsequente)",
+      "Assumir que apenas ferramentas conhecidas realizam essa técnica"
+    ]
+  },
+  "expected_evidence": ["process", "host", "user", "file"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1003 OS Credential Dumping",
+      "url": "https://attack.mitre.org/techniques/T1003/"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "T1105",
+  "name": "Ingress Tool Transfer",
+  "type": "mitre_technique",
+  "tactics": ["TA0011"],
+  "platforms": ["Windows", "Linux", "macOS"],
+  "brief": "Adversários podem transferir ferramentas ou outros arquivos de um sistema externo para o ambiente comprometido, geralmente para dar continuidade ao ataque.",
+  "investigation_context": {
+    "what_it_means": "Indica que um arquivo foi baixado de uma origem externa para dentro do ambiente após o comprometimento inicial.",
+    "why_it_matters": "Frequentemente é o passo que introduz ferramentas adicionais (malware secundário, utilitários de exfiltração, ferramentas de movimentação lateral) no ambiente.",
+    "suspicious_when": [
+      "Download realizado por um processo de script/interpretador logo após execução inicial",
+      "Origem do download é um domínio ou IP com reputação suspeita",
+      "Arquivo baixado para diretório temporário e executado em seguida",
+      "Ferramenta de administração remota ou de rede baixando executáveis sem contexto de mudança aprovada"
+    ],
+    "legitimate_when": [
+      "Download realizado por gerenciador de pacotes ou ferramenta de atualização corporativa",
+      "Origem é um repositório interno ou fornecedor de software conhecido"
+    ],
+    "common_mistakes": [
+      "Não relacionar o download com a execução subsequente do arquivo",
+      "Ignorar downloads por serem feitos via HTTPS (assumindo legitimidade)",
+      "Focar apenas no arquivo baixado sem investigar o processo que o baixou"
+    ]
+  },
+  "expected_evidence": ["file", "network_connection", "domain", "ip_address", "process"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1105 Ingress Tool Transfer",
+      "url": "https://attack.mitre.org/techniques/T1105/"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://csocflow/schemas/use-case.schema.json",
+  "title": "UseCaseDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "description",
+    "tactics",
+    "techniques",
+    "investigationSteps",
+    "dataSources",
+    "relatedHypotheses",
+    "sourceReference"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^use-case\\." },
+    "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "tactics": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^TA[0-9]{4}$" },
+      "minItems": 1
+    },
+    "techniques": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$" },
+      "minItems": 1
+    },
+    "investigationSteps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["order", "techniqueId", "instruction", "detectionStrategies"],
+        "properties": {
+          "order": { "type": "number" },
+          "techniqueId": { "type": "string" },
+          "instruction": { "type": "string", "minLength": 1 },
+          "detectionStrategies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "name", "url"],
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "url": { "type": "string", "format": "uri" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dataSources": { "type": "array", "items": { "type": "string" } },
+    "relatedHypotheses": { "type": "array", "items": { "type": "string" } },
+    "sourceReference": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["title", "url"],
+          "properties": {
+            "title": { "type": "string" },
+            "url": { "type": "string", "format": "uri" }
+          }
+        }
+      ]
+    }
+  }
+}

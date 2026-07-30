@@ -1,0 +1,121 @@
+.use-case-card {
+  border: 1px solid var(--panel-border, #334155);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.use-case-card--applied {
+  border-left: 4px solid #22c55e;
+}
+
+.use-case-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.use-case-card__header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.use-case-card__badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.use-case-card__description,
+.use-case-card__meta,
+.use-case-card__data-sources,
+.use-case-card__source {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.use-case-card__meta,
+.use-case-card__data-sources {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.use-case-card__techniques {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.use-case-card__techniques li {
+  font-size: 11px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border, #334155);
+}
+
+.use-case-card__technique--matched {
+  border-color: #22c55e;
+}
+
+.use-case-card__technique--missing {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
+.use-case-card__apply {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border, #334155);
+  background: var(--input-bg, #1e293b);
+  color: inherit;
+  cursor: pointer;
+}
+
+.use-case-card__apply:hover {
+  background: #334155;
+}
+
+.use-case-card__steps summary {
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.use-case-card__steps ol {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.use-case-card__step-technique {
+  margin: 0;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.use-case-card__steps li > p {
+  margin: 2px 0;
+}
+
+.use-case-card__detection-strategies {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 11px;
+}
+
+.use-case-card__source a,
+.use-case-card__detection-strategies a {
+  color: #38bdf8;
+}

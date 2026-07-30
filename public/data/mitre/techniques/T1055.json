@@ -1,0 +1,36 @@
+{
+  "id": "T1055",
+  "name": "Process Injection",
+  "type": "mitre_technique",
+  "tactics": ["TA0004", "TA0005"],
+  "platforms": ["Windows", "Linux", "macOS"],
+  "brief": "Adversários podem injetar código em processos legítimos para executar em seu contexto, evitando defesas baseadas em detecção de processo e possivelmente elevando privilégios.",
+  "investigation_context": {
+    "what_it_means": "Indica que código foi executado dentro do espaço de memória de outro processo, em vez de rodar como um processo próprio e independente.",
+    "why_it_matters": "É uma técnica de evasão de defesa muito usada, pois o código malicioso passa a operar sob a identidade de um processo confiável (ex: explorer.exe, svchost.exe), dificultando a detecção.",
+    "suspicious_when": [
+      "Processo legítimo do sistema com conexões de rede ou comportamento incomum",
+      "Chamadas de API associadas a injeção (CreateRemoteThread, VirtualAllocEx) sem contexto esperado",
+      "Processo confiável carregando módulos não assinados ou fora do padrão",
+      "Discrepância entre o processo esperado e sua árvore de processos/rede observada"
+    ],
+    "legitimate_when": [
+      "Uso por ferramentas de segurança, depuração ou virtualização conhecidas",
+      "Comportamento documentado de software de terceiros legítimo"
+    ],
+    "common_mistakes": [
+      "Confiar apenas no nome do processo sem validar seu comportamento",
+      "Não correlacionar o processo injetado com a atividade de rede/arquivo observada",
+      "Ignorar sinais de injeção por não haver um novo processo criado"
+    ]
+  },
+  "expected_evidence": ["process", "host", "network_connection"],
+  "related_hypotheses": [],
+  "suggested_checks": [],
+  "references": [
+    {
+      "title": "MITRE ATT&CK - T1055 Process Injection",
+      "url": "https://attack.mitre.org/techniques/T1055/"
+    }
+  ]
+}

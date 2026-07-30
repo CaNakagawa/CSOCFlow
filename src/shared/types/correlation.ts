@@ -33,9 +33,18 @@ export interface CorrelationInput {
   checkAnswers: CheckAnswerRecord[]
 }
 
+export interface UseCaseSuggestion {
+  useCaseId: string
+  matchedTechniques: string[]
+  missingTechniques: string[]
+  matchRatio: number
+  applied: boolean
+}
+
 export interface CorrelationResult {
   hypotheses: HypothesisResult[]
   inferredEdges: InvestigationEdge[]
+  useCaseSuggestions: UseCaseSuggestion[]
 }
 
 export interface CorrelationEngine {

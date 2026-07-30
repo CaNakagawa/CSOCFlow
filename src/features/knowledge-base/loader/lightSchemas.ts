@@ -23,6 +23,7 @@ const canvasNodeTypeSchema = z.enum([
   'evidence',
   'analyst_note',
   'hypothesis',
+  'detection_use_case',
 ])
 
 const relationshipTypeSchema = z.enum([
@@ -47,14 +48,6 @@ export const mitreTacticSchema = z.object({
   id: z.string(),
   name: z.string(),
   shortName: z.string(),
-})
-
-export const investigationPatternSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  hypotheses: z.array(z.string()),
-  suggested_evidence: z.array(z.string()),
 })
 
 export const relationshipRuleSchema = z.object({

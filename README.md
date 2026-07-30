@@ -6,6 +6,13 @@ dia operacional de um SOC: você adiciona os fatos que encontrou (alertas, event
 IPs, hashes, técnicas MITRE ATT&CK...) e a aplicação correlaciona essas evidências, sugere hipóteses de ataque,
 explica por que cada hipótese foi sugerida e recomenda os próximos passos da investigação.
 
+A plataforma também é orientada a **casos de uso de detecção**: uma base de conhecimento de cenários conhecidos
+(inspirados em regras de SIEM, como as analytics rules do Microsoft Sentinel) mapeia técnicas e táticas MITRE
+ATT&CK para nomes de detecção reconhecíveis pelo analista. Ao adicionar técnicas ao canvas, a aplicação sugere
+automaticamente os casos de uso compatíveis; ao aplicar um caso de uso, ela conecta as técnicas relacionadas e
+apresenta um passo a passo de investigação — incluindo, quando disponível, links para MITRE ATT&CK Detection
+Strategies que ajudam a validar cada etapa.
+
 > ⚠️ **A aplicação auxilia o raciocínio investigativo, mas não confirma incidentes automaticamente.** As pontuações
 > de compatibilidade são calculadas por um conjunto de regras determinísticas e pesos — não são uma classificação
 > definitiva. A decisão final é sempre do analista.
@@ -69,10 +76,11 @@ src/
     knowledge-base/    Carregador + validador (JSON Schema/Zod) da base de conhecimento — não depende de React
     correlation/       Motor de correlação puro (operadores, pontuação, explicações, inferência de relações)
     hypotheses/        Painel de hipóteses
+    use-cases/         Painel e card de casos de uso de detecção (sugestão + passo a passo de investigação)
     investigation/     Estado da investigação (Zustand), repositório (Dexie/IndexedDB), casos de demonstração
 
 public/data/           Base de conhecimento em JSON (técnicas MITRE, evidências, hipóteses, verificações,
-                       padrões investigativos, relações automáticas) + JSON Schemas
+                       casos de uso de detecção, relações automáticas) + JSON Schemas
 scripts/               Scripts de build/CI (validação da base de conhecimento)
 ```
 
@@ -93,7 +101,7 @@ Toda a base de conhecimento vive em `public/data/` como JSON puro (nunca código
 `public/data/manifest.json`. Para adicionar conteúdo:
 
 1. Crie o arquivo JSON seguindo um dos schemas em `public/data/schemas/` (`technique.schema.json`,
-   `evidence.schema.json`, `hypothesis.schema.json`, `check.schema.json`).
+   `evidence.schema.json`, `hypothesis.schema.json`, `check.schema.json`, `use-case.schema.json`).
 2. Referencie o novo arquivo em `manifest.json`.
 3. Rode `npm run validate:knowledge` para confirmar que o arquivo é válido — um arquivo inválido nunca falha
    silenciosamente: o erro aponta o arquivo, o campo e o motivo.
@@ -102,8 +110,8 @@ Nenhuma mudança de código é necessária para ampliar a base de conhecimento.
 
 ## Limitações
 
-- Apenas o padrão investigativo "Autenticação suspeita" (hipótese SSH Brute Force) está completo; os demais padrões
-  descritos na especificação original ainda não foram implementados.
+- Apenas dois casos de uso de detecção estão completos ("Autenticação suspeita" e "User Account Created/Deleted");
+  os demais cenários descritos na especificação original ainda não foram implementados.
 - Não há geração de relatório em Markdown, linha do tempo visual completa, desfazer/refazer, nem testes end-to-end
   ainda.
 - O layout prioriza uso em desktop.
