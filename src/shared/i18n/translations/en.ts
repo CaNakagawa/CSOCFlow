@@ -30,6 +30,7 @@ export const en = {
   'library.searchPlaceholder': 'Search technique, evidence...',
   'library.searchLabel': 'Search the library',
   'library.empty': 'No item found.',
+  'library.truncated': 'Showing the first {count} matches. Refine your search.',
   'library.collapse': 'Collapse library',
   'library.expand': 'Expand library',
   'library.expandSubtechniques': 'Expand subtechniques',

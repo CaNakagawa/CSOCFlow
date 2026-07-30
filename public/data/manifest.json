@@ -19,7 +19,8 @@
     "mitre/techniques/T1566.001.json",
     "mitre/techniques/T1082.json",
     "mitre/techniques/T1021.json",
-    "mitre/techniques/T1041.json"
+    "mitre/techniques/T1041.json",
+    "mitre/techniques/attack-catalog.json"
   ],
   "evidenceTypes": [
     "evidence-types/authentication.json",

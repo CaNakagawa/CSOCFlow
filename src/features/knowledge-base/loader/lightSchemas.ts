@@ -46,8 +46,8 @@ const relationshipTypeSchema = z.enum([
 
 const localizedTextSchema = z.object({
   en: z.string(),
-  pt: z.string(),
-  de: z.string(),
+  pt: z.string().optional(),
+  de: z.string().optional(),
 })
 
 export const mitreTacticSchema = z.object({

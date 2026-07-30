@@ -16,17 +16,30 @@
     "sourceReference"
   ],
   "properties": {
-    "id": { "type": "string", "pattern": "^use-case\\." },
-    "name": { "$ref": "#/definitions/localizedText" },
-    "description": { "$ref": "#/definitions/localizedText" },
+    "id": {
+      "type": "string",
+      "pattern": "^use-case\\."
+    },
+    "name": {
+      "$ref": "#/definitions/localizedText"
+    },
+    "description": {
+      "$ref": "#/definitions/localizedText"
+    },
     "tactics": {
       "type": "array",
-      "items": { "type": "string", "pattern": "^TA[0-9]{4}$" },
+      "items": {
+        "type": "string",
+        "pattern": "^TA[0-9]{4}$"
+      },
       "minItems": 1
     },
     "techniques": {
       "type": "array",
-      "items": { "type": "string", "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$" },
+      "items": {
+        "type": "string",
+        "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+      },
       "minItems": 1
     },
     "investigationSteps": {
@@ -34,39 +47,78 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["order", "techniqueId", "instruction", "detectionStrategies"],
+        "required": [
+          "order",
+          "techniqueId",
+          "instruction",
+          "detectionStrategies"
+        ],
         "properties": {
-          "order": { "type": "number" },
-          "techniqueId": { "type": "string" },
-          "instruction": { "$ref": "#/definitions/localizedText" },
+          "order": {
+            "type": "number"
+          },
+          "techniqueId": {
+            "type": "string"
+          },
+          "instruction": {
+            "$ref": "#/definitions/localizedText"
+          },
           "detectionStrategies": {
             "type": "array",
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["id", "name", "url"],
+              "required": [
+                "id",
+                "name",
+                "url"
+              ],
               "properties": {
-                "id": { "type": "string" },
-                "name": { "$ref": "#/definitions/localizedText" },
-                "url": { "type": "string", "format": "uri" }
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "$ref": "#/definitions/localizedText"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                }
               }
             }
           }
         }
       }
     },
-    "dataSources": { "$ref": "#/definitions/localizedList" },
-    "relatedHypotheses": { "type": "array", "items": { "type": "string" } },
+    "dataSources": {
+      "$ref": "#/definitions/localizedList"
+    },
+    "relatedHypotheses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "sourceReference": {
       "oneOf": [
-        { "type": "null" },
+        {
+          "type": "null"
+        },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["title", "url"],
+          "required": [
+            "title",
+            "url"
+          ],
           "properties": {
-            "title": { "type": "string" },
-            "url": { "type": "string", "format": "uri" }
+            "title": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
           }
         }
       ]
@@ -76,21 +128,49 @@
     "localizedText": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["en", "pt", "de"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "string", "minLength": 1 },
-        "pt": { "type": "string", "minLength": 1 },
-        "de": { "type": "string", "minLength": 1 }
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "de": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "localizedList": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["en", "pt", "de"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "array", "items": { "type": "string" } },
-        "pt": { "type": "array", "items": { "type": "string" } },
-        "de": { "type": "array", "items": { "type": "string" } }
+        "en": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pt": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "de": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     }
   }

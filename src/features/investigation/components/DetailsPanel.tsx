@@ -43,14 +43,19 @@ function findEducationalContent(
     const tacticNames = technique.tactics.map(
       (tacticId) => knowledgeBase.tactics.find((t) => t.id === tacticId)?.name ?? tacticId,
     )
+    // Techniques imported in bulk from MITRE carry no curated teaching content;
+    // their MITRE summary stands in for it and the extra sections stay empty.
+    const context = technique.investigation_context
     return {
       title: `${technique.id} - ${technique.name}`,
       tactics: tacticNames,
-      whatItMeans: localize(technique.investigation_context.what_it_means, locale),
-      whyItMatters: localize(technique.investigation_context.why_it_matters, locale),
-      suspiciousWhen: localizeList(technique.investigation_context.suspicious_when, locale),
-      legitimateWhen: localizeList(technique.investigation_context.legitimate_when, locale),
-      commonMistakes: localizeList(technique.investigation_context.common_mistakes, locale),
+      whatItMeans: context
+        ? localize(context.what_it_means, locale)
+        : localize(technique.brief, locale),
+      whyItMatters: context ? localize(context.why_it_matters, locale) : '',
+      suspiciousWhen: context ? localizeList(context.suspicious_when, locale) : [],
+      legitimateWhen: context ? localizeList(context.legitimate_when, locale) : [],
+      commonMistakes: context ? localizeList(context.common_mistakes, locale) : [],
       detectionAnalytics: technique.detection_analytics,
     }
   }
@@ -186,7 +191,7 @@ export function DetailsPanel({ knowledgeBase }: DetailsPanelProps) {
             </p>
           )}
           <p>{education.whatItMeans}</p>
-          <p className="details-panel__why">{education.whyItMatters}</p>
+          {education.whyItMatters && <p className="details-panel__why">{education.whyItMatters}</p>}
           {education.suspiciousWhen.length > 0 && (
             <>
               <h5>{t('details.suspiciousWhen')}</h5>
@@ -224,7 +229,10 @@ export function DetailsPanel({ knowledgeBase }: DetailsPanelProps) {
                 {education.detectionAnalytics.map((analytic) => {
                   const status: AnalyticStatus = node.analyticStatuses?.[analytic.id] ?? 'pending'
                   return (
-                    <li key={analytic.id} className={`details-panel__analytic details-panel__analytic--${status}`}>
+                    <li
+                      key={analytic.id}
+                      className={`details-panel__analytic details-panel__analytic--${status}`}
+                    >
                       <p className="details-panel__analytic-id">
                         <a href={analytic.url} target="_blank" rel="noopener noreferrer">
                           {analytic.id}
@@ -240,14 +248,18 @@ export function DetailsPanel({ knowledgeBase }: DetailsPanelProps) {
                           className={status === 'confirmed' ? 'active' : ''}
                           onClick={() => setAnalyticStatus(node.id, analytic.id, 'confirmed')}
                         >
-                          {status === 'confirmed' ? t('details.analyticConfirmed') : t('details.analyticConfirm')}
+                          {status === 'confirmed'
+                            ? t('details.analyticConfirmed')
+                            : t('details.analyticConfirm')}
                         </button>
                         <button
                           type="button"
                           className={status === 'not_confirmed' ? 'active' : ''}
                           onClick={() => setAnalyticStatus(node.id, analytic.id, 'not_confirmed')}
                         >
-                          {status === 'not_confirmed' ? t('details.analyticRuledOut') : t('details.analyticRuleOut')}
+                          {status === 'not_confirmed'
+                            ? t('details.analyticRuledOut')
+                            : t('details.analyticRuleOut')}
                         </button>
                       </div>
                     </li>

@@ -21,41 +21,90 @@
     "report_template"
   ],
   "properties": {
-    "id": { "type": "string", "pattern": "^hypothesis\\." },
-    "name": { "$ref": "#/definitions/localizedText" },
-    "category": { "type": "string", "minLength": 1 },
-    "description": { "$ref": "#/definitions/localizedText" },
-    "mitre": { "type": "array", "items": { "type": "string" } },
-    "base_score": { "type": "number" },
-    "minimum_score": { "type": "number" },
-    "maximum_score": { "type": "number" },
+    "id": {
+      "type": "string",
+      "pattern": "^hypothesis\\."
+    },
+    "name": {
+      "$ref": "#/definitions/localizedText"
+    },
+    "category": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "$ref": "#/definitions/localizedText"
+    },
+    "mitre": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "base_score": {
+      "type": "number"
+    },
+    "minimum_score": {
+      "type": "number"
+    },
+    "maximum_score": {
+      "type": "number"
+    },
     "conditions": {
       "type": "array",
-      "items": { "$ref": "#/definitions/condition" }
+      "items": {
+        "$ref": "#/definitions/condition"
+      }
     },
     "negative_conditions": {
       "type": "array",
-      "items": { "$ref": "#/definitions/condition" }
+      "items": {
+        "$ref": "#/definitions/condition"
+      }
     },
-    "recommended_checks": { "type": "array", "items": { "type": "string" } },
+    "recommended_checks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "explanation_templates": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["summary", "missing", "counterpoints"],
+      "required": [
+        "summary",
+        "missing",
+        "counterpoints"
+      ],
       "properties": {
-        "summary": { "$ref": "#/definitions/localizedText" },
-        "missing": { "$ref": "#/definitions/localizedText" },
-        "counterpoints": { "$ref": "#/definitions/localizedText" }
+        "summary": {
+          "$ref": "#/definitions/localizedText"
+        },
+        "missing": {
+          "$ref": "#/definitions/localizedText"
+        },
+        "counterpoints": {
+          "$ref": "#/definitions/localizedText"
+        }
       }
     },
-    "false_positive_context": { "$ref": "#/definitions/localizedList" },
+    "false_positive_context": {
+      "$ref": "#/definitions/localizedList"
+    },
     "report_template": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "summary"],
+      "required": [
+        "title",
+        "summary"
+      ],
       "properties": {
-        "title": { "$ref": "#/definitions/localizedText" },
-        "summary": { "$ref": "#/definitions/localizedText" }
+        "title": {
+          "$ref": "#/definitions/localizedText"
+        },
+        "summary": {
+          "$ref": "#/definitions/localizedText"
+        }
       }
     }
   },
@@ -63,30 +112,69 @@
     "localizedText": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["en", "pt", "de"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "string", "minLength": 1 },
-        "pt": { "type": "string", "minLength": 1 },
-        "de": { "type": "string", "minLength": 1 }
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "de": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "localizedList": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["en", "pt", "de"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "array", "items": { "type": "string" } },
-        "pt": { "type": "array", "items": { "type": "string" } },
-        "de": { "type": "array", "items": { "type": "string" } }
+        "en": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pt": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "de": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
     "condition": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "fact", "operator", "weight", "description"],
+      "required": [
+        "id",
+        "fact",
+        "operator",
+        "weight",
+        "description"
+      ],
       "properties": {
-        "id": { "type": "string" },
-        "fact": { "type": "string", "minLength": 1 },
+        "id": {
+          "type": "string"
+        },
+        "fact": {
+          "type": "string",
+          "minLength": 1
+        },
         "operator": {
           "enum": [
             "equals",
@@ -108,8 +196,12 @@
           ]
         },
         "value": {},
-        "weight": { "type": "number" },
-        "description": { "$ref": "#/definitions/localizedText" }
+        "weight": {
+          "type": "number"
+        },
+        "description": {
+          "$ref": "#/definitions/localizedText"
+        }
       }
     }
   }

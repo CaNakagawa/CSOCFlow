@@ -3,15 +3,32 @@ export type Locale = (typeof LOCALES)[number]
 
 export const DEFAULT_LOCALE: Locale = 'en'
 
-export type LocalizedText = Record<Locale, string>
-export type LocalizedList = Record<Locale, string[]>
+/**
+ * English is required; pt/de are optional and fall back to English.
+ *
+ * Hand-curated knowledge is fully translated, while content imported in bulk
+ * from MITRE ATT&CK only carries the original English. Making the alternate
+ * locales optional lets both live in the same knowledge base without shipping
+ * machine-translated security guidance.
+ */
+export interface LocalizedText {
+  en: string
+  pt?: string
+  de?: string
+}
+
+export interface LocalizedList {
+  en: string[]
+  pt?: string[]
+  de?: string[]
+}
 
 export function localize(text: LocalizedText, locale: Locale): string {
-  return text[locale] ?? text[DEFAULT_LOCALE]
+  return text[locale] ?? text.en
 }
 
 export function localizeList(list: LocalizedList, locale: Locale): string[] {
-  return list[locale] ?? list[DEFAULT_LOCALE]
+  return list[locale] ?? list.en
 }
 
 const LOCALE_STORAGE_KEY = 'csocflow.locale'

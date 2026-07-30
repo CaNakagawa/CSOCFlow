@@ -3,13 +3,7 @@ import type { EvidenceFieldDefinition, KnowledgeBase } from '../../../shared/typ
 import { localize, type Locale, type TranslationKey } from '../../../shared/i18n'
 
 export type LibraryCategory =
-  | 'tactics'
-  | 'techniques'
-  | 'useCases'
-  | 'alerts'
-  | 'evidence'
-  | 'analystNotes'
-  | string
+  'tactics' | 'techniques' | 'useCases' | 'alerts' | 'evidence' | 'analystNotes' | string
 
 export interface LibraryItem {
   definitionId: string
@@ -66,7 +60,10 @@ export function buildGenericItems(locale: Locale): LibraryItem[] {
     {
       definitionId: 'generic.evidence',
       nodeType: 'evidence',
-      label: localize({ en: 'Generic evidence', pt: 'Evidência genérica', de: 'Allgemeines Beweismittel' }, locale),
+      label: localize(
+        { en: 'Generic evidence', pt: 'Evidência genérica', de: 'Allgemeines Beweismittel' },
+        locale,
+      ),
       category: 'evidence',
       brief: localize(
         {
@@ -88,7 +85,10 @@ export function buildGenericItems(locale: Locale): LibraryItem[] {
     {
       definitionId: 'generic.analyst_note',
       nodeType: 'analyst_note',
-      label: localize({ en: 'Analyst note', pt: 'Observação do analista', de: 'Analystennotiz' }, locale),
+      label: localize(
+        { en: 'Analyst note', pt: 'Observação do analista', de: 'Analystennotiz' },
+        locale,
+      ),
       category: 'analystNotes',
       brief: localize(
         {
@@ -119,14 +119,18 @@ export function buildLibraryItems(knowledgeBase: KnowledgeBase, locale: Locale):
     fieldDefinitions: [],
   }))
 
-  const techniqueItems: LibraryItem[] = knowledgeBase.techniques.map((technique) => ({
-    definitionId: technique.id,
-    nodeType: technique.type,
-    label: `${technique.id} - ${technique.name}`,
-    category: 'techniques',
-    brief: localize(technique.brief, locale),
-    fieldDefinitions: [],
-  }))
+  // Curated techniques load before the generated catalogue, so sort by id to get
+  // one coherent T1003 < T1021 < T1110 < T1110.001 ordering in the library.
+  const techniqueItems: LibraryItem[] = knowledgeBase.techniques
+    .map((technique) => ({
+      definitionId: technique.id,
+      nodeType: technique.type,
+      label: `${technique.id} - ${technique.name}`,
+      category: 'techniques' as LibraryCategory,
+      brief: localize(technique.brief, locale),
+      fieldDefinitions: [],
+    }))
+    .sort((a, b) => a.definitionId.localeCompare(b.definitionId, 'en', { numeric: true }))
 
   const evidenceItems: LibraryItem[] = knowledgeBase.evidenceTypes.map((evidenceType) => ({
     definitionId: evidenceType.id,

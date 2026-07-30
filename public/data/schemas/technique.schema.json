@@ -11,7 +11,6 @@
     "tactics",
     "platforms",
     "brief",
-    "investigation_context",
     "expected_evidence",
     "related_hypotheses",
     "suggested_checks",
@@ -19,16 +18,37 @@
     "references"
   ],
   "properties": {
-    "id": { "type": "string", "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$" },
-    "name": { "type": "string", "minLength": 1 },
-    "type": { "enum": ["mitre_technique", "mitre_subtechnique"] },
+    "id": {
+      "type": "string",
+      "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "enum": [
+        "mitre_technique",
+        "mitre_subtechnique"
+      ]
+    },
     "tactics": {
       "type": "array",
-      "items": { "type": "string", "pattern": "^TA[0-9]{4}$" },
+      "items": {
+        "type": "string",
+        "pattern": "^TA[0-9]{4}$"
+      },
       "minItems": 1
     },
-    "platforms": { "type": "array", "items": { "type": "string" } },
-    "brief": { "$ref": "#/definitions/localizedText" },
+    "platforms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "brief": {
+      "$ref": "#/definitions/localizedText"
+    },
     "investigation_context": {
       "type": "object",
       "additionalProperties": false,
@@ -40,27 +60,68 @@
         "common_mistakes"
       ],
       "properties": {
-        "what_it_means": { "$ref": "#/definitions/localizedText" },
-        "why_it_matters": { "$ref": "#/definitions/localizedText" },
-        "suspicious_when": { "$ref": "#/definitions/localizedList" },
-        "legitimate_when": { "$ref": "#/definitions/localizedList" },
-        "common_mistakes": { "$ref": "#/definitions/localizedList" }
+        "what_it_means": {
+          "$ref": "#/definitions/localizedText"
+        },
+        "why_it_matters": {
+          "$ref": "#/definitions/localizedText"
+        },
+        "suspicious_when": {
+          "$ref": "#/definitions/localizedList"
+        },
+        "legitimate_when": {
+          "$ref": "#/definitions/localizedList"
+        },
+        "common_mistakes": {
+          "$ref": "#/definitions/localizedList"
+        }
       }
     },
-    "expected_evidence": { "type": "array", "items": { "type": "string" } },
-    "related_hypotheses": { "type": "array", "items": { "type": "string" } },
-    "suggested_checks": { "type": "array", "items": { "type": "string" } },
+    "expected_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "related_hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "suggested_checks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "detection_analytics": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "detectionStrategyId", "description", "url"],
+        "required": [
+          "id",
+          "detectionStrategyId",
+          "description",
+          "url"
+        ],
         "properties": {
-          "id": { "type": "string", "pattern": "^AN[0-9]+$" },
-          "detectionStrategyId": { "type": "string", "pattern": "^DET[0-9]+$" },
-          "description": { "$ref": "#/definitions/localizedText" },
-          "url": { "type": "string", "format": "uri" }
+          "id": {
+            "type": "string",
+            "pattern": "^AN[0-9]+$"
+          },
+          "detectionStrategyId": {
+            "type": "string",
+            "pattern": "^DET[0-9]+$"
+          },
+          "description": {
+            "$ref": "#/definitions/localizedText"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
         }
       }
     },
@@ -69,10 +130,18 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["title", "url"],
+        "required": [
+          "title",
+          "url"
+        ],
         "properties": {
-          "title": { "type": "string" },
-          "url": { "type": "string", "format": "uri" }
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
         }
       }
     }
@@ -81,21 +150,49 @@
     "localizedText": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["en", "pt", "de"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "string", "minLength": 1 },
-        "pt": { "type": "string", "minLength": 1 },
-        "de": { "type": "string", "minLength": 1 }
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "de": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "localizedList": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["en", "pt", "de"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "array", "items": { "type": "string" } },
-        "pt": { "type": "array", "items": { "type": "string" } },
-        "de": { "type": "array", "items": { "type": "string" } }
+        "en": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pt": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "de": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     }
   }

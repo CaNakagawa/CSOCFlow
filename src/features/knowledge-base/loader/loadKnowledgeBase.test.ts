@@ -70,6 +70,63 @@ describe('loadKnowledgeBase', () => {
     expect(kb.tactics[0].id).toBe('TA0006')
   })
 
+  it('loads a bundled array of techniques and lets the curated file win over the catalogue', async () => {
+    const source = createInMemorySource({
+      'manifest.json': {
+        version: '1.0.0',
+        tactics: 'mitre/tactics.json',
+        techniques: ['mitre/techniques/T1110.json', 'mitre/techniques/attack-catalog.json'],
+        evidenceTypes: [],
+        hypotheses: [],
+        checks: [],
+        useCases: [],
+        relationships: ['relationships/relationships.json'],
+      },
+      ...baseFiles(),
+      'mitre/techniques/T1110.json': { ...validTechnique, name: 'Curated Brute Force' },
+      'mitre/techniques/attack-catalog.json': [
+        { ...validTechnique, name: 'Generated Brute Force' },
+        {
+          ...validTechnique,
+          id: 'T1110.001',
+          type: 'mitre_subtechnique',
+          name: 'Password Guessing',
+        },
+      ],
+    })
+
+    const kb = await loadKnowledgeBase(source)
+
+    expect(kb.techniques).toHaveLength(2)
+    expect(kb.techniques.find((t) => t.id === 'T1110')!.name).toBe('Curated Brute Force')
+    expect(kb.techniques.find((t) => t.id === 'T1110.001')!.name).toBe('Password Guessing')
+  })
+
+  it('accepts an imported technique with no curated investigation_context and no pt/de', async () => {
+    const { investigation_context: _ctx, ...imported } = validTechnique
+    const source = createInMemorySource({
+      'manifest.json': {
+        version: '1.0.0',
+        tactics: 'mitre/tactics.json',
+        techniques: ['mitre/techniques/attack-catalog.json'],
+        evidenceTypes: [],
+        hypotheses: [],
+        checks: [],
+        useCases: [],
+        relationships: [],
+      },
+      ...baseFiles(),
+      'mitre/techniques/attack-catalog.json': [
+        { ...imported, brief: { en: 'English only, no translations.' } },
+      ],
+    })
+
+    const kb = await loadKnowledgeBase(source)
+
+    expect(kb.techniques).toHaveLength(1)
+    expect(kb.techniques[0].investigation_context).toBeUndefined()
+  })
+
   it('throws KnowledgeValidationError when a technique file violates the schema', async () => {
     const { id: _id, ...invalidTechnique } = validTechnique
     const source = createInMemorySource({

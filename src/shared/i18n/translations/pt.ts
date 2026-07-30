@@ -32,6 +32,7 @@ export const pt: Record<TranslationKey, string> = {
   'library.searchPlaceholder': 'Buscar técnica, evidência...',
   'library.searchLabel': 'Buscar na biblioteca',
   'library.empty': 'Nenhum item encontrado.',
+  'library.truncated': 'Exibindo os primeiros {count} resultados. Refine a busca.',
   'library.collapse': 'Retrair biblioteca',
   'library.expand': 'Expandir biblioteca',
   'library.expandSubtechniques': 'Expandir subtécnicas',

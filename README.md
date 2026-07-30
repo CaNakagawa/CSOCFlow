@@ -51,17 +51,18 @@ GitHub Pages (veja `.github/workflows/deploy.yml`).
 
 ## Scripts disponíveis
 
-| Script                            | Descrição                                                                |
-| --------------------------------- | ------------------------------------------------------------------------ |
-| `npm run dev`                     | Sobe o servidor de desenvolvimento (Vite).                               |
-| `npm run build`                   | Type-check + build de produção.                                          |
-| `npm run typecheck`               | Apenas verificação de tipos.                                             |
-| `npm run lint`                    | ESLint sobre todo o projeto.                                             |
-| `npm run format` / `format:check` | Formata (ou verifica) o código com Prettier.                             |
-| `npm test`                        | Testes unitários (Vitest).                                               |
-| `npm run test:watch`              | Testes unitários em modo watch.                                          |
-| `npm run test:e2e`                | Testes end-to-end (Playwright) — suíte inicial ainda a ser escrita.      |
-| `npm run validate:knowledge`      | Valida todos os arquivos JSON da base de conhecimento contra os schemas. |
+| Script                            | Descrição                                                                    |
+| --------------------------------- | ---------------------------------------------------------------------------- |
+| `npm run dev`                     | Sobe o servidor de desenvolvimento (Vite).                                   |
+| `npm run build`                   | Type-check + build de produção.                                              |
+| `npm run typecheck`               | Apenas verificação de tipos.                                                 |
+| `npm run lint`                    | ESLint sobre todo o projeto.                                                 |
+| `npm run format` / `format:check` | Formata (ou verifica) o código com Prettier.                                 |
+| `npm test`                        | Testes unitários (Vitest).                                                   |
+| `npm run test:watch`              | Testes unitários em modo watch.                                              |
+| `npm run test:e2e`                | Testes end-to-end (Playwright) — suíte inicial ainda a ser escrita.          |
+| `npm run validate:knowledge`      | Valida todos os arquivos JSON da base de conhecimento contra os schemas.     |
+| `npm run import:mitre`            | Reimporta o catálogo MITRE ATT&CK Enterprise (táticas, técnicas, analytics). |
 
 ## Arquitetura
 
@@ -81,7 +82,7 @@ src/
 
 public/data/           Base de conhecimento em JSON (técnicas MITRE, evidências, hipóteses, verificações,
                        casos de uso de detecção, relações automáticas) + JSON Schemas
-scripts/               Scripts de build/CI (validação da base de conhecimento)
+scripts/               Scripts de build/CI (validação da base de conhecimento, importação do MITRE ATT&CK)
 ```
 
 Camadas com responsabilidades isoladas:
@@ -94,6 +95,31 @@ Camadas com responsabilidades isoladas:
   resultados de hipóteses, via Zustand.
 - **Persistência** (`features/investigation/repository`): abstração `InvestigationRepository` sobre IndexedDB
   (Dexie) — os componentes visuais nunca acessam o IndexedDB diretamente.
+
+## Base de conhecimento em duas camadas
+
+A biblioteca cobre o catálogo MITRE ATT&CK Enterprise completo (todas as táticas, técnicas e subtécnicas), em duas
+camadas com propósitos diferentes:
+
+- **Camada curada** — um arquivo por técnica em `public/data/mitre/techniques/T*.json`, escrito à mão. Traz o
+  conteúdo didático próprio do CSOC Flow (`investigation_context`: o que significa, por que importa, quando é
+  suspeito, quando é legítimo, erros comuns de interpretação) e tradução completa em inglês, português e alemão.
+- **Camada importada** — `public/data/mitre/techniques/attack-catalog.json`, gerado por `npm run import:mitre` a
+  partir do bundle STIX oficial do MITRE. Traz nome, táticas, plataformas, o resumo original e as Detection
+  Analytics reais (`AN####` sob suas `DET####`), em inglês.
+
+Regras que sustentam esse modelo:
+
+- **A curadoria sempre vence.** Os arquivos curados vêm antes do catálogo no `manifest.json` e o carregador
+  deduplica por `id`, então a reimportação nunca sobrescreve conteúdo escrito à mão.
+- **`investigation_context` é opcional.** Técnicas importadas simplesmente não exibem essas seções, em vez de
+  mostrar conteúdo inventado.
+- **`pt` e `de` são opcionais; `en` é obrigatório.** `localize()` cai para o inglês quando falta tradução, de modo
+  que orientação de segurança nunca é traduzida por máquina.
+
+Para promover uma técnica importada à camada curada, crie `T####.json` com o conteúdo didático e traduções,
+adicione-o ao `manifest.json` antes do catálogo e rode `npm run import:mitre` novamente — ela sairá do catálogo
+gerado automaticamente.
 
 ## Como criar conteúdo (técnicas, evidências, hipóteses)
 
@@ -112,6 +138,8 @@ Nenhuma mudança de código é necessária para ampliar a base de conhecimento.
 
 - Apenas dois casos de uso de detecção estão completos ("Autenticação suspeita" e "User Account Created/Deleted");
   os demais cenários descritos na especificação original ainda não foram implementados.
+- Das 697 técnicas do catálogo, 18 têm conteúdo didático curado e tradução completa; as demais trazem apenas os
+  dados oficiais do MITRE, em inglês.
 - Não há geração de relatório em Markdown, linha do tempo visual completa, desfazer/refazer, nem testes end-to-end
   ainda.
 - O layout prioriza uso em desktop.

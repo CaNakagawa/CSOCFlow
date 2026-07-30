@@ -4,37 +4,85 @@
   "title": "EvidenceTypeDefinition",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "name", "category", "node_type", "brief", "fields", "educational_content"],
+  "required": [
+    "id",
+    "name",
+    "category",
+    "node_type",
+    "brief",
+    "fields",
+    "educational_content"
+  ],
   "properties": {
-    "id": { "type": "string", "pattern": "^evidence\\." },
-    "name": { "$ref": "#/definitions/localizedText" },
-    "category": { "type": "string", "minLength": 1 },
-    "node_type": { "type": "string" },
-    "brief": { "$ref": "#/definitions/localizedText" },
+    "id": {
+      "type": "string",
+      "pattern": "^evidence\\."
+    },
+    "name": {
+      "$ref": "#/definitions/localizedText"
+    },
+    "category": {
+      "type": "string",
+      "minLength": 1
+    },
+    "node_type": {
+      "type": "string"
+    },
+    "brief": {
+      "$ref": "#/definitions/localizedText"
+    },
     "fields": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "label", "type", "required"],
+        "required": [
+          "id",
+          "label",
+          "type",
+          "required"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "label": { "$ref": "#/definitions/localizedText" },
-          "type": {
-            "enum": ["string", "number", "boolean", "ip", "datetime", "string_array"]
+          "id": {
+            "type": "string"
           },
-          "required": { "type": "boolean" }
+          "label": {
+            "$ref": "#/definitions/localizedText"
+          },
+          "type": {
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "ip",
+              "datetime",
+              "string_array"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          }
         }
       }
     },
     "educational_content": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["why_it_matters", "suspicious_when", "legitimate_when"],
+      "required": [
+        "why_it_matters",
+        "suspicious_when",
+        "legitimate_when"
+      ],
       "properties": {
-        "why_it_matters": { "$ref": "#/definitions/localizedText" },
-        "suspicious_when": { "$ref": "#/definitions/localizedList" },
-        "legitimate_when": { "$ref": "#/definitions/localizedList" }
+        "why_it_matters": {
+          "$ref": "#/definitions/localizedText"
+        },
+        "suspicious_when": {
+          "$ref": "#/definitions/localizedList"
+        },
+        "legitimate_when": {
+          "$ref": "#/definitions/localizedList"
+        }
       }
     }
   },
@@ -42,21 +90,49 @@
     "localizedText": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["en", "pt", "de"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "string", "minLength": 1 },
-        "pt": { "type": "string", "minLength": 1 },
-        "de": { "type": "string", "minLength": 1 }
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "de": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "localizedList": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["en", "pt", "de"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "array", "items": { "type": "string" } },
-        "pt": { "type": "array", "items": { "type": "string" } },
-        "de": { "type": "array", "items": { "type": "string" } }
+        "en": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pt": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "de": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     }
   }

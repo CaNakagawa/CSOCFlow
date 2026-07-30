@@ -29,6 +29,9 @@ const CATEGORY_ORDER = [
 
 const TECHNIQUES_CATEGORY = 'techniques'
 
+/** The catalogue holds ~700 techniques, so an unbounded match list is unusable. */
+const MAX_SEARCH_RESULTS = 50
+
 function groupByCategory(items: LibraryItem[]): [string, LibraryItem[]][] {
   const groups = new Map<string, LibraryItem[]>()
   for (const item of items) {
@@ -46,16 +49,35 @@ function groupByCategory(items: LibraryItem[]): [string, LibraryItem[]][] {
   })
 }
 
+/** Single pass: the full ATT&CK catalogue is ~200 parents and ~470 subtechniques. */
 function groupTechniquesByParent(items: LibraryItem[]) {
-  const parents = items.filter((i) => !i.definitionId.includes('.'))
-  const children = items.filter((i) => i.definitionId.includes('.'))
+  const parents: LibraryItem[] = []
+  const childrenByParent = new Map<string, LibraryItem[]>()
+
+  for (const item of items) {
+    const separator = item.definitionId.indexOf('.')
+    if (separator === -1) {
+      parents.push(item)
+      continue
+    }
+    const parentId = item.definitionId.slice(0, separator)
+    const bucket = childrenByParent.get(parentId)
+    if (bucket) bucket.push(item)
+    else childrenByParent.set(parentId, [item])
+  }
+
   return parents.map((parent) => ({
     parent,
-    subtechniques: children.filter((c) => c.definitionId.startsWith(`${parent.definitionId}.`)),
+    subtechniques: childrenByParent.get(parent.definitionId) ?? [],
   }))
 }
 
-export function NodeLibrary({ items, knowledgeBase, collapsed, onToggleCollapsed }: NodeLibraryProps) {
+export function NodeLibrary({
+  items,
+  knowledgeBase,
+  collapsed,
+  onToggleCollapsed,
+}: NodeLibraryProps) {
   const { t, locale } = useI18n()
   const [query, setQuery] = useState('')
   const [expandedTechniques, setExpandedTechniques] = useState<Set<string>>(new Set())
@@ -70,10 +92,19 @@ export function NodeLibrary({ items, knowledgeBase, collapsed, onToggleCollapsed
 
   const searchResults = useMemo(() => {
     if (!query.trim()) return null
-    return fuse.search(query).map((r) => r.item)
+    const hits = fuse.search(query, { limit: MAX_SEARCH_RESULTS + 1 }).map((r) => r.item)
+    return {
+      items: hits.slice(0, MAX_SEARCH_RESULTS),
+      truncated: hits.length > MAX_SEARCH_RESULTS,
+    }
   }, [query, fuse])
 
   const groups = useMemo(() => groupByCategory(items), [items])
+
+  const techniqueTree = useMemo(
+    () => groupTechniquesByParent(items.filter((i) => i.category === TECHNIQUES_CATEGORY)),
+    [items],
+  )
 
   function categoryLabel(category: string): string {
     const key = CATEGORY_TRANSLATION_KEYS[category]
@@ -119,10 +150,10 @@ export function NodeLibrary({ items, knowledgeBase, collapsed, onToggleCollapsed
     )
   }
 
-  function renderTechniqueList(groupItems: LibraryItem[]) {
+  function renderTechniqueList() {
     return (
       <ul className="node-library__list">
-        {groupTechniquesByParent(groupItems).map(({ parent, subtechniques }) => {
+        {techniqueTree.map(({ parent, subtechniques }) => {
           const expanded = expandedTechniques.has(parent.definitionId)
           return (
             <li key={parent.definitionId}>
@@ -132,7 +163,9 @@ export function NodeLibrary({ items, knowledgeBase, collapsed, onToggleCollapsed
                     type="button"
                     className="node-library__expand"
                     aria-label={
-                      expanded ? t('library.collapseSubtechniques') : t('library.expandSubtechniques')
+                      expanded
+                        ? t('library.collapseSubtechniques')
+                        : t('library.expandSubtechniques')
                     }
                     aria-expanded={expanded}
                     onClick={() => toggleExpanded(parent.definitionId)}
@@ -202,8 +235,15 @@ export function NodeLibrary({ items, knowledgeBase, collapsed, onToggleCollapsed
 
       {searchResults ? (
         <ul className="node-library__list">
-          {searchResults.map((item) => renderItem(item))}
-          {searchResults.length === 0 && <li className="node-library__empty">{t('library.empty')}</li>}
+          {searchResults.items.map((item) => renderItem(item))}
+          {searchResults.items.length === 0 && (
+            <li className="node-library__empty">{t('library.empty')}</li>
+          )}
+          {searchResults.truncated && (
+            <li className="node-library__empty">
+              {t('library.truncated', { count: String(MAX_SEARCH_RESULTS) })}
+            </li>
+          )}
         </ul>
       ) : (
         <div className="node-library__groups">
@@ -213,9 +253,11 @@ export function NodeLibrary({ items, knowledgeBase, collapsed, onToggleCollapsed
                 {categoryLabel(category)}
                 <span className="node-library__group-count">{groupItems.length}</span>
               </summary>
-              {category === TECHNIQUES_CATEGORY
-                ? renderTechniqueList(groupItems)
-                : <ul className="node-library__list">{groupItems.map((item) => renderItem(item))}</ul>}
+              {category === TECHNIQUES_CATEGORY ? (
+                renderTechniqueList()
+              ) : (
+                <ul className="node-library__list">{groupItems.map((item) => renderItem(item))}</ul>
+              )}
             </details>
           ))}
         </div>

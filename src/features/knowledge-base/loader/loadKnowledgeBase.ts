@@ -63,14 +63,23 @@ export async function loadKnowledgeBase(
   const tacticsList = Array.isArray(tacticsRaw) ? tacticsRaw : []
   const tactics: MitreTactic[] = tacticsList.map((t) => mitreTacticSchema.parse(t))
 
-  const techniques = await loadArray<MitreTechnique>(
-    source,
-    manifest.techniques,
-    async (data, path) => {
-      if (validate) await schemaValidator.validate(SCHEMA_PATHS.technique, path, data)
-      return data as MitreTechnique
-    },
-  )
+  // A technique file holds either a single hand-curated technique or an array of
+  // techniques generated from the MITRE ATT&CK release. Curated files are listed
+  // first in the manifest, so the first definition of an id wins and the richer
+  // hand-written content is never shadowed by the bulk import.
+  const techniques: MitreTechnique[] = []
+  const seenTechniqueIds = new Set<string>()
+  for (const path of manifest.techniques) {
+    const raw = await source.readJson(path)
+    const entries = Array.isArray(raw) ? raw : [raw]
+    for (const entry of entries) {
+      if (validate) await schemaValidator.validate(SCHEMA_PATHS.technique, path, entry)
+      const technique = entry as MitreTechnique
+      if (seenTechniqueIds.has(technique.id)) continue
+      seenTechniqueIds.add(technique.id)
+      techniques.push(technique)
+    }
+  }
 
   const evidenceTypes: EvidenceTypeDefinition[] = []
   for (const path of manifest.evidenceTypes) {

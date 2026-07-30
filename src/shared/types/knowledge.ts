@@ -34,7 +34,8 @@ export interface MitreTechnique {
   tactics: string[]
   platforms: string[]
   brief: LocalizedText
-  investigation_context: InvestigationContext
+  /** Hand-curated teaching content. Absent on techniques imported in bulk from MITRE. */
+  investigation_context?: InvestigationContext
   expected_evidence: CanvasNodeType[]
   related_hypotheses: string[]
   suggested_checks: string[]

@@ -4,32 +4,75 @@
   "title": "RecommendedCheckDefinition",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "title", "description", "reason", "expected_evidence_types", "priority", "answers"],
+  "required": [
+    "id",
+    "title",
+    "description",
+    "reason",
+    "expected_evidence_types",
+    "priority",
+    "answers"
+  ],
   "properties": {
-    "id": { "type": "string", "pattern": "^check\\." },
-    "title": { "$ref": "#/definitions/localizedText" },
-    "description": { "$ref": "#/definitions/localizedText" },
-    "reason": { "$ref": "#/definitions/localizedText" },
-    "expected_evidence_types": { "type": "array", "items": { "type": "string" } },
-    "priority": { "enum": ["low", "medium", "high"] },
+    "id": {
+      "type": "string",
+      "pattern": "^check\\."
+    },
+    "title": {
+      "$ref": "#/definitions/localizedText"
+    },
+    "description": {
+      "$ref": "#/definitions/localizedText"
+    },
+    "reason": {
+      "$ref": "#/definitions/localizedText"
+    },
+    "expected_evidence_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "priority": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
     "answers": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["value", "label", "effects"],
+        "required": [
+          "value",
+          "label",
+          "effects"
+        ],
         "properties": {
-          "value": { "type": "string" },
-          "label": { "$ref": "#/definitions/localizedText" },
+          "value": {
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/definitions/localizedText"
+          },
           "effects": {
             "type": "array",
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["hypothesis_id", "score_delta"],
+              "required": [
+                "hypothesis_id",
+                "score_delta"
+              ],
               "properties": {
-                "hypothesis_id": { "type": "string" },
-                "score_delta": { "type": "number" }
+                "hypothesis_id": {
+                  "type": "string"
+                },
+                "score_delta": {
+                  "type": "number"
+                }
               }
             }
           }
@@ -41,11 +84,22 @@
     "localizedText": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["en", "pt", "de"],
+      "required": [
+        "en"
+      ],
       "properties": {
-        "en": { "type": "string", "minLength": 1 },
-        "pt": { "type": "string", "minLength": 1 },
-        "de": { "type": "string", "minLength": 1 }
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "de": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     }
   }
