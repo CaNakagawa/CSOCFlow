@@ -21,6 +21,12 @@ export const pt: Record<TranslationKey, string> = {
   'topBar.statusImported': 'Investigação importada com sucesso.',
   'topBar.statusImportFailedGeneric': 'Não foi possível importar o arquivo selecionado.',
   'topBar.language': 'Idioma',
+  'topBar.menu': 'Menu principal',
+  'topBar.tabInvestigation': 'Investigação',
+  'topBar.tabFile': 'Arquivo',
+  'topBar.tabView': 'Exibir',
+  'topBar.toggleLibrary': 'Painel de biblioteca',
+  'topBar.toggleDetails': 'Painel de detalhes',
 
   'library.title': 'Biblioteca',
   'library.searchPlaceholder': 'Buscar técnica, evidência...',

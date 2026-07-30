@@ -19,6 +19,12 @@ export const en = {
   'topBar.statusImported': 'Investigation imported successfully.',
   'topBar.statusImportFailedGeneric': 'Could not import the selected file.',
   'topBar.language': 'Language',
+  'topBar.menu': 'Main menu',
+  'topBar.tabInvestigation': 'Investigation',
+  'topBar.tabFile': 'File',
+  'topBar.tabView': 'View',
+  'topBar.toggleLibrary': 'Library panel',
+  'topBar.toggleDetails': 'Details panel',
 
   'library.title': 'Library',
   'library.searchPlaceholder': 'Search technique, evidence...',

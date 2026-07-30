@@ -37,7 +37,12 @@ export function App() {
 
   return (
     <div className="app-shell">
-      <TopBar />
+      <TopBar
+        libraryCollapsed={isLibraryCollapsed}
+        onToggleLibrary={() => setLibraryCollapsed((v) => !v)}
+        rightPanelCollapsed={isRightPanelCollapsed}
+        onToggleRightPanel={() => setRightPanelCollapsed((v) => !v)}
+      />
       <div className="app-body">
         <NodeLibrary
           items={libraryItems}
