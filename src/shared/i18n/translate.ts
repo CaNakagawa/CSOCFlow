@@ -5,7 +5,11 @@ import { de } from './translations/de'
 
 const DICTIONARIES: Record<Locale, Record<TranslationKey, string>> = { en, pt, de }
 
-export function translate(locale: Locale, key: TranslationKey, params?: Record<string, string>): string {
+export function translate(
+  locale: Locale,
+  key: TranslationKey,
+  params?: Record<string, string>,
+): string {
   const template = DICTIONARIES[locale][key] ?? DICTIONARIES[DEFAULT_LOCALE][key]
   if (!params) return template
   return Object.entries(params).reduce(

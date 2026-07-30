@@ -11,6 +11,7 @@ import type { EngineContext } from './facts'
 import { normalizeScore, confidenceLevelFor } from './scoring'
 import { explainHypothesis } from '../explainers/explainHypothesis'
 import { inferRelationships } from './inferRelationships'
+import { inferTechniqueTacticLinks } from './inferTechniqueTacticLinks'
 import { inferUseCaseLinks } from './inferUseCaseLinks'
 import { suggestUseCases } from './suggestUseCases'
 import type { Locale } from '../../../shared/i18n/types'
@@ -110,6 +111,9 @@ export function createCorrelationEngine(): CorrelationEngine {
       const inferredEdges = [
         ...inferRelationships(input.nodes, input.knowledgeBase.relationshipRules, input.locale),
         ...inferUseCaseLinks(input.nodes, input.knowledgeBase.useCases, input.locale),
+        ...(input.autoLinkTactics
+          ? inferTechniqueTacticLinks(input.nodes, input.knowledgeBase.techniques, input.locale)
+          : []),
       ]
 
       const useCaseSuggestions = suggestUseCases(input.nodes, input.knowledgeBase.useCases)

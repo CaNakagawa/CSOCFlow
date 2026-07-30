@@ -12,6 +12,7 @@ import type {
 import type {
   EvidenceFieldDefinition,
   KnowledgeBase,
+  MitreTechnique,
   UseCaseDefinition,
 } from '../../../shared/types/knowledge'
 import type {
@@ -57,6 +58,13 @@ function defaultFieldValue(field: EvidenceFieldDefinition): unknown {
   }
 }
 
+const AUTO_LINK_STORAGE_KEY = 'csocflow.autoLinkTactics'
+
+function readStoredAutoLink(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.localStorage.getItem(AUTO_LINK_STORAGE_KEY) === 'true'
+}
+
 function createMeta(): InvestigationMeta {
   const now = new Date().toISOString()
   return {
@@ -83,6 +91,7 @@ interface InvestigationState {
   hypothesisResults: HypothesisResult[]
   useCaseSuggestions: UseCaseSuggestion[]
   analystNotes: string
+  autoLinkTactics: boolean
 
   addNode: (params: {
     nodeType: CanvasNodeType
@@ -91,6 +100,8 @@ interface InvestigationState {
     position: { x: number; y: number }
     fieldDefinitions: EvidenceFieldDefinition[]
   }) => string
+  addTechniqueWithTactics: (technique: MitreTechnique, knowledgeBase: KnowledgeBase) => string
+  setAutoLinkTactics: (enabled: boolean) => void
   applyUseCase: (useCase: UseCaseDefinition, knowledgeBase: KnowledgeBase, locale: Locale) => void
   updateNodeFields: (nodeId: string, fields: Record<string, unknown>) => void
   updateNodeState: (nodeId: string, state: NodeState) => void
@@ -142,6 +153,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   hypothesisResults: [],
   useCaseSuggestions: [],
   analystNotes: '',
+  autoLinkTactics: readStoredAutoLink(),
 
   addNode: ({ nodeType, definitionId, label, position, fieldDefinitions }) => {
     const now = new Date().toISOString()
@@ -164,6 +176,65 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     }
     set((state) => ({ nodes: [...state.nodes, node], selectedNodeId: id }))
     return id
+  },
+
+  // Drops the technique on the canvas together with any tactic it belongs to that
+  // is not there yet. The edges between them are inferred by the correlation
+  // engine, the same way use-case hubs link to their techniques.
+  addTechniqueWithTactics: (technique, knowledgeBase) => {
+    const techniqueNodeId = generateId('node')
+
+    set((state) => {
+      const now = new Date().toISOString()
+      const nodes = [...state.nodes]
+
+      nodes.push({
+        id: techniqueNodeId,
+        definitionId: technique.id,
+        type: technique.type,
+        label: `${technique.id} - ${technique.name}`,
+        state: 'unknown',
+        position: nextGridPosition(nodes.length),
+        fields: {},
+        notes: '',
+        createdAt: now,
+        updatedAt: now,
+      })
+
+      for (const tacticId of technique.tactics) {
+        const alreadyPresent = nodes.some(
+          (n) => n.type === 'mitre_tactic' && n.definitionId === tacticId,
+        )
+        if (alreadyPresent) continue
+
+        const tactic = knowledgeBase.tactics.find((t) => t.id === tacticId)
+        if (!tactic) continue
+
+        nodes.push({
+          id: generateId('node'),
+          definitionId: tactic.id,
+          type: 'mitre_tactic',
+          label: `${tactic.id} - ${tactic.name}`,
+          state: 'unknown',
+          position: nextGridPosition(nodes.length),
+          fields: {},
+          notes: '',
+          createdAt: now,
+          updatedAt: now,
+        })
+      }
+
+      return { nodes, selectedNodeId: techniqueNodeId }
+    })
+
+    return techniqueNodeId
+  },
+
+  setAutoLinkTactics: (enabled) => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(AUTO_LINK_STORAGE_KEY, String(enabled))
+    }
+    set({ autoLinkTactics: enabled })
   },
 
   applyUseCase: (useCase, knowledgeBase, locale) => {

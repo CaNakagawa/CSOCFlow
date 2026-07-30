@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { inferUseCaseLinks } from './inferUseCaseLinks'
 import type { InvestigationNode } from '../../../shared/types/investigation'
 import type { UseCaseDefinition } from '../../../shared/types/knowledge'
+import { isSourceHandleId, isTargetHandleId } from '../../../shared/types/handles'
 
 const L = (text: string) => ({ en: text, pt: text, de: text })
 const LL = (items: string[]) => ({ en: items, pt: items, de: items })
@@ -46,6 +47,10 @@ describe('inferUseCaseLinks', () => {
     expect(edges).toHaveLength(2)
     expect(edges.every((e) => e.source === 'uc1' && e.type === 'maps_to' && e.automatic)).toBe(true)
     expect(edges.map((e) => e.target).sort()).toEqual(['t1', 't2'])
+    for (const edge of edges) {
+      expect(isSourceHandleId(edge.sourceHandle)).toBe(true)
+      expect(isTargetHandleId(edge.targetHandle)).toBe(true)
+    }
   })
 
   it('only links techniques that are actually present on the canvas', () => {

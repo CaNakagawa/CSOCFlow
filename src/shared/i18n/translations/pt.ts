@@ -27,6 +27,9 @@ export const pt: Record<TranslationKey, string> = {
   'topBar.tabView': 'Exibir',
   'topBar.toggleLibrary': 'Painel de biblioteca',
   'topBar.toggleDetails': 'Painel de detalhes',
+  'topBar.autoLink': 'Vínculo automático',
+  'topBar.autoLinkHint':
+    'Quando ativo, adicionar uma técnica também traz as táticas MITRE dela para o canvas e as vincula.',
 
   'library.title': 'Biblioteca',
   'library.searchPlaceholder': 'Buscar técnica, evidência...',

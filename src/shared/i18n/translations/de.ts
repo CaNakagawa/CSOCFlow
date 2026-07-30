@@ -27,6 +27,9 @@ export const de: Record<TranslationKey, string> = {
   'topBar.tabView': 'Ansicht',
   'topBar.toggleLibrary': 'Bibliotheksbereich',
   'topBar.toggleDetails': 'Detailbereich',
+  'topBar.autoLink': 'Auto-Verknüpfung',
+  'topBar.autoLinkHint':
+    'Wenn aktiv, bringt das Hinzufügen einer Technik auch ihre MITRE-Taktiken auf den Canvas und verknüpft sie.',
 
   'library.title': 'Bibliothek',
   'library.searchPlaceholder': 'Technik, Beweismittel suchen...',

@@ -30,15 +30,7 @@ const TAB_LABEL_KEYS: Record<MenuTab, TranslationKey> = {
 }
 
 type IconName =
-  | 'new'
-  | 'demo'
-  | 'clear'
-  | 'save'
-  | 'import'
-  | 'export'
-  | 'library'
-  | 'details'
-  | 'help'
+  'new' | 'demo' | 'clear' | 'save' | 'import' | 'export' | 'library' | 'details' | 'link' | 'help'
 
 const ICONS: Record<IconName, ReactNode> = {
   new: (
@@ -84,6 +76,12 @@ const ICONS: Record<IconName, ReactNode> = {
     <>
       <rect x="2.3" y="3" width="11.4" height="10" rx="1.3" />
       <path d="M9.6 3v10" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M6.6 9.4a2.6 2.6 0 0 0 3.9.3l2-2a2.6 2.6 0 0 0-3.7-3.7l-1.1 1.1" />
+      <path d="M9.4 6.6a2.6 2.6 0 0 0-3.9-.3l-2 2a2.6 2.6 0 0 0 3.7 3.7l1.1-1.1" />
     </>
   ),
   help: (
@@ -141,6 +139,8 @@ export function TopBar({
   const clearCanvas = useInvestigationStore((s) => s.clearCanvas)
   const loadInvestigation = useInvestigationStore((s) => s.loadInvestigation)
   const toDocument = useInvestigationStore((s) => s.toDocument)
+  const autoLinkTactics = useInvestigationStore((s) => s.autoLinkTactics)
+  const setAutoLinkTactics = useInvestigationStore((s) => s.setAutoLinkTactics)
 
   const [activeTab, setActiveTab] = useState<MenuTab>('investigation')
   const [status, setStatus] = useState<string | null>(null)
@@ -352,6 +352,18 @@ export function TopBar({
               >
                 <Icon name="details" />
                 {t('topBar.toggleDetails')}
+              </button>
+              <div className="top-bar__group-divider" aria-hidden="true" />
+              <button
+                type="button"
+                className="top-bar__action top-bar__action--toggle"
+                onClick={() => setAutoLinkTactics(!autoLinkTactics)}
+                aria-pressed={autoLinkTactics}
+                aria-label={t('topBar.autoLink')}
+                title={t('topBar.autoLinkHint')}
+              >
+                <Icon name="link" />
+                {t('topBar.autoLink')}
               </button>
             </>
           )}

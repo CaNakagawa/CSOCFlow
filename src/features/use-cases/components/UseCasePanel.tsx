@@ -18,7 +18,9 @@ export function UseCasePanel({ knowledgeBase }: UseCasePanelProps) {
   return (
     <div className="use-case-panel">
       <p className="use-case-panel__disclaimer">{t('useCasePanel.disclaimer')}</p>
-      {suggestions.length === 0 && <p className="use-case-panel__empty">{t('useCasePanel.empty')}</p>}
+      {suggestions.length === 0 && (
+        <p className="use-case-panel__empty">{t('useCasePanel.empty')}</p>
+      )}
       {suggestions.map((suggestion) => (
         <UseCaseCard
           key={suggestion.useCaseId}

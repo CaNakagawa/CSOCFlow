@@ -30,7 +30,9 @@ export function UseCaseCard({ useCaseId, knowledgeBase, suggestion, onApply }: U
     <article className={`use-case-card${suggestion?.applied ? ' use-case-card--applied' : ''}`}>
       <header className="use-case-card__header">
         <h3>{localize(useCase.name, locale)}</h3>
-        {suggestion?.applied && <span className="use-case-card__badge">{t('useCase.applied')}</span>}
+        {suggestion?.applied && (
+          <span className="use-case-card__badge">{t('useCase.applied')}</span>
+        )}
       </header>
 
       <p className="use-case-card__description">{localize(useCase.description, locale)}</p>
@@ -53,7 +55,8 @@ export function UseCaseCard({ useCaseId, knowledgeBase, suggestion, onApply }: U
             }
           >
             {techniqueName(knowledgeBase, techniqueId)}
-            {suggestion !== undefined && (matched.has(techniqueId) ? t('useCase.onCanvas') : t('useCase.missing'))}
+            {suggestion !== undefined &&
+              (matched.has(techniqueId) ? t('useCase.onCanvas') : t('useCase.missing'))}
           </li>
         ))}
       </ul>

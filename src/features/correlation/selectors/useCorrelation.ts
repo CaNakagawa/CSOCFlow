@@ -11,6 +11,7 @@ export function useCorrelation(knowledgeBase: KnowledgeBase | null): void {
   const nodes = useInvestigationStore((s) => s.nodes)
   const manualEdges = useInvestigationStore((s) => s.manualEdges)
   const checkAnswers = useInvestigationStore((s) => s.checkAnswers)
+  const autoLinkTactics = useInvestigationStore((s) => s.autoLinkTactics)
   const setInferredEdges = useInvestigationStore((s) => s.setInferredEdges)
   const setHypothesisResults = useInvestigationStore((s) => s.setHypothesisResults)
   const setUseCaseSuggestions = useInvestigationStore((s) => s.setUseCaseSuggestions)
@@ -29,6 +30,7 @@ export function useCorrelation(knowledgeBase: KnowledgeBase | null): void {
         knowledgeBase,
         checkAnswers,
         locale,
+        autoLinkTactics,
       })
       setInferredEdges(result.inferredEdges)
       setHypothesisResults(result.hypotheses)
@@ -44,6 +46,7 @@ export function useCorrelation(knowledgeBase: KnowledgeBase | null): void {
     manualEdges,
     checkAnswers,
     locale,
+    autoLinkTactics,
     engine,
     setInferredEdges,
     setHypothesisResults,

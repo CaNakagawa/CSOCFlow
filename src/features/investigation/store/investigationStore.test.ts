@@ -8,13 +8,16 @@ const LL = (items: string[]) => ({ en: items, pt: items, de: items })
 function makeKnowledgeBaseWithTechniques(): KnowledgeBase {
   return {
     version: '1.0.0',
-    tactics: [],
+    tactics: [
+      { id: 'TA0003', name: 'Persistence', shortName: 'persistence' },
+      { id: 'TA0005', name: 'Stealth', shortName: 'stealth' },
+    ],
     techniques: [
       {
         id: 'T1098',
         name: 'Account Manipulation',
         type: 'mitre_technique',
-        tactics: ['TA0003'],
+        tactics: ['TA0003', 'TA0005'],
         platforms: [],
         brief: L(''),
         investigation_context: {
@@ -141,6 +144,64 @@ describe('investigationStore', () => {
     const state = useInvestigationStore.getState()
     expect(state.nodes.find((n) => n.id === a)).toBeUndefined()
     expect(state.manualEdges).toHaveLength(0)
+  })
+
+  it('adds a technique together with the tactic nodes it belongs to', () => {
+    const { addTechniqueWithTactics } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
+    const technique = knowledgeBase.techniques.find((t) => t.id === 'T1098')!
+
+    const nodeId = addTechniqueWithTactics(technique, knowledgeBase)
+
+    const state = useInvestigationStore.getState()
+    expect(state.nodes.find((n) => n.id === nodeId)!.definitionId).toBe('T1098')
+    expect(
+      state.nodes
+        .filter((n) => n.type === 'mitre_tactic')
+        .map((n) => n.definitionId)
+        .sort(),
+    ).toEqual(['TA0003', 'TA0005'])
+    expect(state.selectedNodeId).toBe(nodeId)
+  })
+
+  it('does not duplicate a tactic node that is already on the canvas', () => {
+    const { addTechniqueWithTactics, addNode } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
+    const technique = knowledgeBase.techniques.find((t) => t.id === 'T1098')!
+
+    addNode({
+      nodeType: 'mitre_tactic',
+      definitionId: 'TA0003',
+      label: 'TA0003 - Persistence',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    addTechniqueWithTactics(technique, knowledgeBase)
+
+    const state = useInvestigationStore.getState()
+    expect(state.nodes.filter((n) => n.definitionId === 'TA0003')).toHaveLength(1)
+    expect(state.nodes.filter((n) => n.type === 'mitre_tactic')).toHaveLength(2)
+  })
+
+  it('skips tactics that are missing from the knowledge base', () => {
+    const { addTechniqueWithTactics } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
+    const technique = { ...knowledgeBase.techniques[0], tactics: ['TA9999'] }
+
+    addTechniqueWithTactics(technique, knowledgeBase)
+
+    const state = useInvestigationStore.getState()
+    expect(state.nodes.filter((n) => n.type === 'mitre_tactic')).toHaveLength(0)
+    expect(state.nodes).toHaveLength(1)
+  })
+
+  it('keeps the auto-link preference across a new investigation', () => {
+    useInvestigationStore.getState().setAutoLinkTactics(true)
+
+    useInvestigationStore.getState().newInvestigation()
+
+    expect(useInvestigationStore.getState().autoLinkTactics).toBe(true)
+    useInvestigationStore.getState().setAutoLinkTactics(false)
   })
 
   it('applies a use case by adding a hub node and its missing technique nodes', () => {

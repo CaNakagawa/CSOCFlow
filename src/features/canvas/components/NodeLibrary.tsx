@@ -82,7 +82,9 @@ export function NodeLibrary({
   const [query, setQuery] = useState('')
   const [expandedTechniques, setExpandedTechniques] = useState<Set<string>>(new Set())
   const addNode = useInvestigationStore((s) => s.addNode)
+  const addTechniqueWithTactics = useInvestigationStore((s) => s.addTechniqueWithTactics)
   const applyUseCase = useInvestigationStore((s) => s.applyUseCase)
+  const autoLinkTactics = useInvestigationStore((s) => s.autoLinkTactics)
   const nodeCount = useInvestigationStore((s) => s.nodes.length)
 
   const fuse = useMemo(
@@ -125,6 +127,13 @@ export function NodeLibrary({
       const useCase = knowledgeBase.useCases.find((u) => u.id === item.definitionId)
       if (useCase) applyUseCase(useCase, knowledgeBase, locale)
       return
+    }
+    if (autoLinkTactics && knowledgeBase && item.category === TECHNIQUES_CATEGORY) {
+      const technique = knowledgeBase.techniques.find((t) => t.id === item.definitionId)
+      if (technique) {
+        addTechniqueWithTactics(technique, knowledgeBase)
+        return
+      }
     }
     addNode({
       nodeType: item.nodeType,

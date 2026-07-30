@@ -1,4 +1,8 @@
-import type { CanvasNodeType, NodeState, RelationshipType } from '../../../shared/types/investigation'
+import type {
+  CanvasNodeType,
+  NodeState,
+  RelationshipType,
+} from '../../../shared/types/investigation'
 import type { TranslationKey } from '../../../shared/i18n'
 
 export const NODE_GLYPHS: Record<CanvasNodeType, string> = {

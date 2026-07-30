@@ -193,6 +193,14 @@
   color: #f87171;
 }
 
+.top-bar__group-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 4px 6px;
+  background: var(--panel-border);
+  flex: none;
+}
+
 .top-bar__action--toggle[aria-pressed='true'] {
   background: var(--accent-soft);
   border-color: var(--accent);

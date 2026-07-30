@@ -25,6 +25,9 @@ export const en = {
   'topBar.tabView': 'View',
   'topBar.toggleLibrary': 'Library panel',
   'topBar.toggleDetails': 'Details panel',
+  'topBar.autoLink': 'Auto link',
+  'topBar.autoLinkHint':
+    'When on, adding a technique also brings its MITRE tactics to the canvas and links them.',
 
   'library.title': 'Library',
   'library.searchPlaceholder': 'Search technique, evidence...',
@@ -51,10 +54,12 @@ export const en = {
   'genericItem.alert.field.sourceTool': 'Source tool',
   'genericItem.alert.field.severity': 'Severity',
   'genericItem.evidence.label': 'Generic evidence',
-  'genericItem.evidence.brief': 'An observed piece of evidence that does not yet have a specific type in the knowledge base.',
+  'genericItem.evidence.brief':
+    'An observed piece of evidence that does not yet have a specific type in the knowledge base.',
   'genericItem.evidence.field.description': 'Description',
   'genericItem.analystNote.label': 'Analyst note',
-  'genericItem.analystNote.brief': "A free-form note written by the analyst about the investigation.",
+  'genericItem.analystNote.brief':
+    'A free-form note written by the analyst about the investigation.',
   'genericItem.analystNote.field.text': 'Text',
 
   'nodeVisual.mitre_tactic': 'MITRE Tactic',
@@ -124,7 +129,8 @@ export const en = {
 
   'hypotheses.disclaimer':
     'The score is based on investigative rules and does not represent an automatic confirmation of the incident.',
-  'hypotheses.empty': 'No compatible hypothesis yet. Add evidence to the canvas to start the correlation.',
+  'hypotheses.empty':
+    'No compatible hypothesis yet. Add evidence to the canvas to start the correlation.',
   'hypotheses.mitre': 'MITRE ATT&CK: ',
   'hypotheses.matched': 'Supporting evidence',
   'hypotheses.missing': 'Missing evidence',

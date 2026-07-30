@@ -1,6 +1,12 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 import type { CanvasNodeType, NodeState } from '../../../shared/types/investigation'
-import { NODE_GLYPHS, NODE_STATE_MARKERS, nodeCategoryKey, nodeStateKey } from '../utils/nodeVisuals'
+import {
+  NODE_GLYPHS,
+  NODE_STATE_MARKERS,
+  nodeCategoryKey,
+  nodeStateKey,
+} from '../utils/nodeVisuals'
+import { SOURCE_HANDLE_IDS, TARGET_HANDLE_IDS } from '../../../shared/types/handles'
 import { useI18n } from '../../../shared/i18n'
 import './GenericNode.css'
 
@@ -19,8 +25,8 @@ export function GenericNode({ data, selected }: NodeProps) {
     <div
       className={`generic-node generic-node--${state}${selected ? ' generic-node--selected' : ''}`}
     >
-      <Handle type="target" position={Position.Top} id="top" />
-      <Handle type="target" position={Position.Left} id="left" />
+      <Handle type="target" position={Position.Top} id={TARGET_HANDLE_IDS[0]} />
+      <Handle type="target" position={Position.Left} id={TARGET_HANDLE_IDS[1]} />
       <div className="generic-node__header">
         <span className="generic-node__glyph" aria-hidden="true">
           {NODE_GLYPHS[nodeType]}
@@ -31,8 +37,8 @@ export function GenericNode({ data, selected }: NodeProps) {
       <div className="generic-node__state" title={stateLabel}>
         <span aria-hidden="true">{NODE_STATE_MARKERS[state]}</span> {stateLabel}
       </div>
-      <Handle type="source" position={Position.Bottom} id="bottom" />
-      <Handle type="source" position={Position.Right} id="right" />
+      <Handle type="source" position={Position.Bottom} id={SOURCE_HANDLE_IDS[0]} />
+      <Handle type="source" position={Position.Right} id={SOURCE_HANDLE_IDS[1]} />
     </div>
   )
 }

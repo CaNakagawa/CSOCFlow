@@ -1,8 +1,12 @@
 import type { InvestigationEdge, InvestigationNode } from '../../../shared/types/investigation'
 import type { UseCaseDefinition } from '../../../shared/types/knowledge'
 import { localize, translate, type Locale } from '../../../shared/i18n'
+import type { SourceHandleId, TargetHandleId } from '../../../shared/types/handles'
 
 const USE_CASE_LINK_CONFIDENCE = 100
+
+const SOURCE_HANDLE: SourceHandleId = 'bottom'
+const TARGET_HANDLE: TargetHandleId = 'top'
 
 function isTechniqueNode(node: InvestigationNode): boolean {
   return node.type === 'mitre_technique' || node.type === 'mitre_subtechnique'
@@ -29,8 +33,8 @@ export function inferUseCaseLinks(
         id: `usecase-${node.id}-${techniqueNode.id}`,
         source: node.id,
         target: techniqueNode.id,
-        sourceHandle: 'bottom',
-        targetHandle: 'top',
+        sourceHandle: SOURCE_HANDLE,
+        targetHandle: TARGET_HANDLE,
         type: 'maps_to',
         label: translate(locale, 'relationship.maps_to'),
         automatic: true,
