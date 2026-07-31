@@ -71,3 +71,16 @@
 .generic-node--observed {
   border-color: #38bdf8;
 }
+
+/* Matrix scaffolding: present so the kill chain reads end to end, but faded so
+   it never competes with evidence the analyst actually put on the canvas. */
+.generic-node--scaffold {
+  opacity: 0.45;
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.generic-node--scaffold:hover,
+.generic-node--scaffold.generic-node--selected {
+  opacity: 1;
+}

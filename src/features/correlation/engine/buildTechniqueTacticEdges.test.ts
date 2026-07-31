@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { inferTechniqueTacticLinks } from './inferTechniqueTacticLinks'
+import { buildTechniqueTacticEdges } from './buildTechniqueTacticEdges'
 import type { InvestigationNode } from '../../../shared/types/investigation'
 import type { MitreTechnique } from '../../../shared/types/knowledge'
-import { isSourceHandleId, isTargetHandleId } from '../../../shared/types/handles'
+import { isHandleId } from '../../../shared/types/handles'
 
 function makeTechnique(
   partial: Pick<MitreTechnique, 'id' | 'tactics'> & Partial<MitreTechnique>,
@@ -39,20 +39,20 @@ function node(
 const bruteForce = makeTechnique({ id: 'T1110', tactics: ['TA0006'] })
 const validAccounts = makeTechnique({ id: 'T1078', tactics: ['TA0003', 'TA0005'] })
 
-describe('inferTechniqueTacticLinks', () => {
+describe('buildTechniqueTacticEdges', () => {
   it('links a technique to the tactic node it belongs to', () => {
     const nodes = [
       node({ id: 'tech-1', type: 'mitre_technique', definitionId: 'T1110' }),
       node({ id: 'tac-1', type: 'mitre_tactic', definitionId: 'TA0006' }),
     ]
 
-    const edges = inferTechniqueTacticLinks(nodes, [bruteForce], 'en')
+    const edges = buildTechniqueTacticEdges(nodes, [bruteForce], 'en')
 
     expect(edges).toHaveLength(1)
     expect(edges[0].source).toBe('tech-1')
     expect(edges[0].target).toBe('tac-1')
     expect(edges[0].type).toBe('maps_to')
-    expect(edges[0].automatic).toBe(true)
+    expect(edges[0].automatic).toBe(false)
   })
 
   it('links one technique to every tactic of its own that is on the canvas', () => {
@@ -62,7 +62,7 @@ describe('inferTechniqueTacticLinks', () => {
       node({ id: 'tac-2', type: 'mitre_tactic', definitionId: 'TA0005' }),
     ]
 
-    const edges = inferTechniqueTacticLinks(nodes, [validAccounts], 'en')
+    const edges = buildTechniqueTacticEdges(nodes, [validAccounts], 'en')
 
     expect(edges.map((e) => e.target).sort()).toEqual(['tac-1', 'tac-2'])
   })
@@ -73,7 +73,7 @@ describe('inferTechniqueTacticLinks', () => {
       node({ id: 'tac-1', type: 'mitre_tactic', definitionId: 'TA0003' }),
     ]
 
-    const edges = inferTechniqueTacticLinks(nodes, [validAccounts], 'en')
+    const edges = buildTechniqueTacticEdges(nodes, [validAccounts], 'en')
 
     expect(edges).toHaveLength(1)
     expect(edges[0].target).toBe('tac-1')
@@ -90,7 +90,7 @@ describe('inferTechniqueTacticLinks', () => {
       node({ id: 'tac-1', type: 'mitre_tactic', definitionId: 'TA0006' }),
     ]
 
-    expect(inferTechniqueTacticLinks(nodes, [passwordGuessing], 'en')).toHaveLength(1)
+    expect(buildTechniqueTacticEdges(nodes, [passwordGuessing], 'en')).toHaveLength(1)
   })
 
   // React Flow silently drops an edge that names a target handle as its source,
@@ -101,19 +101,19 @@ describe('inferTechniqueTacticLinks', () => {
       node({ id: 'tac-1', type: 'mitre_tactic', definitionId: 'TA0003' }),
     ]
 
-    const edges = inferTechniqueTacticLinks(nodes, [validAccounts], 'en')
+    const edges = buildTechniqueTacticEdges(nodes, [validAccounts], 'en')
 
     expect(edges).not.toHaveLength(0)
     for (const edge of edges) {
-      expect(isSourceHandleId(edge.sourceHandle)).toBe(true)
-      expect(isTargetHandleId(edge.targetHandle)).toBe(true)
+      expect(isHandleId(edge.sourceHandle)).toBe(true)
+      expect(isHandleId(edge.targetHandle)).toBe(true)
     }
   })
 
   it('produces no edges when there is no tactic on the canvas', () => {
     const nodes = [node({ id: 'tech-1', type: 'mitre_technique', definitionId: 'T1110' })]
 
-    expect(inferTechniqueTacticLinks(nodes, [bruteForce], 'en')).toEqual([])
+    expect(buildTechniqueTacticEdges(nodes, [bruteForce], 'en')).toEqual([])
   })
 
   it('ignores unrelated tactic and technique pairs', () => {
@@ -122,6 +122,6 @@ describe('inferTechniqueTacticLinks', () => {
       node({ id: 'tac-1', type: 'mitre_tactic', definitionId: 'TA0003' }),
     ]
 
-    expect(inferTechniqueTacticLinks(nodes, [bruteForce], 'en')).toEqual([])
+    expect(buildTechniqueTacticEdges(nodes, [bruteForce], 'en')).toEqual([])
   })
 })

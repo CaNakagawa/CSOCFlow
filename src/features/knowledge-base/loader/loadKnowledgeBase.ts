@@ -11,6 +11,7 @@ import type {
 import { manifestSchema } from './manifestSchema'
 import { mitreTacticSchema, relationshipRuleSchema } from './lightSchemas'
 import { createSchemaValidator } from './schemaValidator'
+import { sortTacticIds } from '../../../shared/utils/tacticOrder'
 import type { KnowledgeSource } from './source'
 import { KnowledgeLoadError } from './errors'
 
@@ -123,6 +124,17 @@ export async function loadKnowledgeBase(
     const raw = await source.readJson(path)
     const list = Array.isArray(raw) ? raw : []
     relationshipRules.push(...list.map((item) => relationshipRuleSchema.parse(item)))
+  }
+
+  // MITRE lists a technique's tactics in STIX order, which is not the order the
+  // matrix is read in, and hand-written files use whatever order the author
+  // typed. Normalising once here keeps the library, the details panel, the use
+  // case cards and Auto link all showing the same canonical sequence.
+  for (const technique of techniques) {
+    technique.tactics = sortTacticIds(technique.tactics, tactics)
+  }
+  for (const useCase of useCases) {
+    useCase.tactics = sortTacticIds(useCase.tactics, tactics)
   }
 
   return {

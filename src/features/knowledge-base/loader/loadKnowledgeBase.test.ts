@@ -127,6 +127,39 @@ describe('loadKnowledgeBase', () => {
     expect(kb.techniques[0].investigation_context).toBeUndefined()
   })
 
+  it('reorders tactics into matrix order, tolerating gaps', async () => {
+    const source = createInMemorySource({
+      'manifest.json': {
+        version: '1.0.0',
+        tactics: 'mitre/tactics.json',
+        techniques: ['mitre/techniques/T1055.json'],
+        evidenceTypes: [],
+        hypotheses: [],
+        checks: [],
+        useCases: [],
+        relationships: [],
+      },
+      ...baseFiles(),
+      'mitre/tactics.json': [
+        { id: 'TA0004', name: 'Privilege Escalation', shortName: 'privilege-escalation' },
+        { id: 'TA0005', name: 'Stealth', shortName: 'stealth' },
+        { id: 'TA0007', name: 'Discovery', shortName: 'discovery' },
+        { id: 'TA0040', name: 'Impact', shortName: 'impact' },
+      ],
+      // How MITRE actually ships T1055: Stealth before Privilege Escalation,
+      // and skipping Discovery entirely.
+      'mitre/techniques/T1055.json': {
+        ...validTechnique,
+        id: 'T1055',
+        tactics: ['TA0040', 'TA0005', 'TA0004'],
+      },
+    })
+
+    const kb = await loadKnowledgeBase(source)
+
+    expect(kb.techniques[0].tactics).toEqual(['TA0004', 'TA0005', 'TA0040'])
+  })
+
   it('throws KnowledgeValidationError when a technique file violates the schema', async () => {
     const { id: _id, ...invalidTechnique } = validTechnique
     const source = createInMemorySource({

@@ -37,5 +37,39 @@
 }
 
 .edge-comment-editor button:hover {
-  background: #334155;
+  background: var(--hover-bg, #334155);
+}
+
+.edge-comment-editor__row {
+  display: flex;
+  gap: 4px;
+  align-self: stretch;
+}
+
+.edge-comment-editor__swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  box-shadow: 0 0 0 1px var(--panel-border);
+  cursor: pointer;
+  align-self: auto;
+}
+
+.edge-comment-editor__swatch[aria-pressed='true'] {
+  border-color: var(--fg);
+}
+
+.edge-comment-editor__style {
+  flex: 1;
+  align-self: auto;
+  text-align: center;
+}
+
+.edge-comment-editor__style[aria-pressed='true'] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
 }

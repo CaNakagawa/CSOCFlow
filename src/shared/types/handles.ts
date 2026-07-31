@@ -1,20 +1,15 @@
 /**
- * Handle ids rendered by the canvas nodes.
+ * Connection points rendered on every side of a canvas node.
  *
- * React Flow silently drops an edge whose sourceHandle names a target handle
- * (or vice versa), so the inference code and GenericNode must agree on which id
- * belongs to which side. Both import from here to keep that impossible to break.
+ * Each side exposes both a source and a target handle sharing the same id, so an
+ * analyst can drag either end of a connection to whichever side of a node reads
+ * best. React Flow resolves sourceHandle against source-typed handles and
+ * targetHandle against target-typed ones, so the ids may safely overlap.
  */
-export const SOURCE_HANDLE_IDS = ['bottom', 'right'] as const
-export const TARGET_HANDLE_IDS = ['top', 'left'] as const
+export const HANDLE_IDS = ['top', 'right', 'bottom', 'left'] as const
 
-export type SourceHandleId = (typeof SOURCE_HANDLE_IDS)[number]
-export type TargetHandleId = (typeof TARGET_HANDLE_IDS)[number]
+export type HandleId = (typeof HANDLE_IDS)[number]
 
-export function isSourceHandleId(value: string | undefined): value is SourceHandleId {
-  return value !== undefined && (SOURCE_HANDLE_IDS as readonly string[]).includes(value)
-}
-
-export function isTargetHandleId(value: string | undefined): value is TargetHandleId {
-  return value !== undefined && (TARGET_HANDLE_IDS as readonly string[]).includes(value)
+export function isHandleId(value: string | undefined | null): value is HandleId {
+  return value !== undefined && value !== null && (HANDLE_IDS as readonly string[]).includes(value)
 }

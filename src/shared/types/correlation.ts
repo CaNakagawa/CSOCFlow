@@ -33,8 +33,6 @@ export interface CorrelationInput {
   knowledgeBase: KnowledgeBase
   checkAnswers: CheckAnswerRecord[]
   locale: Locale
-  /** When on, techniques are linked to the tactics they belong to. */
-  autoLinkTactics: boolean
 }
 
 export interface UseCaseSuggestion {

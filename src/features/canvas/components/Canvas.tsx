@@ -6,6 +6,7 @@ import {
   MiniMap,
   ConnectionMode,
   MarkerType,
+  Panel,
   type Node,
   type Edge,
   type NodeMouseHandler,
@@ -20,9 +21,11 @@ import {
 import '@xyflow/react/dist/style.css'
 import { combineEdges, useInvestigationStore } from '../../investigation/store/investigationStore'
 import { GenericNode, type GenericNodeData } from '../nodeTypes/GenericNode'
+import { CanvasActions } from './CanvasActions'
 import { relationshipKey } from '../utils/nodeVisuals'
 import { useI18n } from '../../../shared/i18n'
-import type { RelationshipType } from '../../../shared/types/investigation'
+import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/investigation'
+import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import './Canvas.css'
 
 const nodeTypes = { generic: GenericNode }
@@ -56,9 +59,27 @@ interface CommentEditorState {
   y: number
   value: string
   type: RelationshipType
+  color?: string
+  lineStyle: EdgeLineStyle
 }
 
-export function Canvas() {
+const AUTOMATIC_EDGE_COLOR = '#64748b'
+const MANUAL_EDGE_COLOR = '#3b82f6'
+
+const EDGE_COLORS = [
+  MANUAL_EDGE_COLOR,
+  '#22c55e',
+  '#f59e0b',
+  '#ef4444',
+  '#a855f7',
+  AUTOMATIC_EDGE_COLOR,
+]
+
+interface CanvasProps {
+  knowledgeBase: KnowledgeBase | null
+}
+
+export function Canvas({ knowledgeBase }: CanvasProps) {
   const { t } = useI18n()
   const nodes = useInvestigationStore((s) => s.nodes)
   const manualEdges = useInvestigationStore((s) => s.manualEdges)
@@ -76,6 +97,7 @@ export function Canvas() {
   const updateManualEdgeConnection = useInvestigationStore((s) => s.updateManualEdgeConnection)
   const updateEdgeLabel = useInvestigationStore((s) => s.updateEdgeLabel)
   const updateManualEdgeType = useInvestigationStore((s) => s.updateManualEdgeType)
+  const updateEdgeStyle = useInvestigationStore((s) => s.updateEdgeStyle)
 
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
   const [commentEditor, setCommentEditor] = useState<CommentEditorState | null>(null)
@@ -87,26 +109,30 @@ export function Canvas() {
         type: 'generic',
         position: n.position,
         selected: n.id === selectedNodeId,
-        data: { label: n.label, nodeType: n.type, state: n.state },
+        data: { label: n.label, nodeType: n.type, state: n.state, scaffold: n.scaffold },
       })),
     [nodes, selectedNodeId],
   )
 
   const flowEdges: Edge<FlowEdgeData>[] = useMemo(
     () =>
-      edges.map((e) => ({
-        id: e.id,
-        source: e.source,
-        target: e.target,
-        sourceHandle: e.sourceHandle,
-        targetHandle: e.targetHandle,
-        label: e.label,
-        selected: e.id === selectedEdgeId,
-        reconnectable: !e.automatic,
-        data: { automatic: e.automatic, type: e.type },
-        markerEnd: { type: MarkerType.ArrowClosed, color: e.automatic ? '#64748b' : '#3b82f6' },
-        style: e.automatic ? { strokeDasharray: '4 3', stroke: '#64748b' } : { stroke: '#3b82f6' },
-      })),
+      edges.map((e) => {
+        const stroke = e.color ?? (e.automatic ? AUTOMATIC_EDGE_COLOR : MANUAL_EDGE_COLOR)
+        const dashed = e.lineStyle ? e.lineStyle === 'dashed' : e.automatic
+        return {
+          id: e.id,
+          source: e.source,
+          target: e.target,
+          sourceHandle: e.sourceHandle,
+          targetHandle: e.targetHandle,
+          label: e.label,
+          selected: e.id === selectedEdgeId,
+          reconnectable: !e.automatic,
+          data: { automatic: e.automatic, type: e.type },
+          markerEnd: { type: MarkerType.ArrowClosed, color: stroke },
+          style: { stroke, strokeDasharray: dashed ? '4 3' : undefined },
+        }
+      }),
     [edges, selectedEdgeId],
   )
 
@@ -181,24 +207,34 @@ export function Canvas() {
     [updateManualEdgeConnection],
   )
 
-  const onEdgeDoubleClick: EdgeMouseHandler<Edge<FlowEdgeData>> = useCallback((event, edge) => {
-    if (edge.data?.automatic) return
-    event.stopPropagation()
-    setCommentEditor({
-      edgeId: edge.id,
-      x: event.clientX,
-      y: event.clientY,
-      value: typeof edge.label === 'string' ? edge.label : '',
-      type: edge.data?.type ?? 'associated_with',
-    })
-  }, [])
+  const onEdgeDoubleClick: EdgeMouseHandler<Edge<FlowEdgeData>> = useCallback(
+    (event, edge) => {
+      if (edge.data?.automatic) return
+      event.stopPropagation()
+      const stored = edges.find((e) => e.id === edge.id)
+      setCommentEditor({
+        edgeId: edge.id,
+        x: event.clientX,
+        y: event.clientY,
+        value: typeof edge.label === 'string' ? edge.label : '',
+        type: edge.data?.type ?? 'associated_with',
+        color: stored?.color,
+        lineStyle: stored?.lineStyle ?? 'solid',
+      })
+    },
+    [edges],
+  )
 
   const commitComment = useCallback(() => {
     if (!commentEditor) return
     updateEdgeLabel(commentEditor.edgeId, commentEditor.value)
     updateManualEdgeType(commentEditor.edgeId, commentEditor.type)
+    updateEdgeStyle(commentEditor.edgeId, {
+      color: commentEditor.color,
+      lineStyle: commentEditor.lineStyle,
+    })
     setCommentEditor(null)
-  }, [commentEditor, updateEdgeLabel, updateManualEdgeType])
+  }, [commentEditor, updateEdgeLabel, updateManualEdgeType, updateEdgeStyle])
 
   return (
     <div className="canvas-area" role="application" aria-label="Investigation canvas">
@@ -217,6 +253,9 @@ export function Canvas() {
         deleteKeyCode={['Backspace', 'Delete']}
         fitView
       >
+        <Panel position="top-right">
+          <CanvasActions knowledgeBase={knowledgeBase} />
+        </Panel>
         <Background />
         <Controls />
         <MiniMap pannable zoomable />
@@ -255,6 +294,35 @@ export function Canvas() {
               if (e.key === 'Escape') setCommentEditor(null)
             }}
           />
+
+          <div className="edge-comment-editor__row" role="group" aria-label={t('canvas.edgeColor')}>
+            {EDGE_COLORS.map((color) => (
+              <button
+                key={color}
+                type="button"
+                className="edge-comment-editor__swatch"
+                style={{ background: color }}
+                aria-label={color}
+                aria-pressed={(commentEditor.color ?? MANUAL_EDGE_COLOR) === color}
+                onClick={() => setCommentEditor({ ...commentEditor, color })}
+              />
+            ))}
+          </div>
+
+          <div className="edge-comment-editor__row" role="group" aria-label={t('canvas.edgeStyle')}>
+            {(['solid', 'dashed'] as EdgeLineStyle[]).map((style) => (
+              <button
+                key={style}
+                type="button"
+                className="edge-comment-editor__style"
+                aria-pressed={commentEditor.lineStyle === style}
+                onClick={() => setCommentEditor({ ...commentEditor, lineStyle: style })}
+              >
+                {t(style === 'solid' ? 'canvas.edgeSolid' : 'canvas.edgeDashed')}
+              </button>
+            ))}
+          </div>
+
           <button type="button" onClick={commitComment}>
             {t('canvas.save')}
           </button>

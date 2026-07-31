@@ -66,6 +66,11 @@ export interface InvestigationNode {
   fields: Record<string, unknown>
   notes?: string
   analyticStatuses?: Record<string, AnalyticStatus>
+  /**
+   * Structural scaffolding rather than something the analyst observed. Drawn
+   * faded so the ATT&CK matrix frame never competes with real evidence.
+   */
+  scaffold?: boolean
   createdAt: string
   updatedAt: string
 }
@@ -81,7 +86,12 @@ export interface InvestigationEdge {
   automatic: boolean
   confidence?: number
   explanation?: string
+  /** Analyst overrides for how the connection is drawn. */
+  color?: string
+  lineStyle?: EdgeLineStyle
 }
+
+export type EdgeLineStyle = 'solid' | 'dashed'
 
 export type InvestigationConclusion =
   'confirmed' | 'probable' | 'inconclusive' | 'legitimate_activity' | 'false_positive'

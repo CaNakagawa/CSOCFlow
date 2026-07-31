@@ -27,9 +27,6 @@ export const pt: Record<TranslationKey, string> = {
   'topBar.tabView': 'Exibir',
   'topBar.toggleLibrary': 'Painel de biblioteca',
   'topBar.toggleDetails': 'Painel de detalhes',
-  'topBar.autoLink': 'Vínculo automático',
-  'topBar.autoLinkHint':
-    'Quando ativo, adicionar uma técnica também traz as táticas MITRE dela para o canvas e as vincula.',
 
   'library.title': 'Biblioteca',
   'library.searchPlaceholder': 'Buscar técnica, evidência...',
@@ -161,6 +158,20 @@ export const pt: Record<TranslationKey, string> = {
   'rightPanel.collapse': 'Retrair painel',
   'rightPanel.expand': 'Expandir painel',
 
+  'canvas.autoLink': 'Vínculo automático',
+  'canvas.autoLinkHint':
+    'Traz as táticas MITRE das técnicas presentes no canvas e as conecta. Nada do que já existe é alterado.',
+  'canvas.autoLinkCreated': '{count} conexão(ões) criada(s).',
+  'canvas.autoLinkNothing': 'Nada novo para conectar.',
+  'canvas.organize': 'Organizar como o MITRE',
+  'canvas.organizeHint':
+    'Traz todas as táticas como esqueleto esmaecido, alinha na ordem da matriz e empilha suas técnicas abaixo da tática correspondente.',
+  'canvas.organizeDone':
+    'Canvas organizado como a matriz ATT&CK. {count} tática(s) de esqueleto adicionada(s).',
+  'canvas.edgeColor': 'Cor da conexão',
+  'canvas.edgeStyle': 'Estilo da linha',
+  'canvas.edgeSolid': 'Sólida',
+  'canvas.edgeDashed': 'Tracejada',
   'canvas.commentPlaceholder': 'Comentário da conexão...',
   'canvas.save': 'Salvar',
 }

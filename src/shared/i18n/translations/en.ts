@@ -25,9 +25,6 @@ export const en = {
   'topBar.tabView': 'View',
   'topBar.toggleLibrary': 'Library panel',
   'topBar.toggleDetails': 'Details panel',
-  'topBar.autoLink': 'Auto link',
-  'topBar.autoLinkHint':
-    'When on, adding a technique also brings its MITRE tactics to the canvas and links them.',
 
   'library.title': 'Library',
   'library.searchPlaceholder': 'Search technique, evidence...',
@@ -160,6 +157,19 @@ export const en = {
   'rightPanel.collapse': 'Collapse panel',
   'rightPanel.expand': 'Expand panel',
 
+  'canvas.autoLink': 'Auto link',
+  'canvas.autoLinkHint':
+    'Brings the MITRE tactics of the techniques on the canvas and connects them. Existing items are never changed.',
+  'canvas.autoLinkCreated': '{count} connection(s) created.',
+  'canvas.autoLinkNothing': 'Nothing new to connect.',
+  'canvas.organize': 'Organize like MITRE',
+  'canvas.organizeHint':
+    'Brings every tactic in as a faded scaffold, lines them up in matrix order and stacks your techniques under the tactic they belong to.',
+  'canvas.organizeDone': 'Canvas arranged as the ATT&CK matrix. {count} tactic scaffold(s) added.',
+  'canvas.edgeColor': 'Connection colour',
+  'canvas.edgeStyle': 'Line style',
+  'canvas.edgeSolid': 'Solid',
+  'canvas.edgeDashed': 'Dashed',
   'canvas.commentPlaceholder': 'Connection comment...',
   'canvas.save': 'Save',
 } satisfies Record<string, string>

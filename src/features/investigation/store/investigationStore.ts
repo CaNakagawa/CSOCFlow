@@ -3,16 +3,19 @@ import { generateId } from '../../../shared/utils/id'
 import type {
   AnalyticStatus,
   CanvasNodeType,
+  EdgeLineStyle,
   InvestigationEdge,
   InvestigationMeta,
   InvestigationNode,
   NodeState,
   RelationshipType,
 } from '../../../shared/types/investigation'
+import { buildTechniqueTacticEdges } from '../../correlation/engine/buildTechniqueTacticEdges'
+import { layoutLikeMitre } from '../../canvas/utils/mitreLayout'
+import { sortTacticIds } from '../../../shared/utils/tacticOrder'
 import type {
   EvidenceFieldDefinition,
   KnowledgeBase,
-  MitreTechnique,
   UseCaseDefinition,
 } from '../../../shared/types/knowledge'
 import type {
@@ -58,13 +61,6 @@ function defaultFieldValue(field: EvidenceFieldDefinition): unknown {
   }
 }
 
-const AUTO_LINK_STORAGE_KEY = 'csocflow.autoLinkTactics'
-
-function readStoredAutoLink(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.localStorage.getItem(AUTO_LINK_STORAGE_KEY) === 'true'
-}
-
 function createMeta(): InvestigationMeta {
   const now = new Date().toISOString()
   return {
@@ -91,7 +87,6 @@ interface InvestigationState {
   hypothesisResults: HypothesisResult[]
   useCaseSuggestions: UseCaseSuggestion[]
   analystNotes: string
-  autoLinkTactics: boolean
 
   addNode: (params: {
     nodeType: CanvasNodeType
@@ -100,8 +95,8 @@ interface InvestigationState {
     position: { x: number; y: number }
     fieldDefinitions: EvidenceFieldDefinition[]
   }) => string
-  addTechniqueWithTactics: (technique: MitreTechnique, knowledgeBase: KnowledgeBase) => string
-  setAutoLinkTactics: (enabled: boolean) => void
+  runAutoLink: (knowledgeBase: KnowledgeBase, locale: Locale) => number
+  organizeLikeMitre: (knowledgeBase: KnowledgeBase, locale: Locale) => number
   applyUseCase: (useCase: UseCaseDefinition, knowledgeBase: KnowledgeBase, locale: Locale) => void
   updateNodeFields: (nodeId: string, fields: Record<string, unknown>) => void
   updateNodeState: (nodeId: string, state: NodeState) => void
@@ -125,6 +120,7 @@ interface InvestigationState {
   ) => void
   updateEdgeLabel: (edgeId: string, label: string) => void
   updateManualEdgeType: (edgeId: string, type: RelationshipType) => void
+  updateEdgeStyle: (edgeId: string, style: { color?: string; lineStyle?: EdgeLineStyle }) => void
   removeEdge: (edgeId: string) => void
   setViewport: (viewport: Viewport) => void
   recordCheckAnswer: (checkId: string, value: string) => void
@@ -153,7 +149,6 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   hypothesisResults: [],
   useCaseSuggestions: [],
   analystNotes: '',
-  autoLinkTactics: readStoredAutoLink(),
 
   addNode: ({ nodeType, definitionId, label, position, fieldDefinitions }) => {
     const now = new Date().toISOString()
@@ -178,38 +173,40 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     return id
   },
 
-  // Drops the technique on the canvas together with any tactic it belongs to that
-  // is not there yet. The edges between them are inferred by the correlation
-  // engine, the same way use-case hubs link to their techniques.
-  addTechniqueWithTactics: (technique, knowledgeBase) => {
-    const techniqueNodeId = generateId('node')
+  /**
+   * One-shot correlation: brings every tactic that the techniques on the canvas
+   * belong to, then connects them. Purely additive — existing nodes, positions,
+   * connections and styling are left untouched, and connections it already
+   * created are not duplicated on a second run.
+   *
+   * Returns how many new connections were made so the UI can report the result.
+   */
+  runAutoLink: (knowledgeBase, locale) => {
+    let created = 0
 
     set((state) => {
+      const techniquesById = new Map(knowledgeBase.techniques.map((t) => [t.id, t]))
+      const presentTactics = new Set(
+        state.nodes.filter((n) => n.type === 'mitre_tactic').map((n) => n.definitionId),
+      )
+
+      const missingTactics = new Set<string>()
+      for (const node of state.nodes) {
+        if (node.type !== 'mitre_technique' && node.type !== 'mitre_subtechnique') continue
+        const definition = techniquesById.get(node.definitionId)
+        if (!definition) continue
+        for (const tacticId of definition.tactics) {
+          if (!presentTactics.has(tacticId)) missingTactics.add(tacticId)
+        }
+      }
+
       const now = new Date().toISOString()
       const nodes = [...state.nodes]
-
-      nodes.push({
-        id: techniqueNodeId,
-        definitionId: technique.id,
-        type: technique.type,
-        label: `${technique.id} - ${technique.name}`,
-        state: 'unknown',
-        position: nextGridPosition(nodes.length),
-        fields: {},
-        notes: '',
-        createdAt: now,
-        updatedAt: now,
-      })
-
-      for (const tacticId of technique.tactics) {
-        const alreadyPresent = nodes.some(
-          (n) => n.type === 'mitre_tactic' && n.definitionId === tacticId,
-        )
-        if (alreadyPresent) continue
-
+      // Aggregating across several techniques interleaves the set, so re-sort to
+      // drop the tactics onto the canvas in matrix order.
+      for (const tacticId of sortTacticIds([...missingTactics], knowledgeBase.tactics)) {
         const tactic = knowledgeBase.tactics.find((t) => t.id === tacticId)
         if (!tactic) continue
-
         nodes.push({
           id: generateId('node'),
           definitionId: tactic.id,
@@ -224,17 +221,77 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
         })
       }
 
-      return { nodes, selectedNodeId: techniqueNodeId }
+      const existingEdgeIds = new Set(state.manualEdges.map((e) => e.id))
+      const newEdges = buildTechniqueTacticEdges(nodes, knowledgeBase.techniques, locale).filter(
+        (edge) => !existingEdgeIds.has(edge.id),
+      )
+      created = newEdges.length
+
+      if (nodes.length === state.nodes.length && newEdges.length === 0) return {}
+      return { nodes, manualEdges: [...state.manualEdges, ...newEdges] }
     })
 
-    return techniqueNodeId
+    return created
   },
 
-  setAutoLinkTactics: (enabled) => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(AUTO_LINK_STORAGE_KEY, String(enabled))
-    }
-    set({ autoLinkTactics: enabled })
+  /**
+   * Lays the canvas out like the ATT&CK matrix: every tactic becomes a faded
+   * scaffold node in a horizontal header row, and the analyst's own techniques
+   * are stacked in the column of the tactic they belong to and linked upward.
+   *
+   * Only techniques already on the canvas take part — the matrix frame is
+   * scaffolding, not a dump of all 697 techniques. Nothing is removed; existing
+   * nodes are repositioned and existing connections are kept.
+   *
+   * Returns how many tactic scaffolds were added.
+   */
+  organizeLikeMitre: (knowledgeBase, locale) => {
+    let addedTactics = 0
+
+    set((state) => {
+      const now = new Date().toISOString()
+      const nodes = [...state.nodes]
+
+      for (const tactic of knowledgeBase.tactics) {
+        const present = nodes.some((n) => n.type === 'mitre_tactic' && n.definitionId === tactic.id)
+        if (present) continue
+        nodes.push({
+          id: generateId('node'),
+          definitionId: tactic.id,
+          type: 'mitre_tactic',
+          label: `${tactic.id} - ${tactic.name}`,
+          state: 'unknown',
+          position: { x: 0, y: 0 },
+          fields: {},
+          notes: '',
+          scaffold: true,
+          createdAt: now,
+          updatedAt: now,
+        })
+        addedTactics += 1
+      }
+
+      const positions = layoutLikeMitre(nodes, knowledgeBase.tactics, knowledgeBase.techniques)
+      const positioned = nodes.map((node) => {
+        const position = positions.get(node.id)
+        return position ? { ...node, position } : node
+      })
+
+      // Techniques sit under their tactic here, so the connection leaves the
+      // technique's top edge instead of its right edge.
+      const existingEdgeIds = new Set(state.manualEdges.map((e) => e.id))
+      const newEdges = buildTechniqueTacticEdges(positioned, knowledgeBase.techniques, locale, {
+        source: 'top',
+        target: 'bottom',
+      }).filter((edge) => !existingEdgeIds.has(edge.id))
+
+      return {
+        nodes: positioned,
+        manualEdges: [...state.manualEdges, ...newEdges],
+      }
+    })
+
+    return addedTactics
   },
 
   applyUseCase: (useCase, knowledgeBase, locale) => {
@@ -408,6 +465,12 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   updateManualEdgeType: (edgeId, type) => {
     set((state) => ({
       manualEdges: state.manualEdges.map((e) => (e.id === edgeId ? { ...e, type } : e)),
+    }))
+  },
+
+  updateEdgeStyle: (edgeId, style) => {
+    set((state) => ({
+      manualEdges: state.manualEdges.map((e) => (e.id === edgeId ? { ...e, ...style } : e)),
     }))
   },
 

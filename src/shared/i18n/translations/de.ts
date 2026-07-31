@@ -27,9 +27,6 @@ export const de: Record<TranslationKey, string> = {
   'topBar.tabView': 'Ansicht',
   'topBar.toggleLibrary': 'Bibliotheksbereich',
   'topBar.toggleDetails': 'Detailbereich',
-  'topBar.autoLink': 'Auto-Verknüpfung',
-  'topBar.autoLinkHint':
-    'Wenn aktiv, bringt das Hinzufügen einer Technik auch ihre MITRE-Taktiken auf den Canvas und verknüpft sie.',
 
   'library.title': 'Bibliothek',
   'library.searchPlaceholder': 'Technik, Beweismittel suchen...',
@@ -161,6 +158,20 @@ export const de: Record<TranslationKey, string> = {
   'rightPanel.collapse': 'Panel einklappen',
   'rightPanel.expand': 'Panel ausklappen',
 
+  'canvas.autoLink': 'Auto-Verknüpfung',
+  'canvas.autoLinkHint':
+    'Holt die MITRE-Taktiken der Techniken auf dem Canvas und verknüpft sie. Vorhandenes bleibt unverändert.',
+  'canvas.autoLinkCreated': '{count} Verbindung(en) erstellt.',
+  'canvas.autoLinkNothing': 'Nichts Neues zu verknüpfen.',
+  'canvas.organize': 'Wie MITRE anordnen',
+  'canvas.organizeHint':
+    'Holt alle Taktiken als blasses Gerüst, richtet sie in Matrixreihenfolge aus und stapelt Ihre Techniken unter der zugehörigen Taktik.',
+  'canvas.organizeDone':
+    'Canvas wie die ATT&CK-Matrix angeordnet. {count} Taktik-Gerüst(e) hinzugefügt.',
+  'canvas.edgeColor': 'Verbindungsfarbe',
+  'canvas.edgeStyle': 'Linienstil',
+  'canvas.edgeSolid': 'Durchgezogen',
+  'canvas.edgeDashed': 'Gestrichelt',
   'canvas.commentPlaceholder': 'Kommentar zur Verbindung...',
   'canvas.save': 'Speichern',
 }

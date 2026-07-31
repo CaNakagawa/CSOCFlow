@@ -50,7 +50,7 @@ export function App() {
           collapsed={isLibraryCollapsed}
           onToggleCollapsed={() => setLibraryCollapsed((v) => !v)}
         />
-        <Canvas />
+        <Canvas knowledgeBase={knowledgeBase} />
         <RightPanel
           knowledgeBase={knowledgeBase}
           collapsed={isRightPanelCollapsed}

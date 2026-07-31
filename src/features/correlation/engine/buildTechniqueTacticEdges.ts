@@ -1,29 +1,40 @@
 import type { InvestigationEdge, InvestigationNode } from '../../../shared/types/investigation'
 import type { MitreTechnique } from '../../../shared/types/knowledge'
 import { translate, type Locale } from '../../../shared/i18n'
-import type { SourceHandleId, TargetHandleId } from '../../../shared/types/handles'
+import type { HandleId } from '../../../shared/types/handles'
 
-const TACTIC_LINK_CONFIDENCE = 100
+// Auto link drops techniques and tactics side by side on the grid, so a
+// straight right-to-left connector reads better than looping under the nodes.
+// The matrix layout stacks them vertically instead and overrides these.
+const DEFAULT_HANDLES: EdgeHandles = { source: 'right', target: 'left' }
 
-// Techniques and their tactics land side by side on the grid, so a straight
-// right-to-left connector reads better than looping under the nodes.
-const SOURCE_HANDLE: SourceHandleId = 'right'
-const TARGET_HANDLE: TargetHandleId = 'left'
+export interface EdgeHandles {
+  source: HandleId
+  target: HandleId
+}
 
 function isTechniqueNode(node: InvestigationNode): boolean {
   return node.type === 'mitre_technique' || node.type === 'mitre_subtechnique'
 }
 
+export function techniqueTacticEdgeId(techniqueNodeId: string, tacticNodeId: string): string {
+  return `tactic-${techniqueNodeId}-${tacticNodeId}`
+}
+
 /**
- * Links every technique on the canvas to the tactics it belongs to, whenever
- * those tactic nodes are also present. Only runs while auto-link is enabled, so
- * an analyst who places a tactic and a technique deliberately apart keeps them
- * apart.
+ * Builds a connection from every technique on the canvas to each of its tactics
+ * that is also present.
+ *
+ * The Auto link action runs this once and stores the result as ordinary
+ * connections rather than re-deriving them every tick, so the analyst can
+ * restyle them, drag their endpoints to another side or delete them and have
+ * that stick.
  */
-export function inferTechniqueTacticLinks(
+export function buildTechniqueTacticEdges(
   nodes: InvestigationNode[],
   techniques: MitreTechnique[],
   locale: Locale,
+  handles: EdgeHandles = DEFAULT_HANDLES,
 ): InvestigationEdge[] {
   const tacticNodes = nodes.filter((n) => n.type === 'mitre_tactic')
   if (tacticNodes.length === 0) return []
@@ -41,15 +52,14 @@ export function inferTechniqueTacticLinks(
       if (!tacticNode) continue
 
       edges.push({
-        id: `tactic-${node.id}-${tacticNode.id}`,
+        id: techniqueTacticEdgeId(node.id, tacticNode.id),
         source: node.id,
         target: tacticNode.id,
-        sourceHandle: SOURCE_HANDLE,
-        targetHandle: TARGET_HANDLE,
+        sourceHandle: handles.source,
+        targetHandle: handles.target,
         type: 'maps_to',
         label,
-        automatic: true,
-        confidence: TACTIC_LINK_CONFIDENCE,
+        automatic: false,
         explanation: `${node.label} -> ${tacticNode.label}`,
       })
     }

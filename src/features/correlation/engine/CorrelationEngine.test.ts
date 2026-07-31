@@ -80,7 +80,6 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
       knowledgeBase,
       checkAnswers: [],
       locale: 'en',
-      autoLinkTactics: false,
     })
 
     const sshBruteForce = result.hypotheses.find(
@@ -131,7 +130,6 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
       knowledgeBase,
       checkAnswers: [],
       locale: 'en',
-      autoLinkTactics: false,
     })
     const sshBruteForce = result.hypotheses.find(
       (h) => h.hypothesisId === 'hypothesis.ssh_brute_force',
@@ -151,7 +149,6 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
       knowledgeBase,
       checkAnswers: [],
       locale: 'en',
-      autoLinkTactics: false,
     })
     expect(
       result.hypotheses.find((h) => h.hypothesisId === 'hypothesis.ssh_brute_force'),
@@ -179,7 +176,6 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
       knowledgeBase,
       checkAnswers: [],
       locale: 'en',
-      autoLinkTactics: false,
     })
     const withAnswer = engine.evaluate({
       nodes,
@@ -193,7 +189,6 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
         },
       ],
       locale: 'en',
-      autoLinkTactics: false,
     })
 
     const before = withoutAnswer.hypotheses.find(
@@ -222,7 +217,6 @@ describe('CorrelationEngine (real SSH brute force knowledge base)', () => {
       knowledgeBase,
       checkAnswers: [],
       locale: 'en',
-      autoLinkTactics: false,
     })
     const edge = result.inferredEdges.find((e) => e.source === 'evt-failed' && e.target === 'ip-1')
 

@@ -146,62 +146,214 @@ describe('investigationStore', () => {
     expect(state.manualEdges).toHaveLength(0)
   })
 
-  it('adds a technique together with the tactic nodes it belongs to', () => {
-    const { addTechniqueWithTactics } = useInvestigationStore.getState()
+  it('brings the tactics of the techniques on the canvas and connects them', () => {
+    const { addNode, runAutoLink } = useInvestigationStore.getState()
     const knowledgeBase = makeKnowledgeBaseWithTechniques()
-    const technique = knowledgeBase.techniques.find((t) => t.id === 'T1098')!
 
-    const nodeId = addTechniqueWithTactics(technique, knowledgeBase)
+    const techniqueId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1098',
+      label: 'T1098 - Account Manipulation',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    const created = runAutoLink(knowledgeBase, 'en')
 
     const state = useInvestigationStore.getState()
-    expect(state.nodes.find((n) => n.id === nodeId)!.definitionId).toBe('T1098')
     expect(
       state.nodes
         .filter((n) => n.type === 'mitre_tactic')
         .map((n) => n.definitionId)
         .sort(),
     ).toEqual(['TA0003', 'TA0005'])
-    expect(state.selectedNodeId).toBe(nodeId)
+    expect(created).toBe(2)
+    expect(state.manualEdges).toHaveLength(2)
+    expect(state.manualEdges.every((e) => e.source === techniqueId && e.type === 'maps_to')).toBe(
+      true,
+    )
   })
 
-  it('does not duplicate a tactic node that is already on the canvas', () => {
-    const { addTechniqueWithTactics, addNode } = useInvestigationStore.getState()
+  it('creates connections the analyst can edit rather than derived ones', () => {
+    const { addNode, runAutoLink } = useInvestigationStore.getState()
     const knowledgeBase = makeKnowledgeBaseWithTechniques()
-    const technique = knowledgeBase.techniques.find((t) => t.id === 'T1098')!
 
     addNode({
-      nodeType: 'mitre_tactic',
-      definitionId: 'TA0003',
-      label: 'TA0003 - Persistence',
+      nodeType: 'mitre_technique',
+      definitionId: 'T1078',
+      label: 'T1078 - Valid Accounts',
       position: { x: 0, y: 0 },
       fieldDefinitions: [],
     })
-    addTechniqueWithTactics(technique, knowledgeBase)
+    runAutoLink(knowledgeBase, 'en')
 
     const state = useInvestigationStore.getState()
+    expect(state.manualEdges.every((e) => e.automatic === false)).toBe(true)
+    expect(state.inferredEdges).toHaveLength(0)
+  })
+
+  it('is additive: a second run changes nothing and never touches existing work', () => {
+    const { addNode, addManualEdge, runAutoLink } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
+
+    const techniqueId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1078',
+      label: 'T1078 - Valid Accounts',
+      position: { x: 10, y: 20 },
+      fieldDefinitions: [],
+    })
+    const hostId = addNode({
+      nodeType: 'host',
+      definitionId: 'evidence.identity.host',
+      label: 'bastion-01',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    addManualEdge(techniqueId, hostId, 'associated_with')
+
+    const first = runAutoLink(knowledgeBase, 'en')
+    const second = runAutoLink(knowledgeBase, 'en')
+
+    const state = useInvestigationStore.getState()
+    // T1078 only maps to TA0003 in this fixture.
+    expect(first).toBe(1)
+    expect(second).toBe(0)
     expect(state.nodes.filter((n) => n.definitionId === 'TA0003')).toHaveLength(1)
-    expect(state.nodes.filter((n) => n.type === 'mitre_tactic')).toHaveLength(2)
+    expect(state.nodes.find((n) => n.id === hostId)).toBeDefined()
+    expect(state.nodes.find((n) => n.id === techniqueId)!.position).toEqual({ x: 10, y: 20 })
+    // the analyst's own connection plus the single generated one
+    expect(state.manualEdges).toHaveLength(2)
+  })
+
+  it('does nothing when there is no technique on the canvas', () => {
+    const { addNode, runAutoLink } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
+
+    addNode({
+      nodeType: 'host',
+      definitionId: 'evidence.identity.host',
+      label: 'bastion-01',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    expect(runAutoLink(knowledgeBase, 'en')).toBe(0)
+    expect(useInvestigationStore.getState().nodes).toHaveLength(1)
   })
 
   it('skips tactics that are missing from the knowledge base', () => {
-    const { addTechniqueWithTactics } = useInvestigationStore.getState()
+    const { addNode, runAutoLink } = useInvestigationStore.getState()
     const knowledgeBase = makeKnowledgeBaseWithTechniques()
-    const technique = { ...knowledgeBase.techniques[0], tactics: ['TA9999'] }
+    knowledgeBase.techniques[0].tactics = ['TA9999']
 
-    addTechniqueWithTactics(technique, knowledgeBase)
+    addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1098',
+      label: 'T1098 - Account Manipulation',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    runAutoLink(knowledgeBase, 'en')
 
     const state = useInvestigationStore.getState()
     expect(state.nodes.filter((n) => n.type === 'mitre_tactic')).toHaveLength(0)
     expect(state.nodes).toHaveLength(1)
   })
 
-  it('keeps the auto-link preference across a new investigation', () => {
-    useInvestigationStore.getState().setAutoLinkTactics(true)
+  it('organizes the canvas like the matrix, adding every tactic as scaffolding', () => {
+    const { addNode, organizeLikeMitre } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
 
-    useInvestigationStore.getState().newInvestigation()
+    const techniqueId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1098',
+      label: 'T1098 - Account Manipulation',
+      position: { x: 999, y: 999 },
+      fieldDefinitions: [],
+    })
 
-    expect(useInvestigationStore.getState().autoLinkTactics).toBe(true)
-    useInvestigationStore.getState().setAutoLinkTactics(false)
+    const added = organizeLikeMitre(knowledgeBase, 'en')
+
+    const state = useInvestigationStore.getState()
+    const tacticNodes = state.nodes.filter((n) => n.type === 'mitre_tactic')
+    expect(added).toBe(2)
+    expect(tacticNodes.map((n) => n.definitionId).sort()).toEqual(['TA0003', 'TA0005'])
+    expect(tacticNodes.every((n) => n.scaffold === true)).toBe(true)
+    // tactics share one horizontal row, the technique sits below it
+    expect(new Set(tacticNodes.map((n) => n.position.y)).size).toBe(1)
+    const technique = state.nodes.find((n) => n.id === techniqueId)!
+    expect(technique.position.y).toBeGreaterThan(tacticNodes[0].position.y)
+    expect(state.manualEdges).toHaveLength(2)
+    expect(state.manualEdges.every((e) => e.sourceHandle === 'top')).toBe(true)
+  })
+
+  it('only lays out techniques the analyst added, never the whole catalogue', () => {
+    const { organizeLikeMitre } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
+
+    organizeLikeMitre(knowledgeBase, 'en')
+
+    const state = useInvestigationStore.getState()
+    // two tactics as scaffolding, and none of the knowledge base's techniques
+    expect(state.nodes).toHaveLength(2)
+    expect(state.nodes.every((n) => n.type === 'mitre_tactic')).toBe(true)
+    expect(state.manualEdges).toHaveLength(0)
+  })
+
+  it('does not duplicate scaffolding or connections when organized twice', () => {
+    const { addNode, organizeLikeMitre } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
+
+    addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1098',
+      label: 'T1098 - Account Manipulation',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    organizeLikeMitre(knowledgeBase, 'en')
+    const secondRun = organizeLikeMitre(knowledgeBase, 'en')
+
+    const state = useInvestigationStore.getState()
+    expect(secondRun).toBe(0)
+    expect(state.nodes.filter((n) => n.type === 'mitre_tactic')).toHaveLength(2)
+    expect(state.manualEdges).toHaveLength(2)
+  })
+
+  it('keeps a tactic the analyst placed themselves instead of shadowing it', () => {
+    const { addNode, organizeLikeMitre } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
+
+    const ownTactic = addNode({
+      nodeType: 'mitre_tactic',
+      definitionId: 'TA0003',
+      label: 'TA0003 - Persistence',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    organizeLikeMitre(knowledgeBase, 'en')
+
+    const state = useInvestigationStore.getState()
+    expect(state.nodes.filter((n) => n.definitionId === 'TA0003')).toHaveLength(1)
+    expect(state.nodes.find((n) => n.id === ownTactic)!.scaffold).toBeUndefined()
+  })
+
+  it('restyles a connection without touching its other properties', () => {
+    const { addManualEdge, updateEdgeStyle } = useInvestigationStore.getState()
+    addManualEdge('node-a', 'node-b', 'associated_with', 'note', 'right', 'left')
+    const edgeId = useInvestigationStore.getState().manualEdges[0].id
+
+    updateEdgeStyle(edgeId, { color: '#22c55e', lineStyle: 'dashed' })
+
+    const edge = useInvestigationStore.getState().manualEdges[0]
+    expect(edge.color).toBe('#22c55e')
+    expect(edge.lineStyle).toBe('dashed')
+    expect(edge.label).toBe('note')
+    expect(edge.sourceHandle).toBe('right')
+    expect(edge.type).toBe('associated_with')
   })
 
   it('applies a use case by adding a hub node and its missing technique nodes', () => {
