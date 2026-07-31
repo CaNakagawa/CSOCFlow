@@ -62,6 +62,27 @@ function makeKnowledgeBaseWithTechniques(): KnowledgeBase {
   }
 }
 
+function makeKnowledgeBaseWithSubtechnique(): KnowledgeBase {
+  const base = makeKnowledgeBaseWithTechniques()
+  base.tactics.push({ id: 'TA0006', name: 'Credential Access', shortName: 'credential-access' })
+  const shared = {
+    type: 'mitre_technique' as const,
+    tactics: ['TA0006'],
+    platforms: [],
+    brief: L(''),
+    detection_analytics: [],
+    expected_evidence: [],
+    related_hypotheses: [],
+    suggested_checks: [],
+    references: [],
+  }
+  base.techniques.push(
+    { ...shared, id: 'T1110', name: 'Brute Force' },
+    { ...shared, id: 'T1110.001', name: 'Password Guessing', type: 'mitre_subtechnique' },
+  )
+  return base
+}
+
 const userAccountUseCase: UseCaseDefinition = {
   id: 'use-case.user_account_created_deleted',
   name: L('User Account Created/Deleted'),
@@ -167,11 +188,88 @@ describe('investigationStore', () => {
         .map((n) => n.definitionId)
         .sort(),
     ).toEqual(['TA0003', 'TA0005'])
-    expect(created).toBe(2)
-    expect(state.manualEdges).toHaveLength(2)
-    expect(state.manualEdges.every((e) => e.source === techniqueId && e.type === 'maps_to')).toBe(
-      true,
-    )
+    // two technique -> tactic links, plus the tactics chained to each other
+    expect(created).toBe(3)
+    expect(state.manualEdges.filter((e) => e.type === 'maps_to')).toHaveLength(2)
+    expect(
+      state.manualEdges
+        .filter((e) => e.type === 'maps_to')
+        .every((e) => e.source === techniqueId && e.sourceHandle === 'top'),
+    ).toBe(true)
+
+    const chain = state.manualEdges.filter((e) => e.type === 'occurred_before')
+    expect(chain).toHaveLength(1)
+    expect(chain[0].sourceHandle).toBe('right')
+  })
+
+  it('links a subtechnique to its parent technique', () => {
+    const { addNode, runAutoLink } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithSubtechnique()
+
+    const parent = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1110',
+      label: 'T1110 - Brute Force',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    const sub = addNode({
+      nodeType: 'mitre_subtechnique',
+      definitionId: 'T1110.001',
+      label: 'T1110.001 - Password Guessing',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    runAutoLink(knowledgeBase, 'en')
+
+    const parentEdge = useInvestigationStore
+      .getState()
+      .manualEdges.find((e) => e.type === 'parent_of')
+    expect(parentEdge).toBeDefined()
+    expect(parentEdge!.source).toBe(parent)
+    expect(parentEdge!.target).toBe(sub)
+  })
+
+  it('brings the parent technique when only the subtechnique is on the canvas', () => {
+    const { addNode, runAutoLink } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithSubtechnique()
+
+    addNode({
+      nodeType: 'mitre_subtechnique',
+      definitionId: 'T1110.001',
+      label: 'T1110.001 - Password Guessing',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    runAutoLink(knowledgeBase, 'en')
+
+    const state = useInvestigationStore.getState()
+    expect(state.nodes.some((n) => n.definitionId === 'T1110')).toBe(true)
+    expect(state.manualEdges.some((e) => e.type === 'parent_of')).toBe(true)
+    // the parent's own tactic came along too
+    expect(state.nodes.some((n) => n.definitionId === 'TA0006')).toBe(true)
+  })
+
+  it('does not duplicate the parent link on a second run', () => {
+    const { addNode, runAutoLink } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithSubtechnique()
+
+    addNode({
+      nodeType: 'mitre_subtechnique',
+      definitionId: 'T1110.001',
+      label: 'T1110.001',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    runAutoLink(knowledgeBase, 'en')
+    const afterFirst = useInvestigationStore.getState().manualEdges.length
+    const second = runAutoLink(knowledgeBase, 'en')
+
+    expect(second).toBe(0)
+    expect(useInvestigationStore.getState().manualEdges).toHaveLength(afterFirst)
   })
 
   it('creates connections the analyst can edit rather than derived ones', () => {
@@ -192,7 +290,7 @@ describe('investigationStore', () => {
     expect(state.inferredEdges).toHaveLength(0)
   })
 
-  it('is additive: a second run changes nothing and never touches existing work', () => {
+  it('arranges the canvas but never removes existing work, and a second run adds nothing', () => {
     const { addNode, addManualEdge, runAutoLink } = useInvestigationStore.getState()
     const knowledgeBase = makeKnowledgeBaseWithTechniques()
 
@@ -221,9 +319,16 @@ describe('investigationStore', () => {
     expect(second).toBe(0)
     expect(state.nodes.filter((n) => n.definitionId === 'TA0003')).toHaveLength(1)
     expect(state.nodes.find((n) => n.id === hostId)).toBeDefined()
-    expect(state.nodes.find((n) => n.id === techniqueId)!.position).toEqual({ x: 10, y: 20 })
     // the analyst's own connection plus the single generated one
     expect(state.manualEdges).toHaveLength(2)
+
+    // Auto link now arranges into the cascade, so the technique moved under its
+    // tactic instead of staying where it was dropped.
+    const technique = state.nodes.find((n) => n.id === techniqueId)!
+    const tactic = state.nodes.find((n) => n.definitionId === 'TA0003')!
+    expect(technique.position).not.toEqual({ x: 10, y: 20 })
+    expect(technique.position.y).toBeGreaterThan(tactic.position.y)
+    expect(technique.position.x).toBe(tactic.position.x)
   })
 
   it('does nothing when there is no technique on the canvas', () => {
@@ -284,8 +389,12 @@ describe('investigationStore', () => {
     expect(new Set(tacticNodes.map((n) => n.position.y)).size).toBe(1)
     const technique = state.nodes.find((n) => n.id === techniqueId)!
     expect(technique.position.y).toBeGreaterThan(tacticNodes[0].position.y)
-    expect(state.manualEdges).toHaveLength(2)
-    expect(state.manualEdges.every((e) => e.sourceHandle === 'top')).toBe(true)
+    expect(state.manualEdges.filter((e) => e.type === 'maps_to')).toHaveLength(2)
+    expect(
+      state.manualEdges.filter((e) => e.type === 'maps_to').every((e) => e.sourceHandle === 'top'),
+    ).toBe(true)
+    // the two tactics also chain to each other, side by side
+    expect(state.manualEdges.filter((e) => e.type === 'occurred_before')).toHaveLength(1)
   })
 
   it('only lays out techniques the analyst added, never the whole catalogue', () => {
@@ -298,7 +407,8 @@ describe('investigationStore', () => {
     // two tactics as scaffolding, and none of the knowledge base's techniques
     expect(state.nodes).toHaveLength(2)
     expect(state.nodes.every((n) => n.type === 'mitre_tactic')).toBe(true)
-    expect(state.manualEdges).toHaveLength(0)
+    // no techniques to link, but the tactic scaffolds still chain to each other
+    expect(state.manualEdges.every((e) => e.type === 'occurred_before')).toBe(true)
   })
 
   it('does not duplicate scaffolding or connections when organized twice', () => {
@@ -319,7 +429,7 @@ describe('investigationStore', () => {
     const state = useInvestigationStore.getState()
     expect(secondRun).toBe(0)
     expect(state.nodes.filter((n) => n.type === 'mitre_tactic')).toHaveLength(2)
-    expect(state.manualEdges).toHaveLength(2)
+    expect(state.manualEdges).toHaveLength(3)
   })
 
   it('keeps a tactic the analyst placed themselves instead of shadowing it', () => {

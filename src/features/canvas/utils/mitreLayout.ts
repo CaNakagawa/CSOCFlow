@@ -1,5 +1,6 @@
 import type { InvestigationNode } from '../../../shared/types/investigation'
 import type { MitreTactic, MitreTechnique } from '../../../shared/types/knowledge'
+import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
 
 export const COLUMN_WIDTH = 240
 export const TACTIC_ROW_Y = 0
@@ -48,20 +49,46 @@ export function layoutLikeMitre(
   // column past the matrix rather than being dropped on top of it.
   const overflowColumn = tactics.length
   const nextRowInColumn = new Map<number, number>()
+  const techniqueNodes = nodes.filter(isTechniqueNode)
 
-  for (const node of nodes.filter(isTechniqueNode)) {
+  function columnFor(node: InvestigationNode): number {
     const definition = techniquesById.get(node.definitionId)
     const firstKnownTactic = definition?.tactics.find((id) => columnOf.has(id))
-    const column = firstKnownTactic
-      ? (columnOf.get(firstKnownTactic) ?? overflowColumn)
-      : overflowColumn
+    return firstKnownTactic ? (columnOf.get(firstKnownTactic) ?? overflowColumn) : overflowColumn
+  }
 
+  function place(node: InvestigationNode, column: number) {
     const row = nextRowInColumn.get(column) ?? 0
     nextRowInColumn.set(column, row + 1)
     positions.set(node.id, {
       x: column * COLUMN_WIDTH,
       y: TECHNIQUE_START_Y + row * ROW_HEIGHT,
     })
+  }
+
+  // Cascade: a subtechnique sits directly under its parent, in the parent's
+  // column, so the chain reads tactic → technique → subtechnique downwards.
+  const childrenOf = new Map<string, InvestigationNode[]>()
+  const rootTechniques: InvestigationNode[] = []
+  const presentTechniqueIds = new Set(techniqueNodes.map((n) => n.definitionId))
+
+  for (const node of techniqueNodes) {
+    const parentId = parentTechniqueId(node.definitionId)
+    if (parentId && presentTechniqueIds.has(parentId)) {
+      const siblings = childrenOf.get(parentId) ?? []
+      siblings.push(node)
+      childrenOf.set(parentId, siblings)
+    } else {
+      rootTechniques.push(node)
+    }
+  }
+
+  for (const technique of rootTechniques) {
+    const column = columnFor(technique)
+    place(technique, column)
+    for (const child of childrenOf.get(technique.definitionId) ?? []) {
+      place(child, column)
+    }
   }
 
   const deepestRow = Math.max(0, ...nextRowInColumn.values())

@@ -166,10 +166,10 @@ export const de: Record<TranslationKey, string> = {
 
   'canvas.autoLink': 'Auto-Verknüpfung',
   'canvas.autoLinkHint':
-    'Holt die MITRE-Taktiken der Techniken auf dem Canvas und verknüpft sie. Vorhandenes bleibt unverändert.',
+    'Holt die MITRE-Taktiken der Techniken auf dem Canvas, verknüpft Subtechniken mit ihrer übergeordneten Technik und verbindet alles. Vorhandenes bleibt unverändert.',
   'canvas.autoLinkCreated': '{count} Verbindung(en) erstellt.',
   'canvas.autoLinkNothing': 'Nichts Neues zu verknüpfen.',
-  'canvas.organize': 'Wie MITRE anordnen',
+  'canvas.organize': 'MITRE ATT&CK® Format',
   'canvas.organizeHint':
     'Holt alle Taktiken als blasses Gerüst, richtet sie in Matrixreihenfolge aus und stapelt Ihre Techniken unter der zugehörigen Taktik.',
   'canvas.organizeDone':

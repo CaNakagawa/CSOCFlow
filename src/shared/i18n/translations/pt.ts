@@ -166,10 +166,10 @@ export const pt: Record<TranslationKey, string> = {
 
   'canvas.autoLink': 'Vínculo automático',
   'canvas.autoLinkHint':
-    'Traz as táticas MITRE das técnicas presentes no canvas e as conecta. Nada do que já existe é alterado.',
+    'Traz as táticas MITRE das técnicas presentes no canvas, liga as subtécnicas à técnica-pai e conecta tudo. Nada do que já existe é alterado.',
   'canvas.autoLinkCreated': '{count} conexão(ões) criada(s).',
   'canvas.autoLinkNothing': 'Nada novo para conectar.',
-  'canvas.organize': 'Organizar como o MITRE',
+  'canvas.organize': 'MITRE ATT&CK® Format',
   'canvas.organizeHint':
     'Traz todas as táticas como esqueleto esmaecido, alinha na ordem da matriz e empilha suas técnicas abaixo da tática correspondente.',
   'canvas.organizeDone':

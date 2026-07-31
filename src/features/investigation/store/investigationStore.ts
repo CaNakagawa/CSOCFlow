@@ -11,6 +11,11 @@ import type {
   RelationshipType,
 } from '../../../shared/types/investigation'
 import { buildTechniqueTacticEdges } from '../../correlation/engine/buildTechniqueTacticEdges'
+import {
+  buildSubtechniqueEdges,
+  parentTechniqueId,
+} from '../../correlation/engine/buildSubtechniqueEdges'
+import { buildTacticChainEdges } from '../../correlation/engine/buildTacticChainEdges'
 import { layoutLikeMitre } from '../../canvas/utils/mitreLayout'
 import { sortTacticIds } from '../../../shared/utils/tacticOrder'
 import type {
@@ -46,6 +51,10 @@ export function combineEdges(
     combined.push(edge)
   }
   return combined
+}
+
+function isTechniqueNode(node: InvestigationNode): boolean {
+  return node.type === 'mitre_technique' || node.type === 'mitre_subtechnique'
 }
 
 function defaultFieldValue(field: EvidenceFieldDefinition): unknown {
@@ -289,13 +298,40 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
 
       set((state) => {
         const techniquesById = new Map(knowledgeBase.techniques.map((t) => [t.id, t]))
-        const presentTactics = new Set(
-          state.nodes.filter((n) => n.type === 'mitre_tactic').map((n) => n.definitionId),
-        )
+        const now = new Date().toISOString()
+        const nodes = [...state.nodes]
 
+        // A subtechnique without its parent is incomplete ATT&CK context, so the
+        // parent comes along and its own tactics are then pulled in below.
+        const presentTechniques = new Set(nodes.filter(isTechniqueNode).map((n) => n.definitionId))
+        const missingParents = new Set<string>()
+        for (const definitionId of presentTechniques) {
+          const parentId = parentTechniqueId(definitionId)
+          if (parentId && !presentTechniques.has(parentId)) missingParents.add(parentId)
+        }
+        for (const parentId of [...missingParents].sort()) {
+          const parent = techniquesById.get(parentId)
+          if (!parent) continue
+          nodes.push({
+            id: generateId('node'),
+            definitionId: parent.id,
+            type: parent.type,
+            label: `${parent.id} - ${parent.name}`,
+            state: 'unknown',
+            position: nextGridPosition(nodes.length),
+            fields: {},
+            notes: '',
+            createdAt: now,
+            updatedAt: now,
+          })
+        }
+
+        const presentTactics = new Set(
+          nodes.filter((n) => n.type === 'mitre_tactic').map((n) => n.definitionId),
+        )
         const missingTactics = new Set<string>()
-        for (const node of state.nodes) {
-          if (node.type !== 'mitre_technique' && node.type !== 'mitre_subtechnique') continue
+        for (const node of nodes) {
+          if (!isTechniqueNode(node)) continue
           const definition = techniquesById.get(node.definitionId)
           if (!definition) continue
           for (const tacticId of definition.tactics) {
@@ -303,8 +339,6 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
           }
         }
 
-        const now = new Date().toISOString()
-        const nodes = [...state.nodes]
         // Aggregating across several techniques interleaves the set, so re-sort to
         // drop the tactics onto the canvas in matrix order.
         for (const tacticId of sortTacticIds([...missingTactics], knowledgeBase.tactics)) {
@@ -325,13 +359,24 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
         }
 
         const existingEdgeIds = new Set(state.manualEdges.map((e) => e.id))
-        const newEdges = buildTechniqueTacticEdges(nodes, knowledgeBase.techniques, locale).filter(
-          (edge) => !existingEdgeIds.has(edge.id),
-        )
+        const newEdges = [
+          ...buildTacticChainEdges(nodes, knowledgeBase.tactics, locale),
+          ...buildTechniqueTacticEdges(nodes, knowledgeBase.techniques, locale),
+          ...buildSubtechniqueEdges(nodes, locale),
+        ].filter((edge) => !existingEdgeIds.has(edge.id))
         created = newEdges.length
 
         if (nodes.length === state.nodes.length && newEdges.length === 0) return {}
-        return { nodes, manualEdges: [...state.manualEdges, ...newEdges] }
+
+        // Arrange into the cascade so the new connectors read as a chain rather
+        // than crossing a grid of tiled nodes.
+        const positions = layoutLikeMitre(nodes, knowledgeBase.tactics, knowledgeBase.techniques)
+        const positioned = nodes.map((node) => {
+          const position = positions.get(node.id)
+          return position ? { ...node, position } : node
+        })
+
+        return { nodes: positioned, manualEdges: [...state.manualEdges, ...newEdges] }
       })
 
       return created
@@ -383,13 +428,12 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
           return position ? { ...node, position } : node
         })
 
-        // Techniques sit under their tactic here, so the connection leaves the
-        // technique's top edge instead of its right edge.
         const existingEdgeIds = new Set(state.manualEdges.map((e) => e.id))
-        const newEdges = buildTechniqueTacticEdges(positioned, knowledgeBase.techniques, locale, {
-          source: 'top',
-          target: 'bottom',
-        }).filter((edge) => !existingEdgeIds.has(edge.id))
+        const newEdges = [
+          ...buildTacticChainEdges(positioned, knowledgeBase.tactics, locale),
+          ...buildTechniqueTacticEdges(positioned, knowledgeBase.techniques, locale),
+          ...buildSubtechniqueEdges(positioned, locale),
+        ].filter((edge) => !existingEdgeIds.has(edge.id))
 
         return {
           nodes: positioned,

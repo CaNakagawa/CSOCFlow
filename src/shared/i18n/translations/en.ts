@@ -165,10 +165,10 @@ export const en = {
 
   'canvas.autoLink': 'Auto link',
   'canvas.autoLinkHint':
-    'Brings the MITRE tactics of the techniques on the canvas and connects them. Existing items are never changed.',
+    'Brings the MITRE tactics of the techniques on the canvas, links subtechniques to their parent technique, and connects it all. Existing items are never changed.',
   'canvas.autoLinkCreated': '{count} connection(s) created.',
   'canvas.autoLinkNothing': 'Nothing new to connect.',
-  'canvas.organize': 'Organize like MITRE',
+  'canvas.organize': 'MITRE ATT&CK® Format',
   'canvas.organizeHint':
     'Brings every tactic in as a faded scaffold, lines them up in matrix order and stacks your techniques under the tactic they belong to.',
   'canvas.organizeDone': 'Canvas arranged as the ATT&CK matrix. {count} tactic scaffold(s) added.',
