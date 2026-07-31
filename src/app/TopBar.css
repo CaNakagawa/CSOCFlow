@@ -241,3 +241,14 @@
     display: none;
   }
 }
+
+.top-bar__action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.top-bar__action:disabled:hover {
+  background: var(--input-bg);
+  border-color: var(--panel-border);
+  color: inherit;
+}

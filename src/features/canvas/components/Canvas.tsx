@@ -99,6 +99,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   const updateEdgeLabel = useInvestigationStore((s) => s.updateEdgeLabel)
   const updateManualEdgeType = useInvestigationStore((s) => s.updateManualEdgeType)
   const updateEdgeStyle = useInvestigationStore((s) => s.updateEdgeStyle)
+  const pushHistory = useInvestigationStore((s) => s.pushHistory)
 
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
   const [commentEditor, setCommentEditor] = useState<CommentEditorState | null>(null)
@@ -171,6 +172,11 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
     },
     [moveNode, removeNode],
   )
+
+  // One undo step per drag, not one per animation frame.
+  const onNodeDragStart = useCallback(() => {
+    pushHistory()
+  }, [pushHistory])
 
   const onNodeClick: NodeMouseHandler<Node<GenericNodeData>> = useCallback(
     (_event, node) => {
@@ -268,6 +274,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onReconnect={onReconnect}
+        onNodeDragStart={onNodeDragStart}
         onNodeClick={onNodeClick}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onPaneClick={onPaneClick}

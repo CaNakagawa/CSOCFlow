@@ -417,6 +417,143 @@ describe('investigationStore', () => {
     expect(useInvestigationStore.getState().selectedAnalytic?.analyticId).toBe('AN1070')
   })
 
+  it('brings a deleted node back — the case the analyst hit', () => {
+    const { addNode, removeNode, undo } = useInvestigationStore.getState()
+    const nodeId = addNode({
+      nodeType: 'host',
+      definitionId: 'evidence.identity.host',
+      label: 'bastion-01',
+      position: { x: 10, y: 20 },
+      fieldDefinitions: [],
+    })
+
+    removeNode(nodeId)
+    expect(useInvestigationStore.getState().nodes).toHaveLength(0)
+
+    undo()
+
+    const restored = useInvestigationStore.getState().nodes
+    expect(restored).toHaveLength(1)
+    expect(restored[0].id).toBe(nodeId)
+    expect(restored[0].position).toEqual({ x: 10, y: 20 })
+  })
+
+  it('restores the connections that went with a deleted node', () => {
+    const { addNode, addManualEdge, removeNode, undo } = useInvestigationStore.getState()
+    const a = addNode({
+      nodeType: 'host',
+      definitionId: 'd1',
+      label: 'a',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    const b = addNode({
+      nodeType: 'ip_address',
+      definitionId: 'd2',
+      label: 'b',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    addManualEdge(a, b, 'connected_to')
+
+    removeNode(a)
+    expect(useInvestigationStore.getState().manualEdges).toHaveLength(0)
+
+    undo()
+    expect(useInvestigationStore.getState().manualEdges).toHaveLength(1)
+  })
+
+  it('redoes what was undone, and a new edit drops the redo trail', () => {
+    const { addNode, undo, redo } = useInvestigationStore.getState()
+    addNode({
+      nodeType: 'host',
+      definitionId: 'd1',
+      label: 'a',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    undo()
+    expect(useInvestigationStore.getState().nodes).toHaveLength(0)
+    redo()
+    expect(useInvestigationStore.getState().nodes).toHaveLength(1)
+
+    undo()
+    useInvestigationStore.getState().addNode({
+      nodeType: 'ip_address',
+      definitionId: 'd2',
+      label: 'b',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    expect(useInvestigationStore.getState().future).toHaveLength(0)
+  })
+
+  it('undoes a whole Organize like MITRE in one step', () => {
+    const { addNode, organizeLikeMitre, undo } = useInvestigationStore.getState()
+    const knowledgeBase = makeKnowledgeBaseWithTechniques()
+    addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1098',
+      label: 'T1098',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    organizeLikeMitre(knowledgeBase, 'en')
+    expect(useInvestigationStore.getState().nodes).toHaveLength(3)
+
+    undo()
+
+    const state = useInvestigationStore.getState()
+    expect(state.nodes).toHaveLength(1)
+    expect(state.manualEdges).toHaveLength(0)
+  })
+
+  it('collapses a burst of keystrokes into a single undo step', () => {
+    const { addNode, updateNodeNotes, undo } = useInvestigationStore.getState()
+    const nodeId = addNode({
+      nodeType: 'host',
+      definitionId: 'd1',
+      label: 'a',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    updateNodeNotes(nodeId, 'S')
+    updateNodeNotes(nodeId, 'SS')
+    updateNodeNotes(nodeId, 'SSH')
+
+    undo()
+
+    // one step back lands before the whole burst, not one letter earlier
+    expect(useInvestigationStore.getState().nodes[0].notes).toBe('')
+  })
+
+  it('does nothing when there is nothing to undo or redo', () => {
+    const { undo, redo } = useInvestigationStore.getState()
+    undo()
+    redo()
+    expect(useInvestigationStore.getState().nodes).toHaveLength(0)
+  })
+
+  it('starts a new investigation with an empty history', () => {
+    const { addNode, newInvestigation } = useInvestigationStore.getState()
+    addNode({
+      nodeType: 'host',
+      definitionId: 'd1',
+      label: 'a',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    expect(useInvestigationStore.getState().past.length).toBeGreaterThan(0)
+
+    newInvestigation()
+
+    expect(useInvestigationStore.getState().past).toHaveLength(0)
+    expect(useInvestigationStore.getState().future).toHaveLength(0)
+  })
+
   it('restyles a connection without touching its other properties', () => {
     const { addManualEdge, updateEdgeStyle } = useInvestigationStore.getState()
     addManualEdge('node-a', 'node-b', 'associated_with', 'note', 'right', 'left')
