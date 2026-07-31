@@ -13,7 +13,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # jsdom 30 pulls undici 8, which needs worker_threads.markAsUncloneable
+          # (Node >= 22.10). On Node 20 every vitest worker fails to start.
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
