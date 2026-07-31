@@ -341,6 +341,82 @@ describe('investigationStore', () => {
     expect(state.nodes.find((n) => n.id === ownTactic)!.scaffold).toBeUndefined()
   })
 
+  it('expands and collapses all analytics of a node at once', () => {
+    const { addNode, toggleAnalyticsExpanded } = useInvestigationStore.getState()
+    const nodeId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1005',
+      label: 'T1005 - Data from Local System',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    expect(useInvestigationStore.getState().nodes[0].analyticsExpanded).toBeUndefined()
+    toggleAnalyticsExpanded(nodeId)
+    expect(useInvestigationStore.getState().nodes[0].analyticsExpanded).toBe(true)
+    toggleAnalyticsExpanded(nodeId)
+    expect(useInvestigationStore.getState().nodes[0].analyticsExpanded).toBe(false)
+  })
+
+  it('selects an analytic and toggles it off when clicked again', () => {
+    const { addNode, selectAnalytic } = useInvestigationStore.getState()
+    const nodeId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1005',
+      label: 'T1005',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    selectAnalytic(nodeId, 'AN1070')
+    expect(useInvestigationStore.getState().selectedAnalytic).toEqual({
+      nodeId,
+      analyticId: 'AN1070',
+    })
+
+    selectAnalytic(nodeId, 'AN1070')
+    expect(useInvestigationStore.getState().selectedAnalytic).toBeNull()
+  })
+
+  it('drops the selected analytic when another node is selected', () => {
+    const { addNode, selectAnalytic, selectNode } = useInvestigationStore.getState()
+    const first = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1005',
+      label: 'T1005',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    const second = addNode({
+      nodeType: 'host',
+      definitionId: 'evidence.identity.host',
+      label: 'bastion-01',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    selectAnalytic(first, 'AN1070')
+    selectNode(second)
+
+    expect(useInvestigationStore.getState().selectedAnalytic).toBeNull()
+  })
+
+  it('keeps the selected analytic when the same node is reselected', () => {
+    const { addNode, selectAnalytic, selectNode } = useInvestigationStore.getState()
+    const nodeId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1005',
+      label: 'T1005',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    selectAnalytic(nodeId, 'AN1070')
+    selectNode(nodeId)
+
+    expect(useInvestigationStore.getState().selectedAnalytic?.analyticId).toBe('AN1070')
+  })
+
   it('restyles a connection without touching its other properties', () => {
     const { addManualEdge, updateEdgeStyle } = useInvestigationStore.getState()
     addManualEdge('node-a', 'node-b', 'associated_with', 'note', 'right', 'left')

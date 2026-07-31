@@ -102,6 +102,9 @@ interface InvestigationState {
   updateNodeState: (nodeId: string, state: NodeState) => void
   updateNodeNotes: (nodeId: string, notes: string) => void
   setAnalyticStatus: (nodeId: string, analyticId: string, status: AnalyticStatus) => void
+  toggleAnalyticsExpanded: (nodeId: string) => void
+  selectAnalytic: (nodeId: string, analyticId: string) => void
+  selectedAnalytic: { nodeId: string; analyticId: string } | null
   moveNode: (nodeId: string, position: { x: number; y: number }) => void
   removeNode: (nodeId: string) => void
   duplicateNode: (nodeId: string) => string | undefined
@@ -149,6 +152,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   hypothesisResults: [],
   useCaseSuggestions: [],
   analystNotes: '',
+  selectedAnalytic: null,
 
   addNode: ({ nodeType, definitionId, label, position, fieldDefinitions }) => {
     const now = new Date().toISOString()
@@ -387,6 +391,26 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     }))
   },
 
+  // Expands or collapses all of a technique's analytics at once.
+  toggleAnalyticsExpanded: (nodeId) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, analyticsExpanded: !n.analyticsExpanded } : n,
+      ),
+    }))
+  },
+
+  selectAnalytic: (nodeId, analyticId) => {
+    set((state) => ({
+      selectedNodeId: nodeId,
+      selectedAnalytic:
+        state.selectedAnalytic?.nodeId === nodeId &&
+        state.selectedAnalytic?.analyticId === analyticId
+          ? null
+          : { nodeId, analyticId },
+    }))
+  },
+
   moveNode: (nodeId, position) => {
     set((state) => ({
       nodes: state.nodes.map((n) => (n.id === nodeId ? { ...n, position } : n)),
@@ -420,7 +444,12 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     return copy.id
   },
 
-  selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
+  selectNode: (nodeId) =>
+    set((state) => ({
+      selectedNodeId: nodeId,
+      // A different node's analytic must not stay selected in the details panel.
+      selectedAnalytic: state.selectedAnalytic?.nodeId === nodeId ? state.selectedAnalytic : null,
+    })),
 
   addManualEdge: (source, target, type, label, sourceHandle, targetHandle) => {
     set((state) => ({
@@ -509,6 +538,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       manualEdges: doc.canvas.edges.filter((e) => !e.automatic),
       inferredEdges: doc.canvas.edges.filter((e) => e.automatic),
       selectedNodeId: null,
+      selectedAnalytic: null,
       checkAnswers: [],
       hypothesisResults: [],
       useCaseSuggestions: [],
@@ -547,6 +577,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       manualEdges: [],
       inferredEdges: [],
       selectedNodeId: null,
+      selectedAnalytic: null,
       checkAnswers: [],
       hypothesisResults: [],
       useCaseSuggestions: [],
@@ -560,6 +591,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       manualEdges: [],
       inferredEdges: [],
       selectedNodeId: null,
+      selectedAnalytic: null,
       hypothesisResults: [],
       useCaseSuggestions: [],
     })

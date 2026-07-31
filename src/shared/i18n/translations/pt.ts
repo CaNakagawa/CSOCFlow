@@ -172,6 +172,14 @@ export const pt: Record<TranslationKey, string> = {
   'canvas.edgeStyle': 'Estilo da linha',
   'canvas.edgeSolid': 'Sólida',
   'canvas.edgeDashed': 'Tracejada',
+  'canvas.analyticsCount': '{count} analytics · {confirmed} confirmados',
+  'hunting.title': 'Hunting queries',
+  'hunting.disclaimer':
+    'O MITRE não publica queries. Estes são pontos de partida montados a partir da fonte de log que ele publica — a lógica de detecção é um TODO. Revise e ajuste antes de executar.',
+  'hunting.logSources': 'Fontes de log: ',
+  'hunting.tune': 'Ajustar antes de usar',
+  'hunting.copy': 'Copiar',
+  'hunting.copied': 'Copiado',
   'canvas.commentPlaceholder': 'Comentário da conexão...',
   'canvas.save': 'Salvar',
 }

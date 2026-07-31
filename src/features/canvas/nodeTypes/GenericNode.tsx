@@ -1,5 +1,7 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import type { CanvasNodeType, NodeState } from '../../../shared/types/investigation'
+import type { AnalyticStatus, CanvasNodeType, NodeState } from '../../../shared/types/investigation'
+import type { DetectionAnalytic } from '../../../shared/types/knowledge'
+import { NodeAnalytics } from './NodeAnalytics'
 import {
   NODE_GLYPHS,
   NODE_STATE_MARKERS,
@@ -15,6 +17,11 @@ export interface GenericNodeData extends Record<string, unknown> {
   nodeType: CanvasNodeType
   state: NodeState
   scaffold?: boolean
+  nodeId: string
+  analytics: DetectionAnalytic[]
+  analyticsExpanded: boolean
+  analyticStatuses: Record<string, AnalyticStatus>
+  selectedAnalyticId: string | null
 }
 
 const HANDLE_POSITIONS: Record<HandleId, Position> = {
@@ -25,7 +32,17 @@ const HANDLE_POSITIONS: Record<HandleId, Position> = {
 }
 
 export function GenericNode({ data, selected }: NodeProps) {
-  const { label, nodeType, state, scaffold } = data as unknown as GenericNodeData
+  const {
+    label,
+    nodeType,
+    state,
+    scaffold,
+    nodeId,
+    analytics,
+    analyticsExpanded,
+    analyticStatuses,
+    selectedAnalyticId,
+  } = data as unknown as GenericNodeData
   const { t } = useI18n()
   const stateLabel = t(nodeStateKey(state))
 
@@ -52,6 +69,14 @@ export function GenericNode({ data, selected }: NodeProps) {
       <div className="generic-node__state" title={stateLabel}>
         <span aria-hidden="true">{NODE_STATE_MARKERS[state]}</span> {stateLabel}
       </div>
+
+      <NodeAnalytics
+        nodeId={nodeId}
+        analytics={analytics ?? []}
+        expanded={analyticsExpanded ?? false}
+        statuses={analyticStatuses ?? {}}
+        selectedAnalyticId={selectedAnalyticId ?? null}
+      />
 
       {HANDLE_IDS.map((id) => (
         <Handle key={`source-${id}`} type="source" position={HANDLE_POSITIONS[id]} id={id} />

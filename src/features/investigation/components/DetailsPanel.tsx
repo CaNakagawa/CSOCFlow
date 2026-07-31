@@ -4,6 +4,7 @@ import type { AnalyticStatus, NodeState } from '../../../shared/types/investigat
 import { nodeStateKey } from '../../canvas/utils/nodeVisuals'
 import { buildGenericItems } from '../../canvas/types/libraryItem'
 import { UseCaseCard } from '../../use-cases/components/UseCaseCard'
+import { HuntingQueries } from './HuntingQueries'
 import { useI18n, localize, localizeList, type Locale } from '../../../shared/i18n'
 import './DetailsPanel.css'
 
@@ -91,6 +92,7 @@ export function DetailsPanel({ knowledgeBase }: DetailsPanelProps) {
   const duplicateNode = useInvestigationStore((s) => s.duplicateNode)
   const removeNode = useInvestigationStore((s) => s.removeNode)
   const setAnalyticStatus = useInvestigationStore((s) => s.setAnalyticStatus)
+  const selectedAnalytic = useInvestigationStore((s) => s.selectedAnalytic)
 
   if (!node) {
     return <p className="details-panel__empty">{t('details.empty')}</p>
@@ -262,6 +264,11 @@ export function DetailsPanel({ knowledgeBase }: DetailsPanelProps) {
                             : t('details.analyticRuleOut')}
                         </button>
                       </div>
+
+                      {selectedAnalytic?.nodeId === node.id &&
+                        selectedAnalytic.analyticId === analytic.id && (
+                          <HuntingQueries analytic={analytic} />
+                        )}
                     </li>
                   )
                 })}

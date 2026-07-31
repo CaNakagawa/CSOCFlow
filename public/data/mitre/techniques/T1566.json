@@ -2,8 +2,16 @@
   "id": "T1566",
   "name": "Phishing",
   "type": "mitre_technique",
-  "tactics": ["TA0001"],
-  "platforms": ["Windows", "Linux", "macOS", "Office 365", "Google Workspace"],
+  "tactics": [
+    "TA0001"
+  ],
+  "platforms": [
+    "Windows",
+    "Linux",
+    "macOS",
+    "Office 365",
+    "Google Workspace"
+  ],
   "brief": {
     "en": "Adversaries may send phishing messages to gain access to systems, typically containing malicious attachments or links.",
     "pt": "Adversários podem enviar mensagens de phishing para obter acesso a sistemas, geralmente contendo anexos ou links maliciosos.",
@@ -72,7 +80,13 @@
       ]
     }
   },
-  "expected_evidence": ["email", "user", "url", "file", "host"],
+  "expected_evidence": [
+    "email",
+    "user",
+    "url",
+    "file",
+    "host"
+  ],
   "related_hypotheses": [],
   "suggested_checks": [],
   "detection_analytics": [
@@ -84,7 +98,34 @@
         "pt": "Identifica e-mails de entrada incomuns com anexos ou URLs seguidos de execução de novo processo ou comportamento suspeito de documento.",
         "de": "Identifiziert ungewöhnliche eingehende E-Mails mit Anhängen oder URLs, gefolgt von neuer Prozessausführung oder verdächtigem Dokumentverhalten."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/",
+      "platforms": [
+        "Windows"
+      ],
+      "logSources": [
+        {
+          "name": "m365:unified",
+          "channel": "Send/Receive: Emails with suspicious sender domains, spoofed headers, or anomalous attachment types"
+        },
+        {
+          "name": "WinEventLog:Sysmon",
+          "channel": "EventCode=11"
+        },
+        {
+          "name": "WinEventLog:Sysmon",
+          "channel": "EventCode=1"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "SuspiciousFileTypes",
+          "description": "Attachment types considered high risk (e.g., .exe, .js, .vbs, .scr, macro-enabled docs)."
+        },
+        {
+          "field": "AllowedSenders",
+          "description": "Whitelist of known trusted senders to reduce false positives."
+        }
+      ]
     },
     {
       "id": "AN0189",
@@ -94,7 +135,30 @@
         "pt": "Detecta entrega de payload malicioso por meio de clientes de e-mail (Thunderbird, mutt) resultando em criação de arquivo suspeito ou conexões de saída.",
         "de": "Erkennt bösartige Payload-Zustellung über E-Mail-Clients (Thunderbird, mutt), die zu verdächtiger Dateierstellung oder ausgehenden Verbindungen führt."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/",
+      "platforms": [
+        "Linux"
+      ],
+      "logSources": [
+        {
+          "name": "Application:Mail",
+          "channel": "Inbound messages with anomalous headers, spoofed SPF/DKIM failures"
+        },
+        {
+          "name": "auditd:SYSCALL",
+          "channel": "execve: Execution of scripts or binaries sourced from mail directories (/var/mail, ~/Maildir)"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "MonitoredMailPaths",
+          "description": "System or user directories where emails/attachments are stored."
+        },
+        {
+          "field": "AttachmentHashBaseline",
+          "description": "Known good hashes for common business document templates."
+        }
+      ]
     },
     {
       "id": "AN0190",
@@ -104,7 +168,30 @@
         "pt": "Identifica atividade anômala do app Mail, como anexos executados imediatamente ou URLs abertas via Safari/Preview (macOS).",
         "de": "Identifiziert anomale Mail-App-Aktivität wie sofort ausgeführte Anhänge oder über Safari/Preview geöffnete URLs (macOS)."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/",
+      "platforms": [
+        "macOS"
+      ],
+      "logSources": [
+        {
+          "name": "macos:unifiedlog",
+          "channel": "Inbound email activity with suspicious domains or mismatched sender information"
+        },
+        {
+          "name": "macos:unifiedlog",
+          "channel": "Preview.app, Safari.app, or Mail.app spawning new processes outside normal patterns"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "SuspiciousDomains",
+          "description": "List of domains known for phishing activity or suspicious sender infrastructure."
+        },
+        {
+          "field": "ExecutionDelayWindow",
+          "description": "Time threshold between file save and execution considered suspicious."
+        }
+      ]
     },
     {
       "id": "AN0191",
@@ -114,7 +201,30 @@
         "pt": "Detecta phishing via documentos Office com macros incorporadas ou links que iniciam processos.",
         "de": "Erkennt Phishing über Office-Dokumente mit eingebetteten Makros oder Links, die Prozesse starten."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/",
+      "platforms": [
+        "Office Suite"
+      ],
+      "logSources": [
+        {
+          "name": "m365:unified",
+          "channel": "FileAccessed: Access of email attachments by Office applications"
+        },
+        {
+          "name": "WinEventLog:Sysmon",
+          "channel": "EventCode=1"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "ParentProcessList",
+          "description": "Parent processes expected to execute child processes (e.g., Office apps)."
+        },
+        {
+          "field": "MacroExecutionThreshold",
+          "description": "Threshold for number of macros executed before raising alerts."
+        }
+      ]
     },
     {
       "id": "AN0192",
@@ -124,7 +234,26 @@
         "pt": "Identifica phishing direcionado a provedores de identidade, manifestando-se como tentativas de login anômalas e prompts falsos de SSO.",
         "de": "Identifiziert Phishing gegen Identitätsanbieter, das sich als anomale Anmeldeversuche und gefälschte SSO-Aufforderungen zeigt."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/",
+      "platforms": [
+        "Identity Provider"
+      ],
+      "logSources": [
+        {
+          "name": "azure:signinlogs",
+          "channel": "Failed MFA attempts, unusual conditional access triggers, login attempts from unexpected IP ranges"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "GeoAnomalyThreshold",
+          "description": "Allowed distance/time delta between user sign-ins."
+        },
+        {
+          "field": "MFABypassIndicators",
+          "description": "Signals of repeated or anomalous MFA failures linked to phishing campaigns."
+        }
+      ]
     },
     {
       "id": "AN0193",
@@ -134,7 +263,26 @@
         "pt": "Detecta phishing via serviços SaaS (chat, plataformas de colaboração) com URLs ou anexos maliciosos.",
         "de": "Erkennt Phishing über SaaS-Dienste (Chat, Kollaborationsplattformen) mit bösartigen URLs oder Anhängen."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0070/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0070/",
+      "platforms": [
+        "SaaS"
+      ],
+      "logSources": [
+        {
+          "name": "saas:collaboration",
+          "channel": "MessagePosted: Suspicious links or attachment delivery via collaboration tools (Slack, Teams, Zoom)"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "MonitoredSaaSApps",
+          "description": "Scope of SaaS platforms under phishing monitoring."
+        },
+        {
+          "field": "LinkInspectionPolicy",
+          "description": "Threshold for auto-expansion and detonation of URLs sent in SaaS messages."
+        }
+      ]
     }
   ],
   "references": [

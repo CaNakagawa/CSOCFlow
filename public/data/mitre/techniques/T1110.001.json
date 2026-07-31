@@ -2,8 +2,20 @@
   "id": "T1110.001",
   "name": "Password Guessing",
   "type": "mitre_subtechnique",
-  "tactics": ["TA0006"],
-  "platforms": ["Linux", "Windows", "macOS", "Network", "Containers", "IaaS", "SaaS", "Office Suite", "Identity Provider"],
+  "tactics": [
+    "TA0006"
+  ],
+  "platforms": [
+    "Linux",
+    "Windows",
+    "macOS",
+    "Network",
+    "Containers",
+    "IaaS",
+    "SaaS",
+    "Office Suite",
+    "Identity Provider"
+  ],
   "brief": {
     "en": "Adversaries use a list of known or common passwords, repeatedly trying them against one or a few accounts until one succeeds.",
     "pt": "Adversários utilizam uma lista de senhas conhecidas ou comuns, tentando repetidamente contra uma ou poucas contas até obter sucesso.",
@@ -35,19 +47,39 @@
       ]
     },
     "legitimate_when": {
-      "en": ["Password policy testing performed by the security team"],
-      "pt": ["Testes de política de senha realizados pela equipe de segurança"],
-      "de": ["Passwortrichtlinien-Tests durch das Sicherheitsteam"]
+      "en": [
+        "Password policy testing performed by the security team"
+      ],
+      "pt": [
+        "Testes de política de senha realizados pela equipe de segurança"
+      ],
+      "de": [
+        "Passwortrichtlinien-Tests durch das Sicherheitsteam"
+      ]
     },
     "common_mistakes": {
-      "en": ["Confusing it with password spraying, which tests few passwords against many users"],
-      "pt": ["Confundir com password spraying, que testa poucas senhas contra muitos usuários"],
-      "de": ["Verwechslung mit Password Spraying, bei dem wenige Passwörter gegen viele Benutzer getestet werden"]
+      "en": [
+        "Confusing it with password spraying, which tests few passwords against many users"
+      ],
+      "pt": [
+        "Confundir com password spraying, que testa poucas senhas contra muitos usuários"
+      ],
+      "de": [
+        "Verwechslung mit Password Spraying, bei dem wenige Passwörter gegen viele Benutzer getestet werden"
+      ]
     }
   },
-  "expected_evidence": ["authentication_event", "user", "ip_address"],
-  "related_hypotheses": ["hypothesis.ssh_brute_force"],
-  "suggested_checks": ["check.authentication_success"],
+  "expected_evidence": [
+    "authentication_event",
+    "user",
+    "ip_address"
+  ],
+  "related_hypotheses": [
+    "hypothesis.ssh_brute_force"
+  ],
+  "suggested_checks": [
+    "check.authentication_success"
+  ],
   "detection_analytics": [
     {
       "id": "AN1521",
@@ -57,7 +89,30 @@
         "pt": "Série de falhas de autenticação (Event ID 4625) visando a mesma conta ou contas de usuário semelhantes ao longo do tempo, a partir de um ou mais IPs remotos (Windows).",
         "de": "Serie von Authentifizierungsfehlern (Ereignis-ID 4625), die über einen Zeitraum dasselbe oder ähnliche Benutzerkonten von einer oder mehreren Remote-IPs betreffen (Windows)."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/",
+      "platforms": [
+        "Windows"
+      ],
+      "logSources": [
+        {
+          "name": "WinEventLog:Security",
+          "channel": "EventCode=4625"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "TimeWindow",
+          "description": "Defines the period in which multiple failed attempts are aggregated (e.g., 10 minutes)"
+        },
+        {
+          "field": "UsernamePattern",
+          "description": "Filter for common account naming conventions, e.g., service accounts or administrator variants"
+        },
+        {
+          "field": "SourceIPThreshold",
+          "description": "Limit on unique IPs trying to authenticate against a single account"
+        }
+      ]
     },
     {
       "id": "AN1522",
@@ -67,7 +122,30 @@
         "pt": "Tentativas repetidas de login SSH malsucedidas seguidas de um possível sucesso a partir do mesmo host remoto.",
         "de": "Wiederholte fehlgeschlagene SSH-Anmeldeversuche, gefolgt von einem möglichen Erfolg vom selben Remote-Host."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/",
+      "platforms": [
+        "Linux"
+      ],
+      "logSources": [
+        {
+          "name": "linux:syslog",
+          "channel": "sshd[pid]: Failed password"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "PortScope",
+          "description": "Can be tuned to non-standard ports if SSH is moved from default"
+        },
+        {
+          "field": "UserScope",
+          "description": "Filter high-value or restricted users (e.g., root, service)"
+        },
+        {
+          "field": "AttemptThreshold",
+          "description": "Number of consecutive failures before flagging (e.g., >5 in 2 minutes)"
+        }
+      ]
     },
     {
       "id": "AN1523",
@@ -77,7 +155,26 @@
         "pt": "Série de falhas de login via loginwindow ou sshd com nomes de usuário repetidos ou solicitações de senha (macOS).",
         "de": "Serie fehlgeschlagener Anmeldungen über loginwindow oder sshd mit wiederholten Benutzernamen oder Passwortabfragen (macOS)."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/",
+      "platforms": [
+        "macOS"
+      ],
+      "logSources": [
+        {
+          "name": "macos:unifiedlog",
+          "channel": "authd"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "AuthMechanism",
+          "description": "Local console vs. SSH vs. remote Apple Admin tools"
+        },
+        {
+          "field": "FailurePattern",
+          "description": "Use regex to isolate brute force messages among other log noise"
+        }
+      ]
     },
     {
       "id": "AN1524",
@@ -87,7 +184,26 @@
         "pt": "Múltiplas tentativas de login malsucedidas de origens externas, envolvendo diversos usuários, seguidas de sucesso a partir do mesmo IP (nuvem/SaaS).",
         "de": "Mehrere fehlgeschlagene Anmeldeversuche von externen Quellen über viele Benutzer, gefolgt von Erfolg von derselben IP (Cloud/SaaS)."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/",
+      "platforms": [
+        "Identity Provider"
+      ],
+      "logSources": [
+        {
+          "name": "azure:signinlogs",
+          "channel": "Sign-in logs"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "GeoRiskScore",
+          "description": "Elevate anomalies from uncommon geolocations"
+        },
+        {
+          "field": "MFAStatus",
+          "description": "Elevate logins missing MFA on high-value accounts"
+        }
+      ]
     },
     {
       "id": "AN1525",
@@ -97,7 +213,26 @@
         "pt": "Falhas de tentativa de login via SNMP, Telnet ou SSH, geralmente refletidas em eventos de syslog (dispositivos de rede).",
         "de": "Fehlgeschlagene Anmeldeversuche über SNMP-, Telnet- oder SSH-Schnittstellen, oft in Syslog-Ereignissen sichtbar (Netzwerkgeräte)."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/",
+      "platforms": [
+        "Network Devices"
+      ],
+      "logSources": [
+        {
+          "name": "networkdevice:syslog",
+          "channel": "login failed"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "InterfaceType",
+          "description": "Specify monitoring of Telnet/SSH/SNMP for login activity"
+        },
+        {
+          "field": "FailedAttemptThreshold",
+          "description": "How many failures in short succession should trigger alerting"
+        }
+      ]
     },
     {
       "id": "AN1526",
@@ -107,7 +242,26 @@
         "pt": "Tentativas de adivinhação de senha contra aplicações web (ex: Dropbox, Google Workspace) refletidas em logs de API ou de login.",
         "de": "Passwort-Rateversuche gegen webbasierte Anwendungen (z. B. Dropbox, Google Workspace), sichtbar in API- oder Anmeldeprotokollen."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0551/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0551/",
+      "platforms": [
+        "SaaS"
+      ],
+      "logSources": [
+        {
+          "name": "GCPAuditLogs:login.googleapis.com",
+          "channel": "Failed sign-in events"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "AppContext",
+          "description": "Which SaaS apps should be monitored for brute force attempts"
+        },
+        {
+          "field": "EmailPattern",
+          "description": "Limit scope to enterprise domains or service accounts"
+        }
+      ]
     }
   ],
   "references": [

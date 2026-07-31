@@ -172,6 +172,14 @@ export const de: Record<TranslationKey, string> = {
   'canvas.edgeStyle': 'Linienstil',
   'canvas.edgeSolid': 'Durchgezogen',
   'canvas.edgeDashed': 'Gestrichelt',
+  'canvas.analyticsCount': '{count} Analysen · {confirmed} bestätigt',
+  'hunting.title': 'Hunting-Abfragen',
+  'hunting.disclaimer':
+    'MITRE veröffentlicht keine Abfragen. Dies sind Ausgangspunkte aus der von MITRE genannten Logquelle — die Erkennungslogik ist ein TODO. Vor der Ausführung prüfen und anpassen.',
+  'hunting.logSources': 'Logquellen: ',
+  'hunting.tune': 'Vor Gebrauch anpassen',
+  'hunting.copy': 'Kopieren',
+  'hunting.copied': 'Kopiert',
   'canvas.commentPlaceholder': 'Kommentar zur Verbindung...',
   'canvas.save': 'Speichern',
 }

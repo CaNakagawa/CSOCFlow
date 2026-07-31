@@ -66,6 +66,8 @@ export interface InvestigationNode {
   fields: Record<string, unknown>
   notes?: string
   analyticStatuses?: Record<string, AnalyticStatus>
+  /** Whether the technique's detection analytics are shown expanded on the canvas. */
+  analyticsExpanded?: boolean
   /**
    * Structural scaffolding rather than something the analyst observed. Drawn
    * faded so the ATT&CK matrix frame never competes with real evidence.

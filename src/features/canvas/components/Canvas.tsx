@@ -25,7 +25,7 @@ import { CanvasActions } from './CanvasActions'
 import { relationshipKey } from '../utils/nodeVisuals'
 import { useI18n } from '../../../shared/i18n'
 import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/investigation'
-import type { KnowledgeBase } from '../../../shared/types/knowledge'
+import type { DetectionAnalytic, KnowledgeBase } from '../../../shared/types/knowledge'
 import './Canvas.css'
 
 const nodeTypes = { generic: GenericNode }
@@ -89,6 +89,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
     [inferredEdges, manualEdges],
   )
   const selectedNodeId = useInvestigationStore((s) => s.selectedNodeId)
+  const selectedAnalytic = useInvestigationStore((s) => s.selectedAnalytic)
   const moveNode = useInvestigationStore((s) => s.moveNode)
   const selectNode = useInvestigationStore((s) => s.selectNode)
   const removeNode = useInvestigationStore((s) => s.removeNode)
@@ -102,6 +103,16 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
   const [commentEditor, setCommentEditor] = useState<CommentEditorState | null>(null)
 
+  const analyticsByDefinition = useMemo(() => {
+    const map = new Map<string, DetectionAnalytic[]>()
+    for (const technique of knowledgeBase?.techniques ?? []) {
+      if (technique.detection_analytics.length > 0) {
+        map.set(technique.id, technique.detection_analytics)
+      }
+    }
+    return map
+  }, [knowledgeBase])
+
   const flowNodes: Node<GenericNodeData>[] = useMemo(
     () =>
       nodes.map((n) => ({
@@ -109,9 +120,20 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         type: 'generic',
         position: n.position,
         selected: n.id === selectedNodeId,
-        data: { label: n.label, nodeType: n.type, state: n.state, scaffold: n.scaffold },
+        data: {
+          label: n.label,
+          nodeType: n.type,
+          state: n.state,
+          scaffold: n.scaffold,
+          nodeId: n.id,
+          analytics: analyticsByDefinition.get(n.definitionId) ?? [],
+          analyticsExpanded: n.analyticsExpanded ?? false,
+          analyticStatuses: n.analyticStatuses ?? {},
+          selectedAnalyticId:
+            selectedAnalytic?.nodeId === n.id ? selectedAnalytic.analyticId : null,
+        },
       })),
-    [nodes, selectedNodeId],
+    [nodes, selectedNodeId, analyticsByDefinition, selectedAnalytic],
   )
 
   const flowEdges: Edge<FlowEdgeData>[] = useMemo(

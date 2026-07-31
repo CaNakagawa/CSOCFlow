@@ -40,6 +40,8 @@ interface StixObject {
   x_mitre_is_subtechnique?: boolean
   x_mitre_platforms?: string[]
   x_mitre_analytic_refs?: string[]
+  x_mitre_log_source_references?: { name?: string; channel?: string }[]
+  x_mitre_mutable_elements?: { field?: string; description?: string }[]
   x_mitre_shortname?: string
   tactic_refs?: string[]
   external_references?: StixExternalReference[]
@@ -202,6 +204,18 @@ async function main() {
           url:
             attackUrl(analytic) ??
             `https://attack.mitre.org/detectionstrategies/${strategyId}#${analyticIdValue}`,
+          platforms: analytic.x_mitre_platforms ?? [],
+          // Carried through so the app can build hunting query skeletons that
+          // point at the data source MITRE actually names for this analytic.
+          logSources: (analytic.x_mitre_log_source_references ?? [])
+            .filter((ref) => ref.name)
+            .map((ref) => ({ name: ref.name ?? '', channel: ref.channel ?? '' })),
+          mutableElements: (analytic.x_mitre_mutable_elements ?? [])
+            .filter((element) => element.field)
+            .map((element) => ({
+              field: element.field ?? '',
+              description: toPlainText(element.description ?? ''),
+            })),
         })
       }
     }

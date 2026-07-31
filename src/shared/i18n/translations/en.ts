@@ -170,6 +170,14 @@ export const en = {
   'canvas.edgeStyle': 'Line style',
   'canvas.edgeSolid': 'Solid',
   'canvas.edgeDashed': 'Dashed',
+  'canvas.analyticsCount': '{count} analytics · {confirmed} confirmed',
+  'hunting.title': 'Hunting queries',
+  'hunting.disclaimer':
+    'MITRE publishes no queries. These are starting points built from the log source it does publish — the detection logic is a TODO. Review and tune before running.',
+  'hunting.logSources': 'Log sources: ',
+  'hunting.tune': 'Tune before use',
+  'hunting.copy': 'Copy',
+  'hunting.copied': 'Copied',
   'canvas.commentPlaceholder': 'Connection comment...',
   'canvas.save': 'Save',
 } satisfies Record<string, string>

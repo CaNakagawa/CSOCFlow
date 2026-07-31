@@ -20,11 +20,26 @@ export interface MitreTactic {
   shortName: string
 }
 
+/** Where MITRE says the signal for an analytic lives, e.g. `WinEventLog:Security`. */
+export interface AnalyticLogSource {
+  name: string
+  channel: string
+}
+
+/** A parameter MITRE flags as needing tuning per environment. */
+export interface AnalyticMutableElement {
+  field: string
+  description: string
+}
+
 export interface DetectionAnalytic {
   id: string
   detectionStrategyId: string
   description: LocalizedText
   url: string
+  platforms: string[]
+  logSources: AnalyticLogSource[]
+  mutableElements: AnalyticMutableElement[]
 }
 
 export interface MitreTechnique {

@@ -2,8 +2,14 @@
   "id": "T1003",
   "name": "OS Credential Dumping",
   "type": "mitre_technique",
-  "tactics": ["TA0006"],
-  "platforms": ["Windows", "Linux", "macOS"],
+  "tactics": [
+    "TA0006"
+  ],
+  "platforms": [
+    "Windows",
+    "Linux",
+    "macOS"
+  ],
   "brief": {
     "en": "Adversaries may try to extract account credentials, in the form of hashes or plaintext passwords, from the operating system (e.g. LSASS, SAM, /etc/shadow).",
     "pt": "Adversários podem tentar extrair credenciais de contas na forma de hashes ou senhas em texto claro a partir do sistema operacional (ex: LSASS, SAM, /etc/shadow).",
@@ -72,7 +78,12 @@
       ]
     }
   },
-  "expected_evidence": ["process", "host", "user", "file"],
+  "expected_evidence": [
+    "process",
+    "host",
+    "user",
+    "file"
+  ],
   "related_hypotheses": [],
   "suggested_checks": [],
   "detection_analytics": [
@@ -84,7 +95,42 @@
         "pt": "Identifica processos acessando a memória do LSASS ou hives de registro SAM fora de ferramentas de segurança confiáveis, frequentemente antecedendo criação de arquivos ou atividades de movimentação lateral.",
         "de": "Identifiziert Prozesse, die außerhalb vertrauenswürdiger Sicherheitstools auf den LSASS-Speicher oder SAM-Registry-Hives zugreifen, oft vor Dateierstellung oder lateraler Bewegung."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0234/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0234/",
+      "platforms": [
+        "Windows"
+      ],
+      "logSources": [
+        {
+          "name": "WinEventLog:Sysmon",
+          "channel": "EventCode=10"
+        },
+        {
+          "name": "WinEventLog:Sysmon",
+          "channel": "EventCode=1"
+        },
+        {
+          "name": "WinEventLog:Security",
+          "channel": "EventCode=4663, 4670, 4656"
+        },
+        {
+          "name": "WinEventLog:Security",
+          "channel": "EventCode=4662"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "AccessMask",
+          "description": "Set to detect full access rights (0x1F0FFF) or modify based on tool behavior."
+        },
+        {
+          "field": "TimeWindow",
+          "description": "Define how soon access to LSASS is followed by suspicious file or registry activity."
+        },
+        {
+          "field": "ParentProcessFilter",
+          "description": "Allowlist known security tools or system processes accessing LSASS."
+        }
+      ]
     },
     {
       "id": "AN0649",
@@ -94,7 +140,34 @@
         "pt": "Detecta processos abrindo /proc/*/mem ou /proc/*/maps visando serviços que armazenam credenciais como sshd ou login, particularmente quando combinados com escalonamento de privilégio e ferramentas de inspeção de memória (gcore, gdb).",
         "de": "Erkennt Prozesse, die /proc/*/mem oder /proc/*/maps öffnen und dabei anmeldedatenspeichernde Dienste wie sshd oder login anvisieren, besonders in Kombination mit Rechteausweitung und Speicherinspektionstools (gcore, gdb)."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0234/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0234/",
+      "platforms": [
+        "Linux"
+      ],
+      "logSources": [
+        {
+          "name": "auditd:SYSCALL",
+          "channel": "open"
+        },
+        {
+          "name": "auditd:SYSCALL",
+          "channel": "ptrace"
+        },
+        {
+          "name": "auditd:SYSCALL",
+          "channel": "execve"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "TargetProcessName",
+          "description": "Define sensitive targets (e.g., sshd, login) being memory-read."
+        },
+        {
+          "field": "ToolProcessName",
+          "description": "Flag use of memory dump tools like gcore, gdb, pmap."
+        }
+      ]
     },
     {
       "id": "AN0650",
@@ -104,7 +177,34 @@
         "pt": "Identifica processos não assinados acessando memória do sistema ou executando ferramentas conhecidas de coleta de credenciais (como osascript e injeções dylib) visando o Keychain ou regiões sensíveis de memória (macOS).",
         "de": "Identifiziert unsignierte Prozesse, die auf den Systemspeicher zugreifen oder bekannte Credential-Scraping-Tools (wie osascript und dylib-Injektionen) starten, die auf den Keychain oder sensible Speicherbereiche abzielen (macOS)."
       },
-      "url": "https://attack.mitre.org/detectionstrategies/DET0234/"
+      "url": "https://attack.mitre.org/detectionstrategies/DET0234/",
+      "platforms": [
+        "macOS"
+      ],
+      "logSources": [
+        {
+          "name": "macos:unifiedlog",
+          "channel": "Code Execution & Entitlement Access"
+        },
+        {
+          "name": "macos:keychain",
+          "channel": "Access to Keychain DB or system.keychain"
+        },
+        {
+          "name": "macos:osquery",
+          "channel": "Invocation of osascript or dylib injection"
+        }
+      ],
+      "mutableElements": [
+        {
+          "field": "KeychainAccessPath",
+          "description": "Path to watch for abnormal access, e.g., /Library/Keychains/"
+        },
+        {
+          "field": "SignedBinaryStatus",
+          "description": "Filter out signed/trusted binaries."
+        }
+      ]
     }
   ],
   "references": [

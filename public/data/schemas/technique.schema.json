@@ -104,7 +104,10 @@
           "id",
           "detectionStrategyId",
           "description",
-          "url"
+          "url",
+          "platforms",
+          "logSources",
+          "mutableElements"
         ],
         "properties": {
           "id": {
@@ -121,6 +124,50 @@
           "url": {
             "type": "string",
             "format": "uri"
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "logSources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "channel"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "channel": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "mutableElements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "field",
+                "description"
+              ],
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
