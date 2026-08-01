@@ -1,3 +1,71 @@
+/*
+ * React Flow ships its chrome in light grey, which left the minimap reading as
+ * a blank white square and the zoom/lock buttons nearly invisible on the dark
+ * theme. These bind that chrome to the app's own tokens, so it follows whichever
+ * colour scheme is in use.
+ */
+.react-flow__controls {
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-popover);
+}
+
+.react-flow__controls-button {
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--panel-border);
+  color: var(--fg);
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--hover-bg);
+  color: var(--accent);
+}
+
+.react-flow__controls-button svg {
+  width: 14px;
+  height: 14px;
+  max-width: none;
+  max-height: none;
+  fill: currentcolor;
+}
+
+.react-flow__minimap {
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-popover);
+  background: var(--panel-bg);
+}
+
+.react-flow__minimap-mask {
+  fill: color-mix(in srgb, var(--bg) 72%, transparent);
+  stroke: var(--accent);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.react-flow__minimap-node {
+  fill: var(--accent);
+  stroke: none;
+}
+
+.react-flow__minimap-node.selected {
+  fill: var(--fg);
+}
+
+.react-flow__attribution {
+  background: transparent;
+  color: var(--muted-fg);
+}
+
 .edge-comment-editor {
   position: fixed;
   z-index: 20;

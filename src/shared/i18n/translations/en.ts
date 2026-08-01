@@ -1,6 +1,8 @@
 export const en = {
   'app.loading': 'Loading knowledge base...',
   'app.loadError': 'Failed to load the knowledge base',
+  'app.resizeLibrary': 'Resize the library panel',
+  'app.resizeRightPanel': 'Resize the details panel',
 
   'topBar.investigationName': 'Investigation name',
   'investigation.untitled': 'Untitled investigation',
@@ -200,6 +202,16 @@ export const en = {
   'hunting.copy': 'Copy',
   'hunting.copied': 'Copied',
   'canvas.expandSubtechniques': 'Link subtechniques ({count})',
+  'export.image': 'Export image',
+  'export.imageHint':
+    'Save the whole canvas as a picture, framed around everything on it — not just what is on screen.',
+  'export.png': 'PNG image',
+  'export.jpg': 'JPG image',
+  'export.pdf': 'PDF document',
+  'export.pptx': 'PowerPoint slide',
+  'export.working': 'Exporting...',
+  'export.done': '{format} exported.',
+  'export.failed': 'Could not export the canvas. {reason}',
   'canvas.deleteHint': 'Delete the selected element',
   'canvas.nodeActions': 'Node actions',
   'canvas.commentPlaceholder': 'Connection comment...',

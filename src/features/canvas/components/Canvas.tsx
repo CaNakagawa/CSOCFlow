@@ -104,6 +104,14 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   const updateEdgeStyle = useInvestigationStore((s) => s.updateEdgeStyle)
   const pushHistory = useInvestigationStore((s) => s.pushHistory)
 
+  /*
+   * The nodes handed to React Flow are rebuilt from the store on every change,
+   * so the sizes it measured would be dropped each time. Anything reading a
+   * node's size off the props — the minimap above all — then sees nothing to
+   * draw, so the measurements are kept here and handed back in.
+   */
+  const [nodeSizes, setNodeSizes] = useState<Record<string, { width: number; height: number }>>({})
+
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
   const [commentEditor, setCommentEditor] = useState<CommentEditorState | null>(null)
@@ -125,6 +133,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         type: 'generic',
         position: n.position,
         selected: n.id === selectedNodeId,
+        measured: nodeSizes[n.id],
         data: {
           label: n.label,
           nodeType: n.type,
@@ -138,7 +147,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
             selectedAnalytic?.nodeId === n.id ? selectedAnalytic.analyticId : null,
         },
       })),
-    [nodes, selectedNodeId, analyticsByDefinition, selectedAnalytic],
+    [nodes, selectedNodeId, analyticsByDefinition, selectedAnalytic, nodeSizes],
   )
 
   const flowEdges: Edge<FlowEdgeData>[] = useMemo(
@@ -171,6 +180,15 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         }
         if (change.type === 'remove') {
           removeNode(change.id)
+          setNodeSizes(({ [change.id]: _removed, ...rest }) => rest)
+        }
+        if (change.type === 'dimensions' && change.dimensions) {
+          const { width, height } = change.dimensions
+          setNodeSizes((sizes) => {
+            const current = sizes[change.id]
+            if (current?.width === width && current?.height === height) return sizes
+            return { ...sizes, [change.id]: { width, height } }
+          })
         }
       }
     },
@@ -293,6 +311,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         onNodeContextMenu={onNodeContextMenu}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onPaneClick={onPaneClick}
+        colorMode="system"
         connectionMode={ConnectionMode.Loose}
         deleteKeyCode={['Backspace', 'Delete']}
         fitView

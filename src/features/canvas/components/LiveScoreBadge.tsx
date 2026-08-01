@@ -84,9 +84,10 @@ export function LiveScoreBadge({ knowledgeBase }: LiveScoreBadgeProps) {
       >
         <span className="live-score__label">{t('rightPanel.score')}</span>
         <span className="live-score__value">{result.score}</span>
-        <span className="live-score__reach">
-          {result.deepestTactic ? result.deepestTactic.name : t('score.noneConfirmed')}
-        </span>
+        {/* Nothing confirmed yet needs no words: the 0 already says it. */}
+        {result.deepestTactic && (
+          <span className="live-score__reach">{result.deepestTactic.name}</span>
+        )}
         <span className="live-score__track" aria-hidden="true">
           <span style={{ width: `${result.score}%` }} />
         </span>

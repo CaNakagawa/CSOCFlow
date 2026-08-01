@@ -3,6 +3,8 @@ import type { TranslationKey } from './en'
 export const pt: Record<TranslationKey, string> = {
   'app.loading': 'Carregando base de conhecimento...',
   'app.loadError': 'Falha ao carregar a base de conhecimento',
+  'app.resizeLibrary': 'Redimensionar o painel de biblioteca',
+  'app.resizeRightPanel': 'Redimensionar o painel de detalhes',
 
   'topBar.investigationName': 'Nome da investigação',
   'investigation.untitled': 'Investigação sem título',
@@ -202,6 +204,16 @@ export const pt: Record<TranslationKey, string> = {
   'hunting.copy': 'Copiar',
   'hunting.copied': 'Copiado',
   'canvas.expandSubtechniques': 'Linkar subtécnicas ({count})',
+  'export.image': 'Exportar imagem',
+  'export.imageHint':
+    'Salva o canvas inteiro como imagem, enquadrando tudo o que está nele — não apenas o que aparece na tela.',
+  'export.png': 'Imagem PNG',
+  'export.jpg': 'Imagem JPG',
+  'export.pdf': 'Documento PDF',
+  'export.pptx': 'Slide do PowerPoint',
+  'export.working': 'Exportando...',
+  'export.done': '{format} exportado.',
+  'export.failed': 'Não foi possível exportar o canvas. {reason}',
   'canvas.deleteHint': 'Excluir o elemento selecionado',
   'canvas.nodeActions': 'Ações do nó',
   'canvas.commentPlaceholder': 'Comentário da conexão...',

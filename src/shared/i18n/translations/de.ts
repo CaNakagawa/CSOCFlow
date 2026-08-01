@@ -3,6 +3,8 @@ import type { TranslationKey } from './en'
 export const de: Record<TranslationKey, string> = {
   'app.loading': 'Wissensdatenbank wird geladen...',
   'app.loadError': 'Wissensdatenbank konnte nicht geladen werden',
+  'app.resizeLibrary': 'Bibliotheksbereich in der Breite ändern',
+  'app.resizeRightPanel': 'Detailbereich in der Breite ändern',
 
   'topBar.investigationName': 'Name der Untersuchung',
   'investigation.untitled': 'Unbenannte Untersuchung',
@@ -202,6 +204,16 @@ export const de: Record<TranslationKey, string> = {
   'hunting.copy': 'Kopieren',
   'hunting.copied': 'Kopiert',
   'canvas.expandSubtechniques': 'Subtechniken verknüpfen ({count})',
+  'export.image': 'Bild exportieren',
+  'export.imageHint':
+    'Speichert die gesamte Arbeitsfläche als Bild — mit allem darauf, nicht nur dem sichtbaren Ausschnitt.',
+  'export.png': 'PNG-Bild',
+  'export.jpg': 'JPG-Bild',
+  'export.pdf': 'PDF-Dokument',
+  'export.pptx': 'PowerPoint-Folie',
+  'export.working': 'Wird exportiert...',
+  'export.done': '{format} exportiert.',
+  'export.failed': 'Arbeitsfläche konnte nicht exportiert werden. {reason}',
   'canvas.deleteHint': 'Ausgewähltes Element löschen',
   'canvas.nodeActions': 'Knotenaktionen',
   'canvas.commentPlaceholder': 'Kommentar zur Verbindung...',
