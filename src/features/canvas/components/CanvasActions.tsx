@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
+import { ExportMenu } from './ExportMenu'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import { useI18n } from '../../../shared/i18n'
 import './CanvasActions.css'
@@ -41,6 +42,8 @@ export function CanvasActions({ knowledgeBase }: CanvasActionsProps) {
   return (
     <div className="canvas-actions">
       <div className="canvas-actions__row">
+        <ExportMenu onStatus={setFeedback} />
+
         <button
           type="button"
           className="canvas-actions__button nopan"

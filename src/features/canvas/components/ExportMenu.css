@@ -1,0 +1,36 @@
+.export-menu {
+  position: relative;
+}
+
+.export-menu__list {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 10;
+  min-width: 172px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-popover);
+}
+
+.export-menu__list button {
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  padding: 7px 9px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.export-menu__list button:hover {
+  background: var(--hover-bg);
+  color: var(--accent);
+}
