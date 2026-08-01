@@ -158,10 +158,26 @@ export const de: Record<TranslationKey, string> = {
     'Noch kein passender Anwendungsfall. Fügen Sie eine MITRE-ATT&CK-Technik zum Canvas hinzu oder wählen Sie einen Anwendungsfall direkt aus der Bibliothek.',
 
   'rightPanel.details': 'Details',
+  'rightPanel.score': 'Score',
   'rightPanel.hypotheses': 'Hypothesen',
   'rightPanel.useCases': 'Anwendungsfälle',
   'rightPanel.collapse': 'Panel einklappen',
   'rightPanel.expand': 'Panel ausklappen',
+
+  'score.empty':
+    'Noch keine MITRE-Technik auf dem Canvas. Der Wert misst, wie weit bestätigte Aktivität in der Angriffskette reicht.',
+  'score.reached': 'Bestätigte Aktivität reicht bis {tactic}.',
+  'score.noneConfirmed': 'Noch nichts bestätigt.',
+  'score.depth': 'Tiefe',
+  'score.breadth': 'Kette',
+  'score.activity': 'Aktivität',
+  'score.coverage': 'Abdeckung',
+  'score.live': 'Untersuchungswert: {score} von 100',
+  'score.liveHint': 'Live-Untersuchungswert. Zum Aufschlüsseln anklicken.',
+  'score.techniques': '{confirmed} von {total} Techniken bestätigt',
+  'score.byTactic': 'Nach Taktik',
+  'score.disclaimer':
+    'Schwere des Bestätigten, gewichtet danach, wie weit rechts die Taktik in der Matrix liegt. Kein Urteil über den Vorfall; die Abdeckung zeigt, wie viel der Belege tatsächlich geprüft wurde.',
 
   'canvas.autoLink': 'Auto-Verknüpfung',
   'canvas.autoLinkHint':
@@ -185,6 +201,7 @@ export const de: Record<TranslationKey, string> = {
   'hunting.tune': 'Vor Gebrauch anpassen',
   'hunting.copy': 'Kopieren',
   'hunting.copied': 'Kopiert',
+  'canvas.expandSubtechniques': 'Subtechniken verknüpfen ({count})',
   'canvas.deleteHint': 'Ausgewähltes Element löschen',
   'canvas.nodeActions': 'Knotenaktionen',
   'canvas.commentPlaceholder': 'Kommentar zur Verbindung...',

@@ -24,6 +24,7 @@ import { GenericNode, type GenericNodeData } from '../nodeTypes/GenericNode'
 import { CanvasActions } from './CanvasActions'
 import { CanvasEditToolbar } from './CanvasEditToolbar'
 import { NodeContextMenu, type ContextMenuState } from './NodeContextMenu'
+import { LiveScoreBadge } from './LiveScoreBadge'
 import { relationshipKey } from '../utils/nodeVisuals'
 import { useI18n } from '../../../shared/i18n'
 import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/investigation'
@@ -299,6 +300,9 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         <Panel position="top-left">
           <CanvasEditToolbar />
         </Panel>
+        <Panel position="top-center">
+          <LiveScoreBadge knowledgeBase={knowledgeBase} />
+        </Panel>
         <Panel position="top-right">
           <CanvasActions knowledgeBase={knowledgeBase} />
         </Panel>
@@ -307,7 +311,13 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         <MiniMap pannable zoomable />
       </ReactFlow>
 
-      {contextMenu && <NodeContextMenu menu={contextMenu} onClose={() => setContextMenu(null)} />}
+      {contextMenu && (
+        <NodeContextMenu
+          menu={contextMenu}
+          knowledgeBase={knowledgeBase}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
 
       {commentEditor && (
         <div

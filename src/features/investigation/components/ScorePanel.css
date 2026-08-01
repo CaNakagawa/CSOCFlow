@@ -1,0 +1,159 @@
+.score-panel__empty {
+  padding: 12px;
+  font-size: 12px;
+  color: var(--muted-fg);
+  line-height: 1.5;
+}
+
+.score-panel {
+  padding: 12px;
+  font-size: 12px;
+}
+
+.score-panel__headline {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--input-bg);
+}
+
+.score-panel__value {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.score-panel__scale {
+  font-size: 12px;
+  color: var(--muted-fg);
+}
+
+.score-panel__headline--low {
+  border-color: #64748b;
+}
+.score-panel__headline--moderate {
+  border-color: #38bdf8;
+}
+.score-panel__headline--high {
+  border-color: #f59e0b;
+}
+.score-panel__headline--critical {
+  border-color: #ef4444;
+}
+
+.score-panel__headline--low .score-panel__value {
+  color: #94a3b8;
+}
+.score-panel__headline--moderate .score-panel__value {
+  color: #38bdf8;
+}
+.score-panel__headline--high .score-panel__value {
+  color: #f59e0b;
+}
+.score-panel__headline--critical .score-panel__value {
+  color: #ef4444;
+}
+
+.score-panel__reach {
+  margin: 8px 0 12px;
+  line-height: 1.5;
+}
+
+.score-panel__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.score-panel__metrics div {
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--input-bg);
+  text-align: center;
+}
+
+.score-panel__metrics dt {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-fg);
+}
+
+.score-panel__metrics dd {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.score-panel__techniques {
+  margin: 0 0 12px;
+  color: var(--muted-fg);
+}
+
+.score-panel__section {
+  margin: 0 0 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-fg);
+}
+
+.score-panel__tactics {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.score-panel__tactics li {
+  display: grid;
+  grid-template-columns: 1fr 60px 34px;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.score-panel__tactic-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-panel__bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--input-bg);
+  overflow: hidden;
+}
+
+.score-panel__bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.score-panel__tactic-value {
+  text-align: right;
+  color: var(--muted-fg);
+}
+
+.score-panel__disclaimer {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  background: var(--input-bg);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted-fg);
+}
+
+.score-panel__tactic-count {
+  color: var(--muted-fg);
+}

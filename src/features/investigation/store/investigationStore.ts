@@ -132,6 +132,7 @@ interface InvestigationState {
   moveNode: (nodeId: string, position: { x: number; y: number }) => void
   removeNode: (nodeId: string) => void
   duplicateNode: (nodeId: string) => string | undefined
+  expandSubtechniques: (nodeId: string, knowledgeBase: KnowledgeBase, locale: Locale) => number
   linkToNearest: (nodeId: string, handle: HandleId) => boolean
   selectNode: (nodeId: string | null) => void
   addManualEdge: (
@@ -600,6 +601,58 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       }
       set((state) => ({ nodes: [...state.nodes, copy], selectedNodeId: copy.id }))
       return copy.id
+    },
+
+    /**
+     * Brings in every subtechnique of a technique node and links each one to it.
+     *
+     * Subtechniques the analyst already placed are left alone and simply get the
+     * parent connection, so running this twice adds nothing the second time.
+     *
+     * Returns how many subtechniques were added.
+     */
+    expandSubtechniques: (nodeId, knowledgeBase, locale) => {
+      const state = get()
+      const parent = state.nodes.find((n) => n.id === nodeId)
+      if (!parent || parent.type !== 'mitre_technique') return 0
+
+      const children = knowledgeBase.techniques.filter(
+        (t) => parentTechniqueId(t.id) === parent.definitionId,
+      )
+      if (children.length === 0) return 0
+
+      const present = new Set(state.nodes.filter(isTechniqueNode).map((n) => n.definitionId))
+      const missing = children.filter((t) => !present.has(t.id))
+
+      get().pushHistory()
+      const now = new Date().toISOString()
+      // Fan the new subtechniques out below their parent, matching the cascade.
+      const added: InvestigationNode[] = missing.map((technique, index) => ({
+        id: generateId('node'),
+        definitionId: technique.id,
+        type: technique.type,
+        label: `${technique.id} - ${technique.name}`,
+        state: 'unknown',
+        position: {
+          x: parent.position.x + (index - (missing.length - 1) / 2) * 220,
+          y: parent.position.y + 160,
+        },
+        fields: {},
+        notes: '',
+        createdAt: now,
+        updatedAt: now,
+      }))
+
+      set((current) => {
+        const nodes = [...current.nodes, ...added]
+        const existingEdgeIds = new Set(current.manualEdges.map((e) => e.id))
+        const newEdges = buildSubtechniqueEdges(nodes, locale).filter(
+          (edge) => !existingEdgeIds.has(edge.id),
+        )
+        return { nodes, manualEdges: [...current.manualEdges, ...newEdges] }
+      })
+
+      return added.length
     },
 
     /**

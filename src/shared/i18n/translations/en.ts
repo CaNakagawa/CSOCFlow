@@ -157,10 +157,26 @@ export const en = {
     'No compatible use case yet. Add a MITRE ATT&CK technique to the canvas, or pick a use case directly from the library.',
 
   'rightPanel.details': 'Details',
+  'rightPanel.score': 'Score',
   'rightPanel.hypotheses': 'Hypotheses',
   'rightPanel.useCases': 'Use Cases',
   'rightPanel.collapse': 'Collapse panel',
   'rightPanel.expand': 'Expand panel',
+
+  'score.empty':
+    'No MITRE technique on the canvas yet. The score reads how far along the kill chain confirmed activity reaches.',
+  'score.reached': 'Confirmed activity reaches {tactic}.',
+  'score.noneConfirmed': 'Nothing confirmed yet.',
+  'score.depth': 'Depth',
+  'score.breadth': 'Chain',
+  'score.activity': 'Activity',
+  'score.coverage': 'Coverage',
+  'score.live': 'Investigation score: {score} out of 100',
+  'score.liveHint': 'Live investigation score. Click for the breakdown.',
+  'score.techniques': '{confirmed} of {total} techniques confirmed',
+  'score.byTactic': 'By tactic',
+  'score.disclaimer':
+    'Severity of what was confirmed, weighted by how far right the tactic sits in the matrix. It is not a verdict on the incident, and coverage tells you how much of the evidence was actually checked.',
 
   'canvas.autoLink': 'Auto link',
   'canvas.autoLinkHint':
@@ -183,6 +199,7 @@ export const en = {
   'hunting.tune': 'Tune before use',
   'hunting.copy': 'Copy',
   'hunting.copied': 'Copied',
+  'canvas.expandSubtechniques': 'Link subtechniques ({count})',
   'canvas.deleteHint': 'Delete the selected element',
   'canvas.nodeActions': 'Node actions',
   'canvas.commentPlaceholder': 'Connection comment...',

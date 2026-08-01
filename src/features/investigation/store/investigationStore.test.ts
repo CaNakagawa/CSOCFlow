@@ -860,6 +860,71 @@ describe('investigationStore', () => {
     expect(duplicateNode('does-not-exist')).toBeUndefined()
   })
 
+  it('brings a technique subtechniques in and links them to their parent', () => {
+    const knowledgeBase = makeKnowledgeBaseWithSubtechnique()
+    const { addNode, expandSubtechniques } = useInvestigationStore.getState()
+    const parentId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1110',
+      label: 'T1110 - Brute Force',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    const added = expandSubtechniques(parentId, knowledgeBase, 'en')
+
+    const state = useInvestigationStore.getState()
+    expect(added).toBe(1)
+    const child = state.nodes.find((n) => n.definitionId === 'T1110.001')
+    expect(child).toBeDefined()
+    expect(state.manualEdges).toHaveLength(1)
+    expect(state.manualEdges[0]).toMatchObject({
+      source: parentId,
+      target: child!.id,
+      type: 'parent_of',
+    })
+  })
+
+  it('does not duplicate subtechniques that are already on the canvas', () => {
+    const knowledgeBase = makeKnowledgeBaseWithSubtechnique()
+    const { addNode, expandSubtechniques } = useInvestigationStore.getState()
+    const parentId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1110',
+      label: 'T1110 - Brute Force',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    expect(expandSubtechniques(parentId, knowledgeBase, 'en')).toBe(1)
+    expect(expandSubtechniques(parentId, knowledgeBase, 'en')).toBe(0)
+    expect(useInvestigationStore.getState().nodes).toHaveLength(2)
+    expect(useInvestigationStore.getState().manualEdges).toHaveLength(1)
+  })
+
+  it('ignores nodes that are not techniques with subtechniques', () => {
+    const knowledgeBase = makeKnowledgeBaseWithSubtechnique()
+    const { addNode, expandSubtechniques } = useInvestigationStore.getState()
+    const hostId = addNode({
+      nodeType: 'host',
+      definitionId: 'evidence.infrastructure.host',
+      label: 'host-a',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    const leafId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1078',
+      label: 'T1078 - Valid Accounts',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    expect(expandSubtechniques(hostId, knowledgeBase, 'en')).toBe(0)
+    expect(expandSubtechniques(leafId, knowledgeBase, 'en')).toBe(0)
+    expect(useInvestigationStore.getState().nodes).toHaveLength(2)
+  })
+
   it('serializes the current state into an Investigation document', () => {
     const { addNode, toDocument } = useInvestigationStore.getState()
     addNode({

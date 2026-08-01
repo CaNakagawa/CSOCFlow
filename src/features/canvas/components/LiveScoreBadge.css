@@ -1,0 +1,140 @@
+.live-score {
+  position: relative;
+}
+
+.live-score__chip {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 8px;
+  min-width: 190px;
+  padding: 5px 12px 7px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-popover);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.live-score__chip:hover {
+  border-color: var(--accent);
+}
+
+.live-score__label {
+  grid-column: 1;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-fg);
+}
+
+.live-score__value {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.live-score__reach {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  font-size: 11px;
+  color: var(--muted-fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-score__track {
+  grid-column: 1;
+  grid-row: 2;
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--input-bg);
+  overflow: hidden;
+}
+
+.live-score__track span {
+  display: block;
+  height: 100%;
+  background: currentcolor;
+  transition: width 260ms ease;
+}
+
+.live-score__chip--low .live-score__value,
+.live-score__chip--low .live-score__track {
+  color: #94a3b8;
+}
+.live-score__chip--moderate .live-score__value,
+.live-score__chip--moderate .live-score__track {
+  color: #38bdf8;
+}
+.live-score__chip--high .live-score__value,
+.live-score__chip--high .live-score__track {
+  color: #f59e0b;
+}
+.live-score__chip--critical .live-score__value,
+.live-score__chip--critical .live-score__track {
+  color: #ef4444;
+}
+
+.live-score__chip--moderate {
+  border-color: #38bdf8;
+}
+.live-score__chip--high {
+  border-color: #f59e0b;
+}
+.live-score__chip--critical {
+  border-color: #ef4444;
+}
+
+/* A brief pulse so a change made elsewhere on the canvas is still noticed. */
+.live-score__chip--bumped {
+  animation: live-score-bump 900ms ease;
+}
+
+@keyframes live-score-bump {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 3px color-mix(in srgb, currentcolor 30%, transparent);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-score__chip--bumped {
+    animation: none;
+  }
+  .live-score__track span {
+    transition: none;
+  }
+}
+
+.live-score__popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  max-height: 60vh;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-popover);
+  cursor: default;
+}

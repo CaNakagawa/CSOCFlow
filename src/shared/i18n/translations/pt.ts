@@ -158,10 +158,26 @@ export const pt: Record<TranslationKey, string> = {
     'Nenhum caso de uso compatível ainda. Adicione uma técnica MITRE ATT&CK ao canvas, ou selecione um caso de uso diretamente na biblioteca.',
 
   'rightPanel.details': 'Detalhes',
+  'rightPanel.score': 'Score',
   'rightPanel.hypotheses': 'Hipóteses',
   'rightPanel.useCases': 'Casos de Uso',
   'rightPanel.collapse': 'Retrair painel',
   'rightPanel.expand': 'Expandir painel',
+
+  'score.empty':
+    'Nenhuma técnica MITRE no canvas ainda. A nota mede até onde a atividade confirmada chega no kill chain.',
+  'score.reached': 'A atividade confirmada chega em {tactic}.',
+  'score.noneConfirmed': 'Nada confirmado ainda.',
+  'score.depth': 'Profundidade',
+  'score.breadth': 'Cadeia',
+  'score.activity': 'Atividade',
+  'score.coverage': 'Cobertura',
+  'score.live': 'Pontuação da investigação: {score} de 100',
+  'score.liveHint': 'Pontuação da investigação ao vivo. Clique para ver o detalhamento.',
+  'score.techniques': '{confirmed} de {total} técnicas confirmadas',
+  'score.byTactic': 'Por tática',
+  'score.disclaimer':
+    'Gravidade do que foi confirmado, ponderada por quão à direita a tática fica na matriz. Não é um veredito sobre o incidente, e a cobertura indica quanto das evidências foi de fato checado.',
 
   'canvas.autoLink': 'Vínculo automático',
   'canvas.autoLinkHint':
@@ -185,6 +201,7 @@ export const pt: Record<TranslationKey, string> = {
   'hunting.tune': 'Ajustar antes de usar',
   'hunting.copy': 'Copiar',
   'hunting.copied': 'Copiado',
+  'canvas.expandSubtechniques': 'Linkar subtécnicas ({count})',
   'canvas.deleteHint': 'Excluir o elemento selecionado',
   'canvas.nodeActions': 'Ações do nó',
   'canvas.commentPlaceholder': 'Comentário da conexão...',

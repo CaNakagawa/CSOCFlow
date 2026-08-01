@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
+import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
+import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import { useI18n } from '../../../shared/i18n'
 import './NodeContextMenu.css'
 
@@ -11,14 +13,25 @@ export interface ContextMenuState {
 
 interface NodeContextMenuProps {
   menu: ContextMenuState
+  knowledgeBase: KnowledgeBase | null
   onClose: () => void
 }
 
-export function NodeContextMenu({ menu, onClose }: NodeContextMenuProps) {
-  const { t } = useI18n()
+export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMenuProps) {
+  const { t, locale } = useI18n()
   const duplicateNode = useInvestigationStore((s) => s.duplicateNode)
   const removeNode = useInvestigationStore((s) => s.removeNode)
+  const expandSubtechniques = useInvestigationStore((s) => s.expandSubtechniques)
+  const node = useInvestigationStore((s) => s.nodes.find((n) => n.id === menu.nodeId))
   const rootRef = useRef<HTMLDivElement>(null)
+
+  // Only techniques that actually have subtechniques get the option.
+  const subtechniqueCount = useMemo(() => {
+    if (!knowledgeBase || node?.type !== 'mitre_technique') return 0
+    return knowledgeBase.techniques.filter(
+      (tech) => parentTechniqueId(tech.id) === node.definitionId,
+    ).length
+  }, [knowledgeBase, node])
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
@@ -54,6 +67,18 @@ export function NodeContextMenu({ menu, onClose }: NodeContextMenuProps) {
       >
         {t('details.duplicate')}
       </button>
+      {subtechniqueCount > 0 && knowledgeBase && (
+        <button
+          type="button"
+          role="menuitem"
+          onClick={() => {
+            expandSubtechniques(menu.nodeId, knowledgeBase, locale)
+            onClose()
+          }}
+        >
+          {t('canvas.expandSubtechniques', { count: String(subtechniqueCount) })}
+        </button>
+      )}
       <button
         type="button"
         role="menuitem"
