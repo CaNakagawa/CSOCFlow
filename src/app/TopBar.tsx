@@ -19,30 +19,18 @@ const repository = createInvestigationRepository()
 
 const STATUS_TIMEOUT_MS = 5000
 
-type MenuTab = 'investigation' | 'edit' | 'file' | 'view'
+type MenuTab = 'investigation' | 'file' | 'view'
 
-const TAB_ORDER: MenuTab[] = ['investigation', 'edit', 'file', 'view']
+const TAB_ORDER: MenuTab[] = ['investigation', 'file', 'view']
 
 const TAB_LABEL_KEYS: Record<MenuTab, TranslationKey> = {
   investigation: 'topBar.tabInvestigation',
-  edit: 'topBar.tabEdit',
   file: 'topBar.tabFile',
   view: 'topBar.tabView',
 }
 
 type IconName =
-  | 'new'
-  | 'demo'
-  | 'clear'
-  | 'save'
-  | 'import'
-  | 'export'
-  | 'library'
-  | 'details'
-  | 'undo'
-  | 'redo'
-  | 'duplicate'
-  | 'help'
+  'new' | 'demo' | 'clear' | 'save' | 'import' | 'export' | 'library' | 'details' | 'help'
 
 const ICONS: Record<IconName, ReactNode> = {
   new: (
@@ -88,14 +76,6 @@ const ICONS: Record<IconName, ReactNode> = {
     <>
       <rect x="2.3" y="3" width="11.4" height="10" rx="1.3" />
       <path d="M9.6 3v10" />
-    </>
-  ),
-  undo: <path d="M3.4 7.6h6.2a3.4 3.4 0 1 1 0 6.8H6.4M3.4 7.6 6.6 4.4M3.4 7.6l3.2 3.2" />,
-  redo: <path d="M12.6 7.6H6.4a3.4 3.4 0 1 0 0 6.8h3.2M12.6 7.6 9.4 4.4M12.6 7.6l-3.2 3.2" />,
-  duplicate: (
-    <>
-      <rect x="5.6" y="5.6" width="8" height="8" rx="1.2" />
-      <path d="M10.4 5.6V3.6a1.2 1.2 0 0 0-1.2-1.2H3.6a1.2 1.2 0 0 0-1.2 1.2v5.6a1.2 1.2 0 0 0 1.2 1.2h2" />
     </>
   ),
   help: (
@@ -153,13 +133,6 @@ export function TopBar({
   const clearCanvas = useInvestigationStore((s) => s.clearCanvas)
   const loadInvestigation = useInvestigationStore((s) => s.loadInvestigation)
   const toDocument = useInvestigationStore((s) => s.toDocument)
-  const undo = useInvestigationStore((s) => s.undo)
-  const redo = useInvestigationStore((s) => s.redo)
-  const canUndo = useInvestigationStore((s) => s.past.length > 0)
-  const canRedo = useInvestigationStore((s) => s.future.length > 0)
-  const selectedNodeId = useInvestigationStore((s) => s.selectedNodeId)
-  const duplicateNode = useInvestigationStore((s) => s.duplicateNode)
-  const removeNode = useInvestigationStore((s) => s.removeNode)
 
   const [activeTab, setActiveTab] = useState<MenuTab>('investigation')
   const [status, setStatus] = useState<string | null>(null)
@@ -327,51 +300,6 @@ export function TopBar({
               >
                 <Icon name="clear" />
                 {t('topBar.clear')}
-              </button>
-            </>
-          )}
-
-          {activeTab === 'edit' && (
-            <>
-              <button
-                type="button"
-                className="top-bar__action"
-                onClick={() => undo()}
-                disabled={!canUndo}
-                title={t('topBar.undoHint')}
-              >
-                <Icon name="undo" />
-                {t('topBar.undo')}
-              </button>
-              <button
-                type="button"
-                className="top-bar__action"
-                onClick={() => redo()}
-                disabled={!canRedo}
-                title={t('topBar.redoHint')}
-              >
-                <Icon name="redo" />
-                {t('topBar.redo')}
-              </button>
-              <div className="top-bar__ribbon-divider" aria-hidden="true" />
-              <button
-                type="button"
-                className="top-bar__action"
-                onClick={() => selectedNodeId && duplicateNode(selectedNodeId)}
-                disabled={!selectedNodeId}
-                title={t('topBar.duplicateHint')}
-              >
-                <Icon name="duplicate" />
-                {t('details.duplicate')}
-              </button>
-              <button
-                type="button"
-                className="top-bar__action top-bar__action--danger"
-                onClick={() => selectedNodeId && removeNode(selectedNodeId)}
-                disabled={!selectedNodeId}
-              >
-                <Icon name="clear" />
-                {t('details.delete')}
               </button>
             </>
           )}

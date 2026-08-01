@@ -22,6 +22,8 @@ import '@xyflow/react/dist/style.css'
 import { combineEdges, useInvestigationStore } from '../../investigation/store/investigationStore'
 import { GenericNode, type GenericNodeData } from '../nodeTypes/GenericNode'
 import { CanvasActions } from './CanvasActions'
+import { CanvasEditToolbar } from './CanvasEditToolbar'
+import { NodeContextMenu, type ContextMenuState } from './NodeContextMenu'
 import { relationshipKey } from '../utils/nodeVisuals'
 import { useI18n } from '../../../shared/i18n'
 import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/investigation'
@@ -102,6 +104,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   const pushHistory = useInvestigationStore((s) => s.pushHistory)
 
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
+  const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
   const [commentEditor, setCommentEditor] = useState<CommentEditorState | null>(null)
 
   const analyticsByDefinition = useMemo(() => {
@@ -189,7 +192,17 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
     selectNode(null)
     setSelectedEdgeId(null)
     setCommentEditor(null)
+    setContextMenu(null)
   }, [selectNode])
+
+  const onNodeContextMenu: NodeMouseHandler<Node<GenericNodeData>> = useCallback(
+    (event, node) => {
+      event.preventDefault()
+      selectNode(node.id)
+      setContextMenu({ nodeId: node.id, x: event.clientX, y: event.clientY })
+    },
+    [selectNode],
+  )
 
   const onConnect: OnConnect = useCallback(
     (connection) => {
@@ -276,12 +289,16 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         onReconnect={onReconnect}
         onNodeDragStart={onNodeDragStart}
         onNodeClick={onNodeClick}
+        onNodeContextMenu={onNodeContextMenu}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onPaneClick={onPaneClick}
         connectionMode={ConnectionMode.Loose}
         deleteKeyCode={['Backspace', 'Delete']}
         fitView
       >
+        <Panel position="top-left">
+          <CanvasEditToolbar />
+        </Panel>
         <Panel position="top-right">
           <CanvasActions knowledgeBase={knowledgeBase} />
         </Panel>
@@ -289,6 +306,8 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         <Controls />
         <MiniMap pannable zoomable />
       </ReactFlow>
+
+      {contextMenu && <NodeContextMenu menu={contextMenu} onClose={() => setContextMenu(null)} />}
 
       {commentEditor && (
         <div

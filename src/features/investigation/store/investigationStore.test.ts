@@ -664,6 +664,68 @@ describe('investigationStore', () => {
     expect(useInvestigationStore.getState().future).toHaveLength(0)
   })
 
+  it('links a connection point to the nearest node on that side', () => {
+    const { addNode, linkToNearest } = useInvestigationStore.getState()
+    const from = addNode({
+      nodeType: 'host',
+      definitionId: 'd1',
+      label: 'a',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    const right = addNode({
+      nodeType: 'ip_address',
+      definitionId: 'd2',
+      label: 'b',
+      position: { x: 300, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    expect(linkToNearest(from, 'right')).toBe(true)
+
+    const edge = useInvestigationStore.getState().manualEdges[0]
+    expect(edge.source).toBe(from)
+    expect(edge.target).toBe(right)
+    expect(edge.sourceHandle).toBe('right')
+    expect(edge.targetHandle).toBe('left')
+  })
+
+  it('reports back when there is nothing on that side', () => {
+    const { addNode, linkToNearest } = useInvestigationStore.getState()
+    const from = addNode({
+      nodeType: 'host',
+      definitionId: 'd1',
+      label: 'a',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    expect(linkToNearest(from, 'right')).toBe(false)
+    expect(useInvestigationStore.getState().manualEdges).toHaveLength(0)
+  })
+
+  it('does not stack a second connection between the same pair', () => {
+    const { addNode, linkToNearest } = useInvestigationStore.getState()
+    const from = addNode({
+      nodeType: 'host',
+      definitionId: 'd1',
+      label: 'a',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    addNode({
+      nodeType: 'ip_address',
+      definitionId: 'd2',
+      label: 'b',
+      position: { x: 300, y: 0 },
+      fieldDefinitions: [],
+    })
+
+    expect(linkToNearest(from, 'right')).toBe(true)
+    expect(linkToNearest(from, 'right')).toBe(false)
+    expect(useInvestigationStore.getState().manualEdges).toHaveLength(1)
+  })
+
   it('restyles a connection without touching its other properties', () => {
     const { addManualEdge, updateEdgeStyle } = useInvestigationStore.getState()
     addManualEdge('node-a', 'node-b', 'associated_with', 'note', 'right', 'left')

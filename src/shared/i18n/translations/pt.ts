@@ -23,7 +23,6 @@ export const pt: Record<TranslationKey, string> = {
   'topBar.language': 'Idioma',
   'topBar.menu': 'Menu principal',
   'topBar.tabInvestigation': 'Investigação',
-  'topBar.tabEdit': 'Editar',
   'topBar.undo': 'Desfazer',
   'topBar.redo': 'Refazer',
   'topBar.undoHint': 'Desfaz a última alteração (Ctrl+Z)',
@@ -186,6 +185,8 @@ export const pt: Record<TranslationKey, string> = {
   'hunting.tune': 'Ajustar antes de usar',
   'hunting.copy': 'Copiar',
   'hunting.copied': 'Copiado',
+  'canvas.deleteHint': 'Excluir o elemento selecionado',
+  'canvas.nodeActions': 'Ações do nó',
   'canvas.commentPlaceholder': 'Comentário da conexão...',
   'canvas.save': 'Salvar',
 }

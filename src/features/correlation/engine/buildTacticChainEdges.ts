@@ -1,6 +1,5 @@
 import type { InvestigationEdge, InvestigationNode } from '../../../shared/types/investigation'
 import type { MitreTactic } from '../../../shared/types/knowledge'
-import { translate, type Locale } from '../../../shared/i18n'
 import type { HandleId } from '../../../shared/types/handles'
 
 // Tactics are the only thing laid out side by side, so they chain left to right.
@@ -21,7 +20,6 @@ export function tacticChainEdgeId(fromNodeId: string, toNodeId: string): string 
 export function buildTacticChainEdges(
   nodes: InvestigationNode[],
   tactics: MitreTactic[],
-  locale: Locale,
 ): InvestigationEdge[] {
   const position = new Map(tactics.map((tactic, index) => [tactic.id, index]))
 
@@ -29,7 +27,6 @@ export function buildTacticChainEdges(
     .filter((n) => n.type === 'mitre_tactic' && position.has(n.definitionId))
     .sort((a, b) => position.get(a.definitionId)! - position.get(b.definitionId)!)
 
-  const label = translate(locale, 'relationship.occurred_before')
   const edges: InvestigationEdge[] = []
 
   for (let i = 0; i < tacticNodes.length - 1; i += 1) {
@@ -42,7 +39,8 @@ export function buildTacticChainEdges(
       sourceHandle: SOURCE_HANDLE,
       targetHandle: TARGET_HANDLE,
       type: 'occurred_before',
-      label,
+      // Deliberately unlabelled: a row of tactics each captioned "occurred
+      // before" is noise. The relationship is still there in the edge editor.
       automatic: false,
       explanation: `${from.label} -> ${to.label}`,
     })

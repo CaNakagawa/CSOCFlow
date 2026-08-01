@@ -21,7 +21,6 @@ export const en = {
   'topBar.language': 'Language',
   'topBar.menu': 'Main menu',
   'topBar.tabInvestigation': 'Investigation',
-  'topBar.tabEdit': 'Edit',
   'topBar.undo': 'Undo',
   'topBar.redo': 'Redo',
   'topBar.undoHint': 'Undo the last change (Ctrl+Z)',
@@ -184,6 +183,8 @@ export const en = {
   'hunting.tune': 'Tune before use',
   'hunting.copy': 'Copy',
   'hunting.copied': 'Copied',
+  'canvas.deleteHint': 'Delete the selected element',
+  'canvas.nodeActions': 'Node actions',
   'canvas.commentPlaceholder': 'Connection comment...',
   'canvas.save': 'Save',
 } satisfies Record<string, string>

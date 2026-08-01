@@ -17,6 +17,8 @@ import {
 } from '../../correlation/engine/buildSubtechniqueEdges'
 import { buildTacticChainEdges } from '../../correlation/engine/buildTacticChainEdges'
 import { layoutLikeMitre } from '../../canvas/utils/mitreLayout'
+import { OPPOSITE_HANDLE, findNearestNodeInDirection } from '../../canvas/utils/nearestNode'
+import type { HandleId } from '../../../shared/types/handles'
 import { sortTacticIds } from '../../../shared/utils/tacticOrder'
 import type {
   EvidenceFieldDefinition,
@@ -130,6 +132,7 @@ interface InvestigationState {
   moveNode: (nodeId: string, position: { x: number; y: number }) => void
   removeNode: (nodeId: string) => void
   duplicateNode: (nodeId: string) => string | undefined
+  linkToNearest: (nodeId: string, handle: HandleId) => boolean
   selectNode: (nodeId: string | null) => void
   addManualEdge: (
     source: string,
@@ -360,7 +363,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
 
         const existingEdgeIds = new Set(state.manualEdges.map((e) => e.id))
         const newEdges = [
-          ...buildTacticChainEdges(nodes, knowledgeBase.tactics, locale),
+          ...buildTacticChainEdges(nodes, knowledgeBase.tactics),
           ...buildTechniqueTacticEdges(nodes, knowledgeBase.techniques, locale),
           ...buildSubtechniqueEdges(nodes, locale),
         ].filter((edge) => !existingEdgeIds.has(edge.id))
@@ -430,7 +433,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
 
         const existingEdgeIds = new Set(state.manualEdges.map((e) => e.id))
         const newEdges = [
-          ...buildTacticChainEdges(positioned, knowledgeBase.tactics, locale),
+          ...buildTacticChainEdges(positioned, knowledgeBase.tactics),
           ...buildTechniqueTacticEdges(positioned, knowledgeBase.techniques, locale),
           ...buildSubtechniqueEdges(positioned, locale),
         ].filter((edge) => !existingEdgeIds.has(edge.id))
@@ -597,6 +600,35 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       }
       set((state) => ({ nodes: [...state.nodes, copy], selectedNodeId: copy.id }))
       return copy.id
+    },
+
+    /**
+     * Connects a node's connection point to whatever sits nearest on that side.
+     *
+     * Returns false when there is nothing that way, or when the two are already
+     * connected, so the caller can tell the analyst nothing happened.
+     */
+    linkToNearest: (nodeId, handle) => {
+      const state = get()
+      const target = findNearestNodeInDirection(state.nodes, nodeId, handle)
+      if (!target) return false
+
+      const alreadyLinked = state.manualEdges.some(
+        (e) =>
+          (e.source === nodeId && e.target === target.id) ||
+          (e.source === target.id && e.target === nodeId),
+      )
+      if (alreadyLinked) return false
+
+      get().addManualEdge(
+        nodeId,
+        target.id,
+        'associated_with',
+        undefined,
+        handle,
+        OPPOSITE_HANDLE[handle],
+      )
+      return true
     },
 
     selectNode: (nodeId) =>

@@ -35,7 +35,7 @@ describe('buildTacticChainEdges', () => {
   it('chains tactics in matrix order, not the order they were added', () => {
     const nodes = [node('c', 'TA0040'), node('a', 'TA0043'), node('b', 'TA0001')]
 
-    const edges = buildTacticChainEdges(nodes, tactics, 'en')
+    const edges = buildTacticChainEdges(nodes, tactics)
 
     expect(edges.map((e) => [e.source, e.target])).toEqual([
       ['a', 'b'],
@@ -46,7 +46,7 @@ describe('buildTacticChainEdges', () => {
   it('connects side by side, left to right', () => {
     const nodes = [node('a', 'TA0043'), node('b', 'TA0001')]
 
-    const [edge] = buildTacticChainEdges(nodes, tactics, 'en')
+    const [edge] = buildTacticChainEdges(nodes, tactics)
 
     expect(edge.sourceHandle).toBe('right')
     expect(edge.targetHandle).toBe('left')
@@ -58,23 +58,32 @@ describe('buildTacticChainEdges', () => {
     // only the first and last of the matrix are present
     const nodes = [node('a', 'TA0043'), node('d', 'TA0040')]
 
-    const edges = buildTacticChainEdges(nodes, tactics, 'en')
+    const edges = buildTacticChainEdges(nodes, tactics)
 
     expect(edges).toHaveLength(1)
     expect([edges[0].source, edges[0].target]).toEqual(['a', 'd'])
   })
 
   it('produces nothing for a single tactic', () => {
-    expect(buildTacticChainEdges([node('a', 'TA0043')], tactics, 'en')).toEqual([])
+    expect(buildTacticChainEdges([node('a', 'TA0043')], tactics)).toEqual([])
   })
 
   it('ignores nodes that are not tactics', () => {
     const nodes = [node('t', 'T1110', 'mitre_technique'), node('a', 'TA0043')]
-    expect(buildTacticChainEdges(nodes, tactics, 'en')).toEqual([])
+    expect(buildTacticChainEdges(nodes, tactics)).toEqual([])
   })
 
   it('creates connections the analyst can edit', () => {
     const nodes = [node('a', 'TA0043'), node('b', 'TA0001')]
-    expect(buildTacticChainEdges(nodes, tactics, 'en')[0].automatic).toBe(false)
+    expect(buildTacticChainEdges(nodes, tactics)[0].automatic).toBe(false)
+  })
+
+  it('carries no caption, so a row of tactics is not repeated text', () => {
+    const nodes = [node('a', 'TA0043'), node('b', 'TA0001')]
+    const [edge] = buildTacticChainEdges(nodes, tactics)
+
+    expect(edge.label).toBeUndefined()
+    // the relationship itself survives for the edge editor
+    expect(edge.type).toBe('occurred_before')
   })
 })

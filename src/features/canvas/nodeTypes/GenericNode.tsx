@@ -1,4 +1,6 @@
+import type { MouseEvent as ReactMouseEvent } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
+import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import type { AnalyticStatus, CanvasNodeType, NodeState } from '../../../shared/types/investigation'
 import type { DetectionAnalytic } from '../../../shared/types/knowledge'
 import { NodeAnalytics } from './NodeAnalytics'
@@ -44,7 +46,15 @@ export function GenericNode({ data, selected }: NodeProps) {
     selectedAnalyticId,
   } = data as unknown as GenericNodeData
   const { t } = useI18n()
+  const linkToNearest = useInvestigationStore((s) => s.linkToNearest)
   const stateLabel = t(nodeStateKey(state))
+
+  // Double-clicking a connection point reaches for whatever is nearest on that
+  // side, so a chain can be wired without dragging each link.
+  function handleDoubleClick(event: ReactMouseEvent, id: HandleId) {
+    event.stopPropagation()
+    linkToNearest(nodeId, id)
+  }
 
   return (
     <div
@@ -56,7 +66,13 @@ export function GenericNode({ data, selected }: NodeProps) {
     >
       {/* Both handle types on every side, so a connection can be re-anchored anywhere. */}
       {HANDLE_IDS.map((id) => (
-        <Handle key={`target-${id}`} type="target" position={HANDLE_POSITIONS[id]} id={id} />
+        <Handle
+          key={`target-${id}`}
+          type="target"
+          position={HANDLE_POSITIONS[id]}
+          id={id}
+          onDoubleClick={(event) => handleDoubleClick(event, id)}
+        />
       ))}
 
       <div className="generic-node__header">
@@ -79,7 +95,13 @@ export function GenericNode({ data, selected }: NodeProps) {
       />
 
       {HANDLE_IDS.map((id) => (
-        <Handle key={`source-${id}`} type="source" position={HANDLE_POSITIONS[id]} id={id} />
+        <Handle
+          key={`source-${id}`}
+          type="source"
+          position={HANDLE_POSITIONS[id]}
+          id={id}
+          onDoubleClick={(event) => handleDoubleClick(event, id)}
+        />
       ))}
     </div>
   )
