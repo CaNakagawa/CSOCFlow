@@ -27,6 +27,7 @@ export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMen
   const groupSelection = useInvestigationStore((s) => s.groupSelection)
   const ungroupNode = useInvestigationStore((s) => s.ungroupNode)
   const restack = useInvestigationStore((s) => s.restack)
+  const clearNodeSize = useInvestigationStore((s) => s.clearNodeSize)
   const nodes = useInvestigationStore((s) => s.nodes)
   const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -89,6 +90,11 @@ export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMen
       aria-label={t('canvas.nodeActions')}
     >
       {item('details.duplicate', () => targets.forEach((id) => duplicateNode(id)))}
+
+      {targets.some((id) => {
+        const target = nodes.find((n) => n.id === id)
+        return target?.size && !target.stroke
+      }) && item('canvas.fitToContent', () => clearNodeSize(targets))}
 
       {targets.length > 1 && item('canvas.group', () => groupSelection())}
       {node?.type === 'group' && item('canvas.ungroup', () => ungroupNode(menu.nodeId))}

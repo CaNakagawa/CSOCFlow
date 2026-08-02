@@ -1132,6 +1132,48 @@ describe('investigationStore', () => {
     expect(useInvestigationStore.getState().nodes[0].layer).toBe(-1)
   })
 
+  it('stretches a stroke along with the box it is drawn in', () => {
+    const { addStroke, resizeNode } = useInvestigationStore.getState()
+    addStroke({
+      id: 'stroke-resize',
+      points: [
+        { x: 0, y: 0 },
+        { x: 20, y: 10 },
+      ],
+      color: '#fff',
+      width: 2,
+    })
+    const drawing = useInvestigationStore.getState().nodes.find((n) => n.type === 'drawing')!
+    const original = drawing.size!
+
+    resizeNode(drawing.id, { width: original.width * 2, height: original.height * 2 })
+
+    const resized = useInvestigationStore.getState().nodes.find((n) => n.type === 'drawing')!
+    expect(resized.stroke!.points[1]).toEqual({
+      x: drawing.stroke!.points[1].x * 2,
+      y: drawing.stroke!.points[1].y * 2,
+    })
+  })
+
+  it('hands a resized element back to fitting its contents', () => {
+    const { addFreeNode, resizeNode, clearNodeSize } = useInvestigationStore.getState()
+    const id = addFreeNode({ nodeType: 'text', label: 'a', position: { x: 0, y: 0 } })
+    resizeNode(id, { width: 300, height: 200 })
+    expect(useInvestigationStore.getState().nodes[0].size).toEqual({ width: 300, height: 200 })
+
+    clearNodeSize([id])
+    expect(useInvestigationStore.getState().nodes[0].size).toBeUndefined()
+  })
+
+  it('leaves a drawing sized, since it has no contents to fit', () => {
+    const { addStroke, clearNodeSize } = useInvestigationStore.getState()
+    addStroke({ id: 's', points: [{ x: 0, y: 0 }], color: '#fff', width: 2 })
+    const drawing = useInvestigationStore.getState().nodes[0]
+
+    clearNodeSize([drawing.id])
+    expect(useInvestigationStore.getState().nodes[0].size).toBeDefined()
+  })
+
   it('serializes the current state into an Investigation document', () => {
     const { addNode, toDocument } = useInvestigationStore.getState()
     addNode({

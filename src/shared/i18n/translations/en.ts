@@ -251,6 +251,7 @@ export const en = {
   'canvas.sendToBack': 'Send to back',
   'canvas.bringForward': 'Bring forward',
   'canvas.sendBackward': 'Send backward',
+  'canvas.fitToContent': 'Fit to content',
   'canvas.deleteHint': 'Delete the selected element',
   'canvas.nodeActions': 'Node actions',
   'canvas.commentPlaceholder': 'Connection comment...',

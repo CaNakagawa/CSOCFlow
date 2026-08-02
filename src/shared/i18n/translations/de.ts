@@ -253,6 +253,7 @@ export const de: Record<TranslationKey, string> = {
   'canvas.sendToBack': 'In den Hintergrund',
   'canvas.bringForward': 'Eine Ebene nach vorne',
   'canvas.sendBackward': 'Eine Ebene nach hinten',
+  'canvas.fitToContent': 'An Inhalt anpassen',
   'canvas.deleteHint': 'Ausgewähltes Element löschen',
   'canvas.nodeActions': 'Knotenaktionen',
   'canvas.commentPlaceholder': 'Kommentar zur Verbindung...',

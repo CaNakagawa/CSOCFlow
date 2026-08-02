@@ -253,6 +253,7 @@ export const pt: Record<TranslationKey, string> = {
   'canvas.sendToBack': 'Enviar para trás',
   'canvas.bringForward': 'Avançar uma camada',
   'canvas.sendBackward': 'Recuar uma camada',
+  'canvas.fitToContent': 'Ajustar ao conteúdo',
   'canvas.deleteHint': 'Excluir o elemento selecionado',
   'canvas.nodeActions': 'Ações do nó',
   'canvas.commentPlaceholder': 'Comentário da conexão...',

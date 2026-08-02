@@ -38,3 +38,15 @@
 .text-node .text-node__body:not(:has(*)):empty {
   color: var(--muted-fg);
 }
+
+.text-node--sized {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.text-node--sized .text-node__input {
+  width: 100%;
+  height: 100%;
+  resize: none;
+}

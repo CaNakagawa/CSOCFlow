@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
-import { Handle, Position, type NodeProps } from '@xyflow/react'
+import { Handle, NodeResizer, Position, type NodeProps } from '@xyflow/react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import type { AnalyticStatus, CanvasNodeType, NodeState } from '../../../shared/types/investigation'
 import type { DetectionAnalytic } from '../../../shared/types/knowledge'
@@ -30,7 +30,13 @@ export interface GenericNodeData extends Record<string, unknown> {
   presentSubtechniques: number
   onExpandSubtechniques?: (nodeId: string) => void
   onCollapseSubtechniques?: (nodeId: string) => void
+  /** Set once the analyst has resized this element; zero means fit the content. */
+  width: number
+  height: number
 }
+
+/** Small enough to still read the label, large enough to grab a corner. */
+const MIN_SIZE = { width: 150, height: 70 }
 
 const HANDLE_POSITIONS: Record<HandleId, Position> = {
   top: Position.Top,
@@ -54,10 +60,15 @@ export function GenericNode({ data, selected }: NodeProps) {
     presentSubtechniques,
     onExpandSubtechniques,
     onCollapseSubtechniques,
+    width,
+    height,
   } = data as unknown as GenericNodeData
   const { t } = useI18n()
   const linkToNearest = useInvestigationStore((s) => s.linkToNearest)
   const updateNodeLabel = useInvestigationStore((s) => s.updateNodeLabel)
+  const resizeNode = useInvestigationStore((s) => s.resizeNode)
+  // Until it is resized the card sizes itself to what it holds.
+  const sized = width > 0 && height > 0
   const stateLabel = t(nodeStateKey(state))
   // A node added blank from the canvas menu starts out waiting for its name.
   const [editingLabel, setEditingLabel] = useState(label.length === 0)
@@ -79,9 +90,19 @@ export function GenericNode({ data, selected }: NodeProps) {
       className={
         `generic-node generic-node--${state}` +
         (scaffold ? ' generic-node--scaffold' : '') +
-        (selected ? ' generic-node--selected' : '')
+        (selected ? ' generic-node--selected' : '') +
+        (sized ? ' generic-node--sized' : '')
       }
     >
+      <NodeResizer
+        isVisible={selected}
+        minWidth={MIN_SIZE.width}
+        minHeight={MIN_SIZE.height}
+        onResizeEnd={(_event, params) =>
+          resizeNode(nodeId, { width: params.width, height: params.height })
+        }
+      />
+
       {/* Both handle types on every side, so a connection can be re-anchored anywhere. */}
       {HANDLE_IDS.map((id) => (
         <Handle

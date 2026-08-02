@@ -177,6 +177,8 @@ interface InvestigationState {
   }) => string
   updateNodeLabel: (nodeId: string, label: string) => void
   resizeNode: (nodeId: string, size: { width: number; height: number }) => void
+  /** Hands an element back to sizing itself around its contents. */
+  clearNodeSize: (nodeIds: string[]) => void
   setSelectedNodes: (nodeIds: string[]) => void
   selectAllNodes: () => void
   copySelection: () => number
@@ -811,9 +813,40 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
 
     resizeNode: (nodeId, size) => {
       get().pushHistory(`resize:${nodeId}`)
+      const now = new Date().toISOString()
+      set((state) => ({
+        nodes: state.nodes.map((node) => {
+          if (node.id !== nodeId) return node
+          if (!node.stroke || !node.size) return { ...node, size, updatedAt: now }
+
+          // A stroke is its drawing: stretching the box has to stretch the line.
+          const scaleX = size.width / node.size.width
+          const scaleY = size.height / node.size.height
+          return {
+            ...node,
+            size,
+            stroke: {
+              ...node.stroke,
+              points: node.stroke.points.map((p) => ({ x: p.x * scaleX, y: p.y * scaleY })),
+            },
+            updatedAt: now,
+          }
+        }),
+      }))
+    },
+
+    clearNodeSize: (nodeIds) => {
+      const targets = new Set(nodeIds)
+      // A drawing has no content to fit itself around, so its box stays.
+      const resizable = get().nodes.filter((n) => targets.has(n.id) && n.size && !n.stroke)
+      if (resizable.length === 0) return
+
+      get().pushHistory()
+      const affected = new Set(resizable.map((n) => n.id))
+      const now = new Date().toISOString()
       set((state) => ({
         nodes: state.nodes.map((n) =>
-          n.id === nodeId ? { ...n, size, updatedAt: new Date().toISOString() } : n,
+          affected.has(n.id) ? { ...n, size: undefined, updatedAt: now } : n,
         ),
       }))
     },

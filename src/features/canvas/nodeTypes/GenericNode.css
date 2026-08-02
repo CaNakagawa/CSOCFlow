@@ -195,3 +195,13 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+
+/*
+ * A resized card fills the box it was given and keeps its contents inside;
+ * without a size it goes on fitting itself to what it holds.
+ */
+.generic-node--sized {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
