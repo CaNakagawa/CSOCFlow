@@ -1010,13 +1010,28 @@ describe('investigationStore', () => {
     expect(copy.position).not.toEqual({ x: 10, y: 10 })
   })
 
-  it('undoes a freehand stroke like any other change', () => {
+  it('turns a freehand stroke into an element that undoes like any other', () => {
     const { addStroke, undo } = useInvestigationStore.getState()
-    addStroke({ id: 'stroke-1', points: [{ x: 0, y: 0 }], color: '#fff', width: 3 })
+    addStroke({
+      id: 'stroke-1',
+      points: [
+        { x: 10, y: 20 },
+        { x: 40, y: 60 },
+      ],
+      color: '#fff',
+      width: 3,
+    })
 
-    expect(useInvestigationStore.getState().drawings).toHaveLength(1)
+    const drawing = useInvestigationStore.getState().nodes.find((n) => n.type === 'drawing')
+    expect(drawing).toBeDefined()
+    // The box is the stroke's own bounds, so the points are relative to it.
+    expect(drawing!.position).toEqual({ x: 7, y: 17 })
+    expect(drawing!.stroke!.points[0]).toEqual({ x: 3, y: 3 })
+
     undo()
-    expect(useInvestigationStore.getState().drawings).toHaveLength(0)
+    expect(useInvestigationStore.getState().nodes.filter((n) => n.type === 'drawing')).toHaveLength(
+      0,
+    )
   })
 
   it('adds a free node the analyst names themselves', () => {
@@ -1027,6 +1042,65 @@ describe('investigationStore', () => {
     const node = useInvestigationStore.getState().nodes.find((n) => n.id === id)
     expect(node!.type).toBe('text')
     expect(node!.label).toBe('Working theory')
+  })
+
+  it('groups the selection and carries its members with it', () => {
+    const { addFreeNode, setSelectedNodes, groupSelection } = useInvestigationStore.getState()
+    const a = addFreeNode({ nodeType: 'text', label: 'a', position: { x: 100, y: 100 } })
+    const b = addFreeNode({ nodeType: 'text', label: 'b', position: { x: 400, y: 260 } })
+    setSelectedNodes([a, b])
+
+    const groupId = groupSelection()
+
+    const state = useInvestigationStore.getState()
+    const group = state.nodes.find((n) => n.id === groupId)!
+    const memberA = state.nodes.find((n) => n.id === a)!
+    expect(group.type).toBe('group')
+    // The group sits at the top-left of what it holds, and members go relative.
+    expect(group.position.x).toBeLessThan(100)
+    expect(memberA.parentId).toBe(groupId)
+    expect(memberA.position).toEqual({
+      x: 100 - group.position.x,
+      y: 100 - group.position.y,
+    })
+  })
+
+  it('refuses to group a single element', () => {
+    const { addFreeNode, setSelectedNodes, groupSelection } = useInvestigationStore.getState()
+    const only = addFreeNode({ nodeType: 'text', label: 'a', position: { x: 0, y: 0 } })
+    setSelectedNodes([only])
+
+    expect(groupSelection()).toBeUndefined()
+  })
+
+  it('ungroups back to absolute positions', () => {
+    const { addFreeNode, setSelectedNodes, groupSelection, ungroupNode } =
+      useInvestigationStore.getState()
+    const a = addFreeNode({ nodeType: 'text', label: 'a', position: { x: 100, y: 100 } })
+    const b = addFreeNode({ nodeType: 'text', label: 'b', position: { x: 400, y: 260 } })
+    setSelectedNodes([a, b])
+    const groupId = groupSelection()!
+
+    expect(ungroupNode(groupId)).toBe(2)
+
+    const state = useInvestigationStore.getState()
+    expect(state.nodes.find((n) => n.id === groupId)).toBeUndefined()
+    expect(state.nodes.find((n) => n.id === a)!.position).toEqual({ x: 100, y: 100 })
+    expect(state.nodes.find((n) => n.id === a)!.parentId).toBeUndefined()
+  })
+
+  it('adds a pasted picture as its own element', () => {
+    const { addImageNode } = useInvestigationStore.getState()
+    const id = addImageNode({
+      src: 'data:image/png;base64,AAA',
+      position: { x: 20, y: 30 },
+      size: { width: 320, height: 200 },
+    })
+
+    const node = useInvestigationStore.getState().nodes.find((n) => n.id === id)!
+    expect(node.type).toBe('image')
+    expect(node.imageSrc).toBe('data:image/png;base64,AAA')
+    expect(node.size).toEqual({ width: 320, height: 200 })
   })
 
   it('serializes the current state into an Investigation document', () => {

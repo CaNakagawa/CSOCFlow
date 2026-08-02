@@ -1,25 +1,19 @@
-import { ExportMenu } from './ExportMenu'
 import './CanvasActions.css'
 
 interface CanvasActionsProps {
-  /** Result of the last canvas-wide action, shown under the buttons. */
+  /** Result of the last canvas-wide action. */
   feedback: string | null
-  onStatus: (message: string) => void
 }
 
-/** Canvas-wide actions that are not editing tools: exporting, and what it said. */
-export function CanvasActions({ feedback, onStatus }: CanvasActionsProps) {
+/** What the last canvas-wide action reported, shown out of the way. */
+export function CanvasActions({ feedback }: CanvasActionsProps) {
+  if (!feedback) return null
+
   return (
     <div className="canvas-actions">
-      <div className="canvas-actions__row">
-        <ExportMenu onStatus={onStatus} />
-      </div>
-
-      {feedback && (
-        <p className="canvas-actions__feedback" role="status">
-          {feedback}
-        </p>
-      )}
+      <p className="canvas-actions__feedback" role="status">
+        {feedback}
+      </p>
     </div>
   )
 }

@@ -1,54 +1,18 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useReactFlow } from '@xyflow/react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import { WHITEBOARD_DEFAULT_SIZE } from '../utils/canvasDefaults'
+import { TOOL_ICONS } from './toolIcons'
+import { ShareMenu } from './ShareMenu'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
+import type { ThemePreference } from '../../../shared/theme/theme'
 import { useI18n, type TranslationKey } from '../../../shared/i18n'
 import './CanvasToolRail.css'
 
-const ICONS: Record<string, ReactNode> = {
-  tool: (
-    <path d="M10.6 2.6a3.4 3.4 0 0 0-4.4 4.2L2.6 10.4a1.4 1.4 0 0 0 2 2l3.6-3.6a3.4 3.4 0 0 0 4.2-4.4l-2 2-1.8-1.8Z" />
-  ),
-  add: <path d="M8 3.4v9.2M3.4 8h9.2" />,
-  undo: <path d="M3.4 7.6h6.2a3.4 3.4 0 1 1 0 6.8H6.4M3.4 7.6 6.6 4.4M3.4 7.6l3.2 3.2" />,
-  redo: <path d="M12.6 7.6H6.4a3.4 3.4 0 1 0 0 6.8h3.2M12.6 7.6 9.4 4.4M12.6 7.6l-3.2 3.2" />,
-  link: (
-    <>
-      <path d="M6.6 9.4a2.6 2.6 0 0 0 3.9.3l2-2a2.6 2.6 0 0 0-3.7-3.7l-1.1 1.1" />
-      <path d="M9.4 6.6a2.6 2.6 0 0 0-3.9-.3l-2 2a2.6 2.6 0 0 0 3.7 3.7l1.1-1.1" />
-    </>
-  ),
-  matrix: (
-    <>
-      <rect x="1.8" y="2.6" width="3.4" height="3" rx="0.6" />
-      <rect x="6.3" y="2.6" width="3.4" height="3" rx="0.6" />
-      <rect x="10.8" y="2.6" width="3.4" height="3" rx="0.6" />
-      <rect x="1.8" y="7.2" width="3.4" height="3" rx="0.6" />
-      <rect x="6.3" y="7.2" width="3.4" height="3" rx="0.6" />
-    </>
-  ),
-  text: <path d="M3.4 3.6h9.2M8 3.6v8.8M6.2 12.4h3.6" />,
-  whiteboard: (
-    <>
-      <rect x="2" y="3.2" width="12" height="8.4" rx="1.2" />
-      <path d="M4.6 13.4 8 11.6l3.4 1.8" />
-    </>
-  ),
-  draw: <path d="M3 13h2.2l6.4-6.4a1.55 1.55 0 0 0-2.2-2.2L3 10.8V13Z" />,
-  duplicate: (
-    <>
-      <rect x="5.6" y="5.6" width="8" height="8" rx="1.2" />
-      <path d="M10.4 5.6V3.6a1.2 1.2 0 0 0-1.2-1.2H3.6a1.2 1.2 0 0 0-1.2 1.2v5.6a1.2 1.2 0 0 0 1.2 1.2h2" />
-    </>
-  ),
-  delete: (
-    <path d="M2.8 4.4h10.4M6.4 4.4V2.9h3.2v1.5M4.2 4.4l.55 8.15a1.1 1.1 0 0 0 1.1 1.05h4.3a1.1 1.1 0 0 0 1.1-1.05L11.8 4.4" />
-  ),
-  erase: <path d="M3.2 12.8h9.6M4.6 10.6l5-5 2.8 2.8-5 5H4.6v-2.8Z" />,
-  present: (
-    <path d="M2.6 5.6V3.2a.6.6 0 0 1 .6-.6h2.4M13.4 5.6V3.2a.6.6 0 0 0-.6-.6h-2.4M2.6 10.4v2.4a.6.6 0 0 0 .6.6h2.4M13.4 10.4v2.4a.6.6 0 0 1-.6.6h-2.4" />
-  ),
+const THEME_LABEL_KEYS: Record<ThemePreference, TranslationKey> = {
+  system: 'theme.system',
+  light: 'theme.light',
+  dark: 'theme.dark',
 }
 
 interface ToolProps {
@@ -80,7 +44,7 @@ function Tool({ icon, labelKey, disabled, active, onClick }: ToolProps) {
         strokeLinejoin="round"
         aria-hidden="true"
       >
-        {ICONS[icon]}
+        {TOOL_ICONS[icon]}
       </svg>
     </button>
   )
@@ -89,27 +53,39 @@ function Tool({ icon, labelKey, disabled, active, onClick }: ToolProps) {
 interface CanvasToolRailProps {
   knowledgeBase: KnowledgeBase | null
   drawing: boolean
-  onToggleDrawing: () => void
+  onSetDrawing: (drawing: boolean) => void
   presenting: boolean
   onTogglePresentation: () => void
   onStatus: (message: string) => void
+  theme: ThemePreference
+  onCycleTheme: () => void
+  onImportFile: (file: File) => void
+  onSaveLocally: () => void
+  onLoadDemo: () => void
 }
 
 /**
- * The canvas tools, folded behind a single button in the corner so the drawing
- * keeps the space.
+ * Everything the canvas can do, folded behind one button in the corner: the
+ * pointer modes, the editing tools, the file actions and sharing.
  */
 export function CanvasToolRail({
   knowledgeBase,
   drawing,
-  onToggleDrawing,
+  onSetDrawing,
   presenting,
   onTogglePresentation,
   onStatus,
+  theme,
+  onCycleTheme,
+  onImportFile,
+  onSaveLocally,
+  onLoadDemo,
 }: CanvasToolRailProps) {
   const { t, locale } = useI18n()
   const { screenToFlowPosition } = useReactFlow()
   const [open, setOpen] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
 
   const undo = useInvestigationStore((s) => s.undo)
   const redo = useInvestigationStore((s) => s.redo)
@@ -119,10 +95,23 @@ export function CanvasToolRail({
   const runAutoLink = useInvestigationStore((s) => s.runAutoLink)
   const organizeLikeMitre = useInvestigationStore((s) => s.organizeLikeMitre)
   const clearDrawings = useInvestigationStore((s) => s.clearDrawings)
-  const hasDrawings = useInvestigationStore((s) => s.drawings.length > 0)
+  const hasDrawings = useInvestigationStore((s) => s.nodes.some((n) => n.type === 'drawing'))
   const duplicateNode = useInvestigationStore((s) => s.duplicateNode)
   const removeNode = useInvestigationStore((s) => s.removeNode)
   const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
+  const groupSelection = useInvestigationStore((s) => s.groupSelection)
+  const newInvestigation = useInvestigationStore((s) => s.newInvestigation)
+  const clearCanvas = useInvestigationStore((s) => s.clearCanvas)
+
+  // The open rail covers part of the canvas, so clicking away puts it back.
+  useEffect(() => {
+    if (!open) return
+    function handlePointerDown(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as globalThis.Node)) setOpen(false)
+    }
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [open])
 
   /** Drop new things where the analyst is looking, not at the origin. */
   function centreOfView() {
@@ -130,7 +119,7 @@ export function CanvasToolRail({
   }
 
   return (
-    <div className={`tool-rail${open ? ' tool-rail--open' : ''}`}>
+    <div className={`tool-rail${open ? ' tool-rail--open' : ''}`} ref={rootRef}>
       <button
         type="button"
         className="tool-rail__handle"
@@ -148,12 +137,34 @@ export function CanvasToolRail({
           strokeLinejoin="round"
           aria-hidden="true"
         >
-          {ICONS.tool}
+          {TOOL_ICONS.tool}
         </svg>
       </button>
 
       {open && (
         <div className="tool-rail__tools" role="toolbar" aria-label={t('canvas.tools')}>
+          {/* What the pointer does. */}
+          <Tool
+            icon="select"
+            labelKey="canvas.select"
+            active={!drawing}
+            onClick={() => onSetDrawing(false)}
+          />
+          <Tool
+            icon="draw"
+            labelKey="canvas.draw"
+            active={drawing}
+            onClick={() => onSetDrawing(true)}
+          />
+          <Tool
+            icon="erase"
+            labelKey="canvas.clearDrawings"
+            disabled={!hasDrawings}
+            onClick={clearDrawings}
+          />
+
+          <div className="tool-rail__divider" aria-hidden="true" />
+
           <Tool
             icon="add"
             labelKey="canvas.add"
@@ -183,6 +194,12 @@ export function CanvasToolRail({
 
           <Tool icon="undo" labelKey="topBar.undo" disabled={!canUndo} onClick={undo} />
           <Tool icon="redo" labelKey="topBar.redo" disabled={!canRedo} onClick={redo} />
+          <Tool
+            icon="group"
+            labelKey="canvas.group"
+            disabled={selectedNodeIds.length < 2}
+            onClick={() => groupSelection()}
+          />
           <Tool
             icon="duplicate"
             labelKey="details.duplicate"
@@ -225,21 +242,40 @@ export function CanvasToolRail({
 
           <div className="tool-rail__divider" aria-hidden="true" />
 
-          <Tool icon="draw" labelKey="canvas.draw" active={drawing} onClick={onToggleDrawing} />
+          <Tool icon="new" labelKey="topBar.newInvestigation" onClick={() => newInvestigation()} />
+          <Tool icon="demo" labelKey="topBar.loadDemo" onClick={onLoadDemo} />
+          <Tool icon="save" labelKey="topBar.save" onClick={onSaveLocally} />
           <Tool
-            icon="erase"
-            labelKey="canvas.clearDrawings"
-            disabled={!hasDrawings}
-            onClick={clearDrawings}
+            icon="import"
+            labelKey="topBar.import"
+            onClick={() => fileInputRef.current?.click()}
           />
+          <ShareMenu onStatus={onStatus} />
+          <Tool icon="erase" labelKey="topBar.clear" onClick={() => clearCanvas()} />
+
+          <div className="tool-rail__divider" aria-hidden="true" />
+
+          <Tool icon="theme" labelKey={THEME_LABEL_KEYS[theme]} onClick={onCycleTheme} />
           <Tool
-            icon="present"
+            icon="fullscreen"
             labelKey="canvas.presentation"
             active={presenting}
             onClick={onTogglePresentation}
           />
         </div>
       )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/json"
+        hidden
+        onChange={(event) => {
+          const file = event.target.files?.[0]
+          if (file) onImportFile(file)
+          event.target.value = ''
+        }}
+      />
     </div>
   )
 }

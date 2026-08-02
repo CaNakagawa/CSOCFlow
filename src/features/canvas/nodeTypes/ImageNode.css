@@ -1,0 +1,19 @@
+.image-node {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: var(--input-bg);
+}
+
+.image-node--selected {
+  border-color: var(--accent);
+}
+
+.image-node img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+}

@@ -37,3 +37,40 @@
 .app-shell--presenting .panel-resizer {
   display: none;
 }
+
+/*
+ * Narrow screens: the panels stop competing with the canvas for width and
+ * slide over it instead, still opened and closed by their own arrows.
+ */
+@media (max-width: 860px) {
+  .app-body {
+    position: relative;
+  }
+
+  .node-library:not(.node-library--collapsed),
+  .right-panel:not(.right-panel--collapsed) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 20;
+    width: min(88vw, 380px);
+    box-shadow: var(--shadow-popover);
+  }
+
+  .node-library:not(.node-library--collapsed) {
+    left: 0;
+  }
+
+  .right-panel:not(.right-panel--collapsed) {
+    right: 0;
+  }
+
+  /* Dragging a 6px strip is a mouse gesture; on touch the arrows do the job. */
+  .panel-resizer {
+    display: none;
+  }
+
+  .top-bar__title {
+    min-width: 0;
+  }
+}

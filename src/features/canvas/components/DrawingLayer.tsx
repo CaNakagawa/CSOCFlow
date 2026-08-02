@@ -11,16 +11,11 @@ import './DrawingLayer.css'
 const MIN_STEP = 2
 
 /**
- * Renders the freehand strokes inside the flow viewport, so they pan and zoom
- * with the canvas and land in an exported image.
- *
- * Everything is styled with presentation attributes rather than CSS: exporting
- * clones the DOM without the stylesheet once it crosses into an `<svg>`.
+ * The stroke as it is being drawn, before it becomes an element of its own.
+ * Painted with presentation attributes so an export keeps it.
  */
-export function DrawingStrokes({ pending }: { pending: DrawingStroke | null }) {
-  const drawings = useInvestigationStore((s) => s.drawings)
-  const all = pending ? [...drawings, pending] : drawings
-  if (all.length === 0) return null
+function PendingStroke({ stroke }: { stroke: DrawingStroke | null }) {
+  if (!stroke) return null
 
   return (
     <ViewportPortal>
@@ -29,17 +24,14 @@ export function DrawingStrokes({ pending }: { pending: DrawingStroke | null }) {
         width="1"
         height="1"
       >
-        {all.map((stroke) => (
-          <path
-            key={stroke.id}
-            d={strokePath(stroke.points)}
-            fill="none"
-            stroke={stroke.color}
-            strokeWidth={stroke.width}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        ))}
+        <path
+          d={strokePath(stroke.points)}
+          fill="none"
+          stroke={stroke.color}
+          strokeWidth={stroke.width}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     </ViewportPortal>
   )
@@ -111,7 +103,7 @@ export function DrawingSurface({ color, width }: DrawingSurfaceProps) {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       />
-      <DrawingStrokes pending={pending} />
+      <PendingStroke stroke={pending} />
     </>
   )
 }

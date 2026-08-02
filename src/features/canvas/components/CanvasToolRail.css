@@ -83,3 +83,16 @@
   margin: 3px 0;
   background: var(--panel-border);
 }
+
+/* Touch targets need more room than a mouse pointer does. */
+@media (pointer: coarse) {
+  .tool-rail__handle {
+    width: 44px;
+    height: 44px;
+  }
+
+  .tool-rail__button {
+    width: 38px;
+    height: 38px;
+  }
+}

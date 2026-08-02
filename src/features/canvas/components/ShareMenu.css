@@ -1,13 +1,14 @@
-.export-menu {
+.share-menu {
   position: relative;
 }
 
-.export-menu__list {
+/* Opens to the side: the rail is a narrow column against the canvas edge. */
+.share-menu__list {
   position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
+  left: calc(100% + 6px);
+  top: 0;
   z-index: 10;
-  min-width: 172px;
+  min-width: 168px;
   display: flex;
   flex-direction: column;
   padding: 4px;
@@ -17,7 +18,7 @@
   box-shadow: var(--shadow-popover);
 }
 
-.export-menu__list button {
+.share-menu__list button {
   font: inherit;
   font-size: 12px;
   text-align: left;
@@ -30,7 +31,7 @@
   white-space: nowrap;
 }
 
-.export-menu__list button:hover {
+.share-menu__list button:hover {
   background: var(--hover-bg);
   color: var(--accent);
 }

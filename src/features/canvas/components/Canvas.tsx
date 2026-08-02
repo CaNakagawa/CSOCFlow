@@ -28,9 +28,12 @@ import { CanvasActions } from './CanvasActions'
 import { NodeContextMenu, type ContextMenuState } from './NodeContextMenu'
 import { PaneContextMenu, type PaneMenuState } from './PaneContextMenu'
 import { CanvasToolRail } from './CanvasToolRail'
-import { DrawingStrokes, DrawingSurface } from './DrawingLayer'
+import { DrawingSurface } from './DrawingLayer'
 import { TextNode } from '../nodeTypes/TextNode'
 import { WhiteboardNode } from '../nodeTypes/WhiteboardNode'
+import { DrawingNode } from '../nodeTypes/DrawingNode'
+import { ImageNode } from '../nodeTypes/ImageNode'
+import { GroupNode } from '../nodeTypes/GroupNode'
 import type { LibraryItem } from '../types/libraryItem'
 import { LiveScoreBadge } from './LiveScoreBadge'
 import { buildEdgeLabelStyle, readCssToken } from '../utils/edgeLabelStyle'
@@ -38,10 +41,24 @@ import { relationshipKey } from '../utils/nodeVisuals'
 import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
 import { useI18n } from '../../../shared/i18n'
 import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/investigation'
+import type { ThemePreference } from '../../../shared/theme/theme'
 import type { DetectionAnalytic, KnowledgeBase } from '../../../shared/types/knowledge'
 import './Canvas.css'
 
-const nodeTypes = { generic: GenericNode, text: TextNode, whiteboard: WhiteboardNode }
+const nodeTypes = {
+  generic: GenericNode,
+  text: TextNode,
+  whiteboard: WhiteboardNode,
+  drawing: DrawingNode,
+  image: ImageNode,
+  group: GroupNode,
+}
+
+/** Kinds that render as themselves rather than as an evidence card. */
+const OWN_NODE_TYPES = new Set(['text', 'whiteboard', 'drawing', 'image', 'group'])
+
+/** Kinds that are scenery: they sit behind the evidence rather than over it. */
+const BACKDROP_TYPES = new Set(['whiteboard', 'group'])
 
 /** How far the pointer may travel on a right-click before it counts as a pan. */
 const CONTEXT_MENU_SLOP = 4
@@ -49,9 +66,11 @@ const CONTEXT_MENU_SLOP = 4
 /** Colour and thickness of the freehand pen. */
 const PEN = { color: '#f59e0b', width: 3 }
 
+/** Longest side a pasted picture starts at, in canvas units. */
+const MAX_PASTED_IMAGE = 640
+
 function flowNodeType(type: string): string {
-  if (type === 'text' || type === 'whiteboard') return type
-  return 'generic'
+  return OWN_NODE_TYPES.has(type) ? type : 'generic'
 }
 
 const RELATIONSHIP_TYPES: RelationshipType[] = [
@@ -104,6 +123,11 @@ interface CanvasProps {
   libraryItems: LibraryItem[]
   presenting: boolean
   onTogglePresentation: () => void
+  theme: ThemePreference
+  onCycleTheme: () => void
+  onImportFile: (file: File) => void
+  onSaveLocally: () => void
+  onLoadDemo: () => void
 }
 
 /** The flow helpers are only available under a provider, so the canvas sits inside one. */
@@ -120,6 +144,11 @@ function CanvasSurface({
   libraryItems,
   presenting,
   onTogglePresentation,
+  theme,
+  onCycleTheme,
+  onImportFile,
+  onSaveLocally,
+  onLoadDemo,
 }: CanvasProps) {
   const { t, locale } = useI18n()
   const { screenToFlowPosition } = useReactFlow()
@@ -143,6 +172,7 @@ function CanvasSurface({
   const pushHistory = useInvestigationStore((s) => s.pushHistory)
   const expandSubtechniques = useInvestigationStore((s) => s.expandSubtechniques)
   const collapseSubtechniques = useInvestigationStore((s) => s.collapseSubtechniques)
+  const addImageNode = useInvestigationStore((s) => s.addImageNode)
   const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
   const setSelectedNodes = useInvestigationStore((s) => s.setSelectedNodes)
 
@@ -187,6 +217,64 @@ function CanvasSurface({
   const definitionsOnCanvas = useMemo(() => new Set(nodes.map((n) => n.definitionId)), [nodes])
   const selectedIds = useMemo(() => new Set(selectedNodeIds), [selectedNodeIds])
 
+  /*
+   * A picture in the clipboard becomes an element; anything else falls through
+   * to the node clipboard handled by the keyboard shortcuts.
+   */
+  useEffect(() => {
+    async function handlePaste(event: ClipboardEvent) {
+      const target = event.target
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable || /INPUT|TEXTAREA/.test(target.tagName))
+      ) {
+        return
+      }
+      const file = [...(event.clipboardData?.items ?? [])]
+        .filter((item) => item.type.startsWith('image/'))
+        .map((item) => item.getAsFile())
+        .find((item): item is File => item !== null)
+      if (!file) return
+
+      event.preventDefault()
+      const src = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result))
+        reader.onerror = () => reject(reader.error)
+        reader.readAsDataURL(file)
+      })
+      const size = await new Promise<{ width: number; height: number }>((resolve) => {
+        const image = new Image()
+        image.onload = () => {
+          // Big screenshots would swamp the canvas, so cap the long side.
+          const scale = Math.min(1, MAX_PASTED_IMAGE / Math.max(image.width, image.height))
+          resolve({ width: image.width * scale, height: image.height * scale })
+        }
+        image.onerror = () => resolve({ width: 320, height: 200 })
+        image.src = src
+      })
+
+      addImageNode({
+        src,
+        position: screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }),
+        size,
+      })
+    }
+
+    window.addEventListener('paste', handlePaste)
+    return () => window.removeEventListener('paste', handlePaste)
+  }, [addImageNode, screenToFlowPosition])
+
+  // Escape leaves drawing mode, whatever else has focus.
+  useEffect(() => {
+    if (!drawing) return
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setDrawing(false)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [drawing])
+
   useEffect(() => {
     if (!feedback) return
     const timer = window.setTimeout(() => setFeedback(null), 5000)
@@ -209,10 +297,11 @@ function CanvasSurface({
         position: n.position,
         selected: selectedIds.has(n.id),
         measured: nodeSizes[n.id],
-        // The whiteboard is a backdrop: it must not cover the evidence on it.
-        zIndex: n.type === 'whiteboard' ? -1 : 0,
-        width: n.type === 'whiteboard' ? n.size?.width : undefined,
-        height: n.type === 'whiteboard' ? n.size?.height : undefined,
+        parentId: n.parentId,
+        // A backdrop must not cover what sits on it.
+        zIndex: BACKDROP_TYPES.has(n.type) ? -1 : 0,
+        width: n.size?.width,
+        height: n.size?.height,
         data: {
           label: n.label,
           nodeType: n.type,
@@ -240,6 +329,13 @@ function CanvasSurface({
           onCollapseSubtechniques: collapseSubtechniques,
           width: n.size?.width ?? 0,
           height: n.size?.height ?? 0,
+          // Drawings and images carry their own payload.
+          points: n.stroke?.points ?? [],
+          color: n.stroke?.color ?? '',
+          strokeWidth: n.stroke?.width ?? 1,
+          boxWidth: n.size?.width ?? 0,
+          boxHeight: n.size?.height ?? 0,
+          src: n.imageSrc ?? '',
         },
       })),
     [
@@ -474,7 +570,7 @@ function CanvasSurface({
         onEdgeDoubleClick={onEdgeDoubleClick}
         onPaneClick={onPaneClick}
         onSelectionChange={onSelectionChange}
-        colorMode="system"
+        colorMode={theme}
         /* Selecting must not lift the whiteboard over the evidence sitting on it. */
         elevateNodesOnSelect={false}
         connectionMode={ConnectionMode.Loose}
@@ -490,26 +586,27 @@ function CanvasSurface({
           <CanvasToolRail
             knowledgeBase={knowledgeBase}
             drawing={drawing}
-            onToggleDrawing={() => setDrawing((value) => !value)}
+            onSetDrawing={setDrawing}
             presenting={presenting}
             onTogglePresentation={onTogglePresentation}
             onStatus={setFeedback}
+            theme={theme}
+            onCycleTheme={onCycleTheme}
+            onImportFile={onImportFile}
+            onSaveLocally={onSaveLocally}
+            onLoadDemo={onLoadDemo}
           />
         </Panel>
         <Panel position="top-center">
           <LiveScoreBadge knowledgeBase={knowledgeBase} />
         </Panel>
         <Panel position="top-right">
-          <CanvasActions feedback={feedback} onStatus={setFeedback} />
+          <CanvasActions feedback={feedback} />
         </Panel>
         <Background />
         <Controls />
         <MiniMap pannable zoomable />
-        {drawing ? (
-          <DrawingSurface color={PEN.color} width={PEN.width} />
-        ) : (
-          <DrawingStrokes pending={null} />
-        )}
+        {drawing && <DrawingSurface color={PEN.color} width={PEN.width} />}
       </ReactFlow>
 
       {contextMenu && (

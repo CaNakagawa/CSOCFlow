@@ -26,6 +26,12 @@ export type CanvasNodeType =
   | 'text'
   /** A blank panel that sits behind everything, to group work visually. */
   | 'whiteboard'
+  /** One freehand stroke, movable like anything else on the canvas. */
+  | 'drawing'
+  /** A picture pasted onto the canvas. */
+  | 'image'
+  /** A container that carries the elements inside it when it moves. */
+  | 'group'
 
 export type NodeState =
   | 'unknown'
@@ -79,6 +85,15 @@ export interface InvestigationNode {
   scaffold?: boolean
   /** Set for the shapes the analyst can resize, such as the whiteboard. */
   size?: { width: number; height: number }
+  /**
+   * The group this element belongs to. Its position is then relative to the
+   * group, which is what makes the group carry it along.
+   */
+  parentId?: string
+  /** Set on drawing nodes: the stroke, in coordinates relative to the node. */
+  stroke?: { points: { x: number; y: number }[]; color: string; width: number }
+  /** Set on image nodes: the picture, as a data URL. */
+  imageSrc?: string
   createdAt: string
   updatedAt: string
 }

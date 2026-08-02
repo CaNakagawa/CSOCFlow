@@ -6,6 +6,13 @@ import { buildLibraryItems } from '../features/canvas/types/libraryItem'
 import { NodeLibrary } from '../features/canvas/components/NodeLibrary'
 import { Canvas } from '../features/canvas/components/Canvas'
 import { TopBar } from './TopBar'
+import {
+  createInvestigationRepository,
+  InvalidInvestigationFileError,
+} from '../features/investigation/repository/InvestigationRepository'
+import { DEMO_CASES, loadDemoCase } from '../features/investigation/services/demoCaseService'
+import { useInvestigationStore } from '../features/investigation/store/investigationStore'
+import { applyTheme, getStoredTheme, storeTheme, THEMES } from '../shared/theme/theme'
 import { RightPanel } from './RightPanel'
 import { PanelResizer } from './PanelResizer'
 import {
@@ -17,16 +24,66 @@ import {
 import { useI18n } from '../shared/i18n'
 import './App.css'
 
+const repository = createInvestigationRepository()
+
 export function App() {
   const { knowledgeBase, loading, error } = useKnowledgeBase()
   useCorrelation(knowledgeBase)
   useEditShortcuts()
   const { t, locale } = useI18n()
 
-  const [isLibraryCollapsed, setLibraryCollapsed] = useState(false)
-  const [isRightPanelCollapsed, setRightPanelCollapsed] = useState(false)
+  /*
+   * On a phone the canvas is the whole point, so both panels start out of the
+   * way; their arrows bring them back over the canvas.
+   */
+  const startsCollapsed = () =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 860px)').matches
+
+  const [isLibraryCollapsed, setLibraryCollapsed] = useState(startsCollapsed)
+  const [isRightPanelCollapsed, setRightPanelCollapsed] = useState(startsCollapsed)
   const [panelWidths, setPanelWidths] = useState(getStoredPanelWidths)
   const [presenting, setPresenting] = useState(false)
+  const [theme, setTheme] = useState(getStoredTheme)
+  const [status, setStatus] = useState<string | null>(null)
+  const loadInvestigation = useInvestigationStore((s) => s.loadInvestigation)
+  const toDocument = useInvestigationStore((s) => s.toDocument)
+
+  useEffect(() => {
+    applyTheme(theme)
+    storeTheme(theme)
+  }, [theme])
+
+  const cycleTheme = useCallback(() => {
+    setTheme((current) => THEMES[(THEMES.indexOf(current) + 1) % THEMES.length])
+  }, [])
+
+  const saveLocally = useCallback(async () => {
+    await repository.save(toDocument())
+    setStatus(t('topBar.statusSaved'))
+  }, [t, toDocument])
+
+  const loadDemo = useCallback(async () => {
+    const investigation = await loadDemoCase(DEMO_CASES[0])
+    loadInvestigation(investigation)
+    setStatus(t('topBar.statusDemoLoaded', { name: DEMO_CASES[0].title }))
+  }, [loadInvestigation, t])
+
+  const importFile = useCallback(
+    async (file: File) => {
+      try {
+        const data: unknown = JSON.parse(await file.text())
+        loadInvestigation(await repository.import(data))
+        setStatus(t('topBar.statusImported'))
+      } catch (error) {
+        setStatus(
+          error instanceof InvalidInvestigationFileError
+            ? error.message
+            : t('topBar.statusImportFailedGeneric'),
+        )
+      }
+    },
+    [loadInvestigation, t],
+  )
 
   /*
    * Presentation mode hides the chrome and asks the browser for the screen.
@@ -81,12 +138,7 @@ export function App() {
 
   return (
     <div className={`app-shell${presenting ? ' app-shell--presenting' : ''}`}>
-      <TopBar
-        libraryCollapsed={isLibraryCollapsed}
-        onToggleLibrary={() => setLibraryCollapsed((v) => !v)}
-        rightPanelCollapsed={isRightPanelCollapsed}
-        onToggleRightPanel={() => setRightPanelCollapsed((v) => !v)}
-      />
+      <TopBar status={status} onStatusCleared={() => setStatus(null)} />
       <div
         className="app-body"
         style={
@@ -117,6 +169,11 @@ export function App() {
           libraryItems={libraryItems}
           presenting={presenting}
           onTogglePresentation={togglePresentation}
+          theme={theme}
+          onCycleTheme={cycleTheme}
+          onImportFile={(file) => void importFile(file)}
+          onSaveLocally={() => void saveLocally()}
+          onLoadDemo={() => void loadDemo()}
         />
         {!isRightPanelCollapsed && (
           <PanelResizer

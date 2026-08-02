@@ -1,7 +1,13 @@
 .drawing-surface {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  /*
+   * React Flow puts its renderer at 4 and its panels at 5. Matching the
+   * renderer and coming later in the DOM puts the sheet over the canvas while
+   * leaving the toolbars reachable — covering those would bury the very button
+   * that turns drawing back off.
+   */
+  z-index: 4;
   cursor: crosshair;
   touch-action: none;
   background: transparent;

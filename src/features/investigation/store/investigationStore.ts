@@ -73,6 +73,38 @@ function defaultFieldValue(field: EvidenceFieldDefinition): unknown {
   }
 }
 
+/** A freehand stroke as a canvas element, with its points made relative. */
+export function strokeToNode(stroke: DrawingStroke): InvestigationNode {
+  const xs = stroke.points.map((p) => p.x)
+  const ys = stroke.points.map((p) => p.y)
+  // Half the stroke width sticks out past the points on each side.
+  const pad = stroke.width
+  const origin = { x: Math.min(...xs) - pad, y: Math.min(...ys) - pad }
+  const now = new Date().toISOString()
+
+  return {
+    id: stroke.id,
+    definitionId: 'free.drawing',
+    type: 'drawing',
+    label: '',
+    state: 'unknown',
+    position: origin,
+    size: {
+      width: Math.max(...xs) - origin.x + pad,
+      height: Math.max(...ys) - origin.y + pad,
+    },
+    stroke: {
+      points: stroke.points.map((p) => ({ x: p.x - origin.x, y: p.y - origin.y })),
+      color: stroke.color,
+      width: stroke.width,
+    },
+    fields: {},
+    notes: '',
+    createdAt: now,
+    updatedAt: now,
+  }
+}
+
 function createMeta(): InvestigationMeta {
   const now = new Date().toISOString()
   return {
@@ -94,7 +126,6 @@ interface InvestigationState {
   nodes: InvestigationNode[]
   manualEdges: InvestigationEdge[]
   inferredEdges: InvestigationEdge[]
-  drawings: DrawingStroke[]
   selectedNodeId: string | null
   /** Everything the marquee or a shift-click caught; drives the bulk actions. */
   selectedNodeIds: string[]
@@ -152,6 +183,13 @@ interface InvestigationState {
   pasteClipboard: () => number
   addStroke: (stroke: DrawingStroke) => void
   clearDrawings: () => void
+  groupSelection: () => string | undefined
+  ungroupNode: (nodeId: string) => number
+  addImageNode: (params: {
+    src: string
+    position: { x: number; y: number }
+    size: { width: number; height: number }
+  }) => string
   linkToNearest: (nodeId: string, handle: HandleId) => boolean
   selectNode: (nodeId: string | null) => void
   addManualEdge: (
@@ -194,11 +232,17 @@ const COALESCE_MS = 700
 interface HistorySnapshot {
   nodes: InvestigationNode[]
   manualEdges: InvestigationEdge[]
-  drawings: DrawingStroke[]
 }
 
 /** How far a pasted copy lands from its original. */
 const PASTE_OFFSET = 40
+
+/** Breathing room between a group's edge and what it holds. */
+const GROUP_PADDING = 24
+/** Room at the top of a group for its own title. */
+const GROUP_HEADER = 28
+/** Assumed size of an element React Flow has not measured yet. */
+const GROUPED_NODE_FALLBACK_SIZE = { width: 200, height: 100 }
 
 export const useInvestigationStore = create<InvestigationState>((set, get) => {
   // Transient bookkeeping for coalescing; never part of the saved document.
@@ -223,7 +267,6 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
     nodes: [],
     manualEdges: [],
     inferredEdges: [],
-    drawings: [],
     selectedNodeId: null,
     selectedNodeIds: [],
     checkAnswers: [],
@@ -249,10 +292,9 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       lastPush = coalesceKey ? { key: coalesceKey, at: now } : null
 
       set((state) => ({
-        past: [
-          ...state.past,
-          { nodes: state.nodes, manualEdges: state.manualEdges, drawings: state.drawings },
-        ].slice(-HISTORY_LIMIT),
+        past: [...state.past, { nodes: state.nodes, manualEdges: state.manualEdges }].slice(
+          -HISTORY_LIMIT,
+        ),
         // A fresh edit invalidates anything that was undone.
         future: [],
       }))
@@ -267,12 +309,11 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       set({
         nodes: previous.nodes,
         manualEdges: previous.manualEdges,
-        drawings: previous.drawings,
         past: state.past.slice(0, -1),
-        future: [
-          { nodes: state.nodes, manualEdges: state.manualEdges, drawings: state.drawings },
-          ...state.future,
-        ].slice(0, HISTORY_LIMIT),
+        future: [{ nodes: state.nodes, manualEdges: state.manualEdges }, ...state.future].slice(
+          0,
+          HISTORY_LIMIT,
+        ),
         ...selectionWithin(previous, state.selectedNodeId),
       })
     },
@@ -286,11 +327,9 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       set({
         nodes: next.nodes,
         manualEdges: next.manualEdges,
-        drawings: next.drawings,
-        past: [
-          ...state.past,
-          { nodes: state.nodes, manualEdges: state.manualEdges, drawings: state.drawings },
-        ].slice(-HISTORY_LIMIT),
+        past: [...state.past, { nodes: state.nodes, manualEdges: state.manualEdges }].slice(
+          -HISTORY_LIMIT,
+        ),
         future: state.future.slice(1),
         ...selectionWithin(next, state.selectedNodeId),
       })
@@ -823,15 +862,140 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       return copies.length
     },
 
+    /**
+     * Commits a freehand stroke as a node of its own.
+     *
+     * Everything the canvas already knows how to do — select, move, delete,
+     * undo, group, export — then applies to a drawing for free, which is why
+     * the points are stored relative to the node's own box.
+     */
     addStroke: (stroke) => {
+      if (stroke.points.length === 0) return
       get().pushHistory()
-      set((state) => ({ drawings: [...state.drawings, stroke] }))
+      set((state) => ({ nodes: [...state.nodes, strokeToNode(stroke)] }))
     },
 
     clearDrawings: () => {
-      if (get().drawings.length === 0) return
+      const strokes = get().nodes.filter((n) => n.type === 'drawing')
+      if (strokes.length === 0) return
       get().pushHistory()
-      set({ drawings: [] })
+      const ids = new Set(strokes.map((n) => n.id))
+      set((state) => ({
+        nodes: state.nodes.filter((n) => !ids.has(n.id)),
+        selectedNodeIds: state.selectedNodeIds.filter((id) => !ids.has(id)),
+      }))
+    },
+
+    /**
+     * Wraps the selection in a container that carries it around.
+     *
+     * The children keep their look and their own selection; only their
+     * positions become relative to the group, which is what React Flow needs to
+     * move them together.
+     */
+    groupSelection: () => {
+      const state = get()
+      const selected = state.nodes.filter(
+        (n) => state.selectedNodeIds.includes(n.id) && !n.parentId,
+      )
+      if (selected.length < 2) return undefined
+
+      const sizeOf = (node: InvestigationNode) => node.size ?? GROUPED_NODE_FALLBACK_SIZE
+      const left = Math.min(...selected.map((n) => n.position.x)) - GROUP_PADDING
+      const top = Math.min(...selected.map((n) => n.position.y)) - GROUP_PADDING - GROUP_HEADER
+      const right = Math.max(...selected.map((n) => n.position.x + sizeOf(n).width)) + GROUP_PADDING
+      const bottom =
+        Math.max(...selected.map((n) => n.position.y + sizeOf(n).height)) + GROUP_PADDING
+
+      get().pushHistory()
+      const now = new Date().toISOString()
+      const groupId = generateId('node')
+      const group: InvestigationNode = {
+        id: groupId,
+        definitionId: 'free.group',
+        type: 'group',
+        label: '',
+        state: 'unknown',
+        position: { x: left, y: top },
+        size: { width: right - left, height: bottom - top },
+        fields: {},
+        notes: '',
+        createdAt: now,
+        updatedAt: now,
+      }
+
+      const members = new Set(selected.map((n) => n.id))
+      set((current) => ({
+        // The group is listed first: React Flow needs a parent before its child.
+        nodes: [
+          ...current.nodes.filter((n) => !members.has(n.id)),
+          group,
+          ...current.nodes
+            .filter((n) => members.has(n.id))
+            .map((n) => ({
+              ...n,
+              parentId: groupId,
+              position: { x: n.position.x - left, y: n.position.y - top },
+              updatedAt: now,
+            })),
+        ],
+        selectedNodeId: groupId,
+        selectedNodeIds: [groupId],
+      }))
+      return groupId
+    },
+
+    /** Releases a group, leaving its contents where they sit. */
+    ungroupNode: (nodeId) => {
+      const state = get()
+      const group = state.nodes.find((n) => n.id === nodeId && n.type === 'group')
+      if (!group) return 0
+
+      const children = state.nodes.filter((n) => n.parentId === nodeId)
+      get().pushHistory()
+      const now = new Date().toISOString()
+      set((current) => ({
+        nodes: current.nodes
+          .filter((n) => n.id !== nodeId)
+          .map((n) =>
+            n.parentId === nodeId
+              ? {
+                  ...n,
+                  parentId: undefined,
+                  position: {
+                    x: n.position.x + group.position.x,
+                    y: n.position.y + group.position.y,
+                  },
+                  updatedAt: now,
+                }
+              : n,
+          ),
+        selectedNodeId: null,
+        selectedNodeIds: children.map((n) => n.id),
+      }))
+      return children.length
+    },
+
+    addImageNode: ({ src, position, size }) => {
+      get().pushHistory()
+      const now = new Date().toISOString()
+      const id = generateId('node')
+      const node: InvestigationNode = {
+        id,
+        definitionId: 'free.image',
+        type: 'image',
+        label: '',
+        state: 'unknown',
+        position,
+        size,
+        imageSrc: src,
+        fields: {},
+        notes: '',
+        createdAt: now,
+        updatedAt: now,
+      }
+      set((state) => ({ nodes: [...state.nodes, node], selectedNodeId: id, selectedNodeIds: [id] }))
+      return id
     },
 
     /**
@@ -962,10 +1126,10 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       set({
         meta: doc.investigation,
         viewport: doc.canvas.viewport,
-        nodes: doc.canvas.nodes,
+        // Investigations saved before strokes were elements carry them apart.
+        nodes: [...doc.canvas.nodes, ...(doc.canvas.drawings ?? []).map(strokeToNode)],
         manualEdges: doc.canvas.edges.filter((e) => !e.automatic),
         inferredEdges: doc.canvas.edges.filter((e) => e.automatic),
-        drawings: doc.canvas.drawings ?? [],
         selectedNodeId: null,
         selectedNodeIds: [],
         selectedAnalytic: null,
@@ -986,7 +1150,6 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
           viewport: state.viewport,
           nodes: state.nodes,
           edges: combineEdges(state.inferredEdges, state.manualEdges),
-          drawings: state.drawings,
         },
         hypotheses: state.hypothesisResults.map((h) => ({
           hypothesisId: h.hypothesisId,
@@ -1009,7 +1172,6 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
         nodes: [],
         manualEdges: [],
         inferredEdges: [],
-        drawings: [],
         selectedNodeId: null,
         selectedNodeIds: [],
         selectedAnalytic: null,
@@ -1026,7 +1188,6 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
         nodes: [],
         manualEdges: [],
         inferredEdges: [],
-        drawings: [],
         selectedNodeId: null,
         selectedNodeIds: [],
         selectedAnalytic: null,

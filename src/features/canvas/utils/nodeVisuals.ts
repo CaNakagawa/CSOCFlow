@@ -31,6 +31,9 @@ export const NODE_GLYPHS: Record<CanvasNodeType, string> = {
   detection_use_case: 'UC',
   text: 'TXT',
   whiteboard: 'WB',
+  drawing: 'INK',
+  image: 'IMG',
+  group: 'GRP',
 }
 
 export const NODE_STATE_MARKERS: Record<NodeState, string> = {
