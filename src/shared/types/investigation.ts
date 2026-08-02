@@ -94,6 +94,8 @@ export interface InvestigationNode {
   stroke?: { points: { x: number; y: number }[]; color: string; width: number }
   /** Set on image nodes: the picture, as a data URL. */
   imageSrc?: string
+  /** Where this sits in the stack; higher covers lower. Defaults to zero. */
+  layer?: number
   createdAt: string
   updatedAt: string
 }

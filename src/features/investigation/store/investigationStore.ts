@@ -184,6 +184,8 @@ interface InvestigationState {
   addStroke: (stroke: DrawingStroke) => void
   clearDrawings: () => void
   groupSelection: () => string | undefined
+  /** Moves elements through the stack: to the very front or back, or one step. */
+  restack: (nodeIds: string[], move: 'front' | 'back' | 'forward' | 'backward') => void
   ungroupNode: (nodeId: string) => number
   addImageNode: (params: {
     src: string
@@ -883,6 +885,33 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       set((state) => ({
         nodes: state.nodes.filter((n) => !ids.has(n.id)),
         selectedNodeIds: state.selectedNodeIds.filter((id) => !ids.has(id)),
+      }))
+    },
+
+    restack: (nodeIds, move) => {
+      if (nodeIds.length === 0) return
+      const state = get()
+      const moving = new Set(nodeIds)
+      const layers = state.nodes.map((n) => n.layer ?? 0)
+      const top = Math.max(0, ...layers)
+      const bottom = Math.min(0, ...layers)
+
+      get().pushHistory()
+      const now = new Date().toISOString()
+      set((current) => ({
+        nodes: current.nodes.map((node) => {
+          if (!moving.has(node.id)) return node
+          const layer = node.layer ?? 0
+          const next =
+            move === 'front'
+              ? top + 1
+              : move === 'back'
+                ? bottom - 1
+                : move === 'forward'
+                  ? layer + 1
+                  : layer - 1
+          return { ...node, layer: next, updatedAt: now }
+        }),
       }))
     },
 

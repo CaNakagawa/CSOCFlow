@@ -5,15 +5,8 @@ import { WHITEBOARD_DEFAULT_SIZE } from '../utils/canvasDefaults'
 import { TOOL_ICONS } from './toolIcons'
 import { ShareMenu } from './ShareMenu'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
-import type { ThemePreference } from '../../../shared/theme/theme'
 import { useI18n, type TranslationKey } from '../../../shared/i18n'
 import './CanvasToolRail.css'
-
-const THEME_LABEL_KEYS: Record<ThemePreference, TranslationKey> = {
-  system: 'theme.system',
-  light: 'theme.light',
-  dark: 'theme.dark',
-}
 
 interface ToolProps {
   icon: string
@@ -57,8 +50,6 @@ interface CanvasToolRailProps {
   presenting: boolean
   onTogglePresentation: () => void
   onStatus: (message: string) => void
-  theme: ThemePreference
-  onCycleTheme: () => void
   onImportFile: (file: File) => void
   onSaveLocally: () => void
   onLoadDemo: () => void
@@ -75,8 +66,6 @@ export function CanvasToolRail({
   presenting,
   onTogglePresentation,
   onStatus,
-  theme,
-  onCycleTheme,
   onImportFile,
   onSaveLocally,
   onLoadDemo,
@@ -100,6 +89,7 @@ export function CanvasToolRail({
   const removeNode = useInvestigationStore((s) => s.removeNode)
   const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
   const groupSelection = useInvestigationStore((s) => s.groupSelection)
+  const restack = useInvestigationStore((s) => s.restack)
   const newInvestigation = useInvestigationStore((s) => s.newInvestigation)
   const clearCanvas = useInvestigationStore((s) => s.clearCanvas)
 
@@ -212,6 +202,18 @@ export function CanvasToolRail({
             disabled={selectedNodeIds.length === 0}
             onClick={() => selectedNodeIds.forEach((id) => removeNode(id))}
           />
+          <Tool
+            icon="bringToFront"
+            labelKey="canvas.bringToFront"
+            disabled={selectedNodeIds.length === 0}
+            onClick={() => restack(selectedNodeIds, 'front')}
+          />
+          <Tool
+            icon="sendToBack"
+            labelKey="canvas.sendToBack"
+            disabled={selectedNodeIds.length === 0}
+            onClick={() => restack(selectedNodeIds, 'back')}
+          />
 
           <div className="tool-rail__divider" aria-hidden="true" />
 
@@ -255,7 +257,6 @@ export function CanvasToolRail({
 
           <div className="tool-rail__divider" aria-hidden="true" />
 
-          <Tool icon="theme" labelKey={THEME_LABEL_KEYS[theme]} onClick={onCycleTheme} />
           <Tool
             icon="fullscreen"
             labelKey="canvas.presentation"

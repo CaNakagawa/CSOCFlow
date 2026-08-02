@@ -33,3 +33,9 @@
 .node-context-menu__danger:hover {
   color: #f87171;
 }
+
+.node-context-menu__divider {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--panel-border);
+}

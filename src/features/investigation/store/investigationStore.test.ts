@@ -1103,6 +1103,35 @@ describe('investigationStore', () => {
     expect(node.size).toEqual({ width: 320, height: 200 })
   })
 
+  it('moves elements through the stack without disturbing the others', () => {
+    const { addFreeNode, restack } = useInvestigationStore.getState()
+    const back = addFreeNode({ nodeType: 'text', label: 'back', position: { x: 0, y: 0 } })
+    const front = addFreeNode({ nodeType: 'text', label: 'front', position: { x: 10, y: 10 } })
+
+    restack([back], 'front')
+    let state = useInvestigationStore.getState()
+    expect(state.nodes.find((n) => n.id === back)!.layer).toBeGreaterThan(
+      state.nodes.find((n) => n.id === front)!.layer ?? 0,
+    )
+
+    restack([back], 'back')
+    state = useInvestigationStore.getState()
+    expect(state.nodes.find((n) => n.id === back)!.layer).toBeLessThan(
+      state.nodes.find((n) => n.id === front)!.layer ?? 0,
+    )
+  })
+
+  it('steps one layer at a time when asked to', () => {
+    const { addFreeNode, restack } = useInvestigationStore.getState()
+    const id = addFreeNode({ nodeType: 'text', label: 'a', position: { x: 0, y: 0 } })
+
+    restack([id], 'forward')
+    expect(useInvestigationStore.getState().nodes[0].layer).toBe(1)
+    restack([id], 'backward')
+    restack([id], 'backward')
+    expect(useInvestigationStore.getState().nodes[0].layer).toBe(-1)
+  })
+
   it('serializes the current state into an Investigation document', () => {
     const { addNode, toDocument } = useInvestigationStore.getState()
     addNode({

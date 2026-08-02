@@ -85,6 +85,34 @@ export const TOOL_ICONS: Record<string, ReactNode> = {
       <path d="M5.6 7.1 10.4 4.7M5.6 8.9l4.8 2.4" />
     </>
   ),
+  bringToFront: (
+    <>
+      <rect x="1.8" y="1.8" width="7.4" height="7.4" rx="1" strokeDasharray="2.4 2" />
+      <rect
+        x="6.8"
+        y="6.8"
+        width="7.4"
+        height="7.4"
+        rx="1"
+        fill="currentColor"
+        fillOpacity="0.18"
+      />
+    </>
+  ),
+  sendToBack: (
+    <>
+      <rect x="6.8" y="6.8" width="7.4" height="7.4" rx="1" strokeDasharray="2.4 2" />
+      <rect
+        x="1.8"
+        y="1.8"
+        width="7.4"
+        height="7.4"
+        rx="1"
+        fill="currentColor"
+        fillOpacity="0.18"
+      />
+    </>
+  ),
   theme: (
     <>
       <circle cx="8" cy="8" r="4.6" />

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
-import { useI18n } from '../../../shared/i18n'
+import { useI18n, type TranslationKey } from '../../../shared/i18n'
 import './NodeContextMenu.css'
 
 export interface ContextMenuState {
@@ -17,21 +17,36 @@ interface NodeContextMenuProps {
   onClose: () => void
 }
 
+/** Everything worth doing to what was right-clicked, without leaving the spot. */
 export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMenuProps) {
   const { t, locale } = useI18n()
   const duplicateNode = useInvestigationStore((s) => s.duplicateNode)
   const removeNode = useInvestigationStore((s) => s.removeNode)
   const expandSubtechniques = useInvestigationStore((s) => s.expandSubtechniques)
-  const node = useInvestigationStore((s) => s.nodes.find((n) => n.id === menu.nodeId))
+  const collapseSubtechniques = useInvestigationStore((s) => s.collapseSubtechniques)
+  const groupSelection = useInvestigationStore((s) => s.groupSelection)
+  const ungroupNode = useInvestigationStore((s) => s.ungroupNode)
+  const restack = useInvestigationStore((s) => s.restack)
+  const nodes = useInvestigationStore((s) => s.nodes)
+  const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
   const rootRef = useRef<HTMLDivElement>(null)
 
-  // Only techniques that actually have subtechniques get the option.
-  const subtechniqueCount = useMemo(() => {
-    if (!knowledgeBase || node?.type !== 'mitre_technique') return 0
-    return knowledgeBase.techniques.filter(
+  const node = nodes.find((n) => n.id === menu.nodeId)
+
+  /* The menu acts on the whole selection when the target is part of it. */
+  const targets = selectedNodeIds.includes(menu.nodeId) ? selectedNodeIds : [menu.nodeId]
+
+  const subtechniques = useMemo(() => {
+    if (!knowledgeBase || node?.type !== 'mitre_technique') return { missing: 0, present: 0 }
+    const onCanvas = new Set(nodes.map((n) => n.definitionId))
+    const children = knowledgeBase.techniques.filter(
       (tech) => parentTechniqueId(tech.id) === node.definitionId,
-    ).length
-  }, [knowledgeBase, node])
+    )
+    return {
+      missing: children.filter((tech) => !onCanvas.has(tech.id)).length,
+      present: children.filter((tech) => onCanvas.has(tech.id)).length,
+    }
+  }, [knowledgeBase, node, nodes])
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
@@ -49,6 +64,22 @@ export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMen
     }
   }, [onClose])
 
+  function item(labelKey: TranslationKey, action: () => void, danger = false) {
+    return (
+      <button
+        type="button"
+        role="menuitem"
+        className={danger ? 'node-context-menu__danger' : undefined}
+        onClick={() => {
+          action()
+          onClose()
+        }}
+      >
+        {t(labelKey)}
+      </button>
+    )
+  }
+
   return (
     <div
       ref={rootRef}
@@ -57,39 +88,32 @@ export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMen
       role="menu"
       aria-label={t('canvas.nodeActions')}
     >
-      <button
-        type="button"
-        role="menuitem"
-        onClick={() => {
-          duplicateNode(menu.nodeId)
-          onClose()
-        }}
-      >
-        {t('details.duplicate')}
-      </button>
-      {subtechniqueCount > 0 && knowledgeBase && (
-        <button
-          type="button"
-          role="menuitem"
-          onClick={() => {
-            expandSubtechniques(menu.nodeId, knowledgeBase, locale)
-            onClose()
-          }}
-        >
-          {t('canvas.expandSubtechniques', { count: String(subtechniqueCount) })}
-        </button>
+      {item('details.duplicate', () => targets.forEach((id) => duplicateNode(id)))}
+
+      {targets.length > 1 && item('canvas.group', () => groupSelection())}
+      {node?.type === 'group' && item('canvas.ungroup', () => ungroupNode(menu.nodeId))}
+
+      <div className="node-context-menu__divider" aria-hidden="true" />
+
+      {item('canvas.bringToFront', () => restack(targets, 'front'))}
+      {item('canvas.bringForward', () => restack(targets, 'forward'))}
+      {item('canvas.sendBackward', () => restack(targets, 'backward'))}
+      {item('canvas.sendToBack', () => restack(targets, 'back'))}
+
+      {(subtechniques.missing > 0 || subtechniques.present > 0) && (
+        <div className="node-context-menu__divider" aria-hidden="true" />
       )}
-      <button
-        type="button"
-        role="menuitem"
-        className="node-context-menu__danger"
-        onClick={() => {
-          removeNode(menu.nodeId)
-          onClose()
-        }}
-      >
-        {t('details.delete')}
-      </button>
+      {subtechniques.missing > 0 &&
+        knowledgeBase &&
+        item('canvas.menuExpandSubtechniques', () =>
+          expandSubtechniques(menu.nodeId, knowledgeBase, locale),
+        )}
+      {subtechniques.present > 0 &&
+        item('canvas.menuCollapseSubtechniques', () => collapseSubtechniques(menu.nodeId))}
+
+      <div className="node-context-menu__divider" aria-hidden="true" />
+
+      {item('details.delete', () => targets.forEach((id) => removeNode(id)), true)}
     </div>
   )
 }

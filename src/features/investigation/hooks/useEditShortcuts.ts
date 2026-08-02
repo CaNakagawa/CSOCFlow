@@ -11,8 +11,8 @@ function isTextEntry(target: EventTarget | null): boolean {
 
 /**
  * The canvas keyboard: Ctrl/Cmd+Z undo, Ctrl/Cmd+Shift+Z or Ctrl+Y redo,
- * Ctrl/Cmd+A select all, Ctrl/Cmd+C and Ctrl/Cmd+V copy and paste,
- * Ctrl/Cmd+D duplicate, and Escape to drop the selection.
+ * Ctrl/Cmd+A select all, Ctrl/Cmd+C copy, Ctrl/Cmd+D duplicate, and Escape to
+ * drop the selection. Pasting is handled by the canvas, on the paste event.
  */
 export function useEditShortcuts(): void {
   const undo = useInvestigationStore((s) => s.undo)
@@ -21,7 +21,6 @@ export function useEditShortcuts(): void {
   const selectAllNodes = useInvestigationStore((s) => s.selectAllNodes)
   const setSelectedNodes = useInvestigationStore((s) => s.setSelectedNodes)
   const copySelection = useInvestigationStore((s) => s.copySelection)
-  const pasteClipboard = useInvestigationStore((s) => s.pasteClipboard)
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -46,11 +45,12 @@ export function useEditShortcuts(): void {
         copySelection()
         return
       }
-      if (key === 'v') {
-        event.preventDefault()
-        pasteClipboard()
-        return
-      }
+      /*
+       * Ctrl+V is deliberately not handled here. Cancelling the keystroke would
+       * also cancel the browser's own paste event, and that event is the only
+       * way to see a picture on the clipboard. The canvas listens for `paste`
+       * instead and decides there between a picture and copied elements.
+       */
 
       if (key === 'z' && !event.shiftKey) {
         event.preventDefault()
@@ -72,5 +72,5 @@ export function useEditShortcuts(): void {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [undo, redo, duplicateNode, selectAllNodes, setSelectedNodes, copySelection, pasteClipboard])
+  }, [undo, redo, duplicateNode, selectAllNodes, setSelectedNodes, copySelection])
 }

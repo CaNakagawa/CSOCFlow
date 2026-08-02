@@ -12,7 +12,7 @@ import {
 } from '../features/investigation/repository/InvestigationRepository'
 import { DEMO_CASES, loadDemoCase } from '../features/investigation/services/demoCaseService'
 import { useInvestigationStore } from '../features/investigation/store/investigationStore'
-import { applyTheme, getStoredTheme, storeTheme, THEMES } from '../shared/theme/theme'
+import { applyTheme, getStoredTheme, storeTheme } from '../shared/theme/theme'
 import { RightPanel } from './RightPanel'
 import { PanelResizer } from './PanelResizer'
 import {
@@ -52,10 +52,6 @@ export function App() {
     applyTheme(theme)
     storeTheme(theme)
   }, [theme])
-
-  const cycleTheme = useCallback(() => {
-    setTheme((current) => THEMES[(THEMES.indexOf(current) + 1) % THEMES.length])
-  }, [])
 
   const saveLocally = useCallback(async () => {
     await repository.save(toDocument())
@@ -138,7 +134,12 @@ export function App() {
 
   return (
     <div className={`app-shell${presenting ? ' app-shell--presenting' : ''}`}>
-      <TopBar status={status} onStatusCleared={() => setStatus(null)} />
+      <TopBar
+        status={status}
+        onStatusCleared={() => setStatus(null)}
+        theme={theme}
+        onThemeChange={setTheme}
+      />
       <div
         className="app-body"
         style={
@@ -170,7 +171,6 @@ export function App() {
           presenting={presenting}
           onTogglePresentation={togglePresentation}
           theme={theme}
-          onCycleTheme={cycleTheme}
           onImportFile={(file) => void importFile(file)}
           onSaveLocally={() => void saveLocally()}
           onLoadDemo={() => void loadDemo()}

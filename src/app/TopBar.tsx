@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useInvestigationStore } from '../features/investigation/store/investigationStore'
 import { useI18n } from '../shared/i18n'
 import { LanguageSelect } from './LanguageSelect'
+import { ThemeSelect } from './ThemeSelect'
+import type { ThemePreference } from '../shared/theme/theme'
 import './TopBar.css'
 
 const STATUS_TIMEOUT_MS = 5000
@@ -10,6 +12,8 @@ interface TopBarProps {
   /** Result of the last file action, reported next to the title. */
   status: string | null
   onStatusCleared: () => void
+  theme: ThemePreference
+  onThemeChange: (theme: ThemePreference) => void
 }
 
 /**
@@ -19,7 +23,7 @@ interface TopBarProps {
  * Everything that acts on the canvas lives in the tool rail on the canvas
  * itself, and the side panels are opened and closed by their own arrows.
  */
-export function TopBar({ status, onStatusCleared }: TopBarProps) {
+export function TopBar({ status, onStatusCleared, theme, onThemeChange }: TopBarProps) {
   const { t } = useI18n()
   const meta = useInvestigationStore((s) => s.meta)
   const setMeta = useInvestigationStore((s) => s.setMeta)
@@ -87,6 +91,7 @@ export function TopBar({ status, onStatusCleared }: TopBarProps) {
         )}
 
         <div className="top-bar__primary-right">
+          <ThemeSelect theme={theme} onChange={onThemeChange} />
           <LanguageSelect />
           <button
             ref={helpButtonRef}

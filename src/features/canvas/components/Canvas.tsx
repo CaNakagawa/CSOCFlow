@@ -19,7 +19,6 @@ import {
   type EdgeChange,
   type OnConnect,
   type OnReconnect,
-  type OnSelectionChangeFunc,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { combineEdges, useInvestigationStore } from '../../investigation/store/investigationStore'
@@ -123,8 +122,8 @@ interface CanvasProps {
   libraryItems: LibraryItem[]
   presenting: boolean
   onTogglePresentation: () => void
+  /** Only for React Flow's own chrome; the switch itself lives in the header. */
   theme: ThemePreference
-  onCycleTheme: () => void
   onImportFile: (file: File) => void
   onSaveLocally: () => void
   onLoadDemo: () => void
@@ -145,7 +144,6 @@ function CanvasSurface({
   presenting,
   onTogglePresentation,
   theme,
-  onCycleTheme,
   onImportFile,
   onSaveLocally,
   onLoadDemo,
@@ -173,6 +171,7 @@ function CanvasSurface({
   const expandSubtechniques = useInvestigationStore((s) => s.expandSubtechniques)
   const collapseSubtechniques = useInvestigationStore((s) => s.collapseSubtechniques)
   const addImageNode = useInvestigationStore((s) => s.addImageNode)
+  const pasteClipboard = useInvestigationStore((s) => s.pasteClipboard)
   const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
   const setSelectedNodes = useInvestigationStore((s) => s.setSelectedNodes)
 
@@ -192,6 +191,9 @@ function CanvasSurface({
   // Where the right button went down, to tell a pan from a plain right-click.
   const rightPressAt = useRef<{ x: number; y: number } | null>(null)
   const areaRef = useRef<HTMLDivElement>(null)
+  /** Whether the pointer that is acting was carrying a multi-select modifier. */
+  const addToSelection = useRef(false)
+
   const [commentEditor, setCommentEditor] = useState<CommentEditorState | null>(null)
 
   const analyticsByDefinition = useMemo(() => {
@@ -234,7 +236,12 @@ function CanvasSurface({
         .filter((item) => item.type.startsWith('image/'))
         .map((item) => item.getAsFile())
         .find((item): item is File => item !== null)
-      if (!file) return
+
+      // No picture: this is the other half of Ctrl+C on the canvas.
+      if (!file) {
+        if (pasteClipboard() > 0) event.preventDefault()
+        return
+      }
 
       event.preventDefault()
       const src = await new Promise<string>((resolve, reject) => {
@@ -263,7 +270,7 @@ function CanvasSurface({
 
     window.addEventListener('paste', handlePaste)
     return () => window.removeEventListener('paste', handlePaste)
-  }, [addImageNode, screenToFlowPosition])
+  }, [addImageNode, pasteClipboard, screenToFlowPosition])
 
   // Escape leaves drawing mode, whatever else has focus.
   useEffect(() => {
@@ -298,8 +305,8 @@ function CanvasSurface({
         selected: selectedIds.has(n.id),
         measured: nodeSizes[n.id],
         parentId: n.parentId,
-        // A backdrop must not cover what sits on it.
-        zIndex: BACKDROP_TYPES.has(n.type) ? -1 : 0,
+        // A backdrop starts behind; anything can then be restacked by hand.
+        zIndex: n.layer ?? (BACKDROP_TYPES.has(n.type) ? -1 : 0),
         width: n.size?.width,
         height: n.size?.height,
         data: {
@@ -376,6 +383,39 @@ function CanvasSurface({
 
   const onNodesChange: OnNodesChange<Node<GenericNodeData>> = useCallback(
     (changes: NodeChange<Node<GenericNodeData>>[]) => {
+      /*
+       * With `nodes` handed in as a prop, React Flow reports selection instead
+       * of owning it: its own click, ctrl-click and marquee all arrive here as
+       * `select` changes, and unless they are applied the next render puts the
+       * old selection straight back.
+       */
+      const selectChanges = changes.filter((change) => change.type === 'select')
+      if (selectChanges.length > 0) {
+        const selected = new Set(useInvestigationStore.getState().selectedNodeIds)
+
+        if (addToSelection.current) {
+          /*
+           * Ctrl-click. React Flow decides on multi-select from a key it saw
+           * pressed, which misses a click that merely carries the modifier, so
+           * it clears the rest of the selection in the same breath. Only the
+           * element actually clicked is honoured here, and clicking it again
+           * takes it back out.
+           */
+          for (const change of selectChanges) {
+            if (!change.selected) continue
+            if (selected.has(change.id)) selected.delete(change.id)
+            else selected.add(change.id)
+          }
+        } else {
+          for (const change of selectChanges) {
+            if (change.selected) selected.add(change.id)
+            else selected.delete(change.id)
+          }
+        }
+
+        setSelectedNodes([...selected])
+      }
+
       for (const change of changes) {
         if (change.type === 'position' && change.position) {
           moveNode(change.id, change.position)
@@ -394,31 +434,19 @@ function CanvasSurface({
         }
       }
     },
-    [moveNode, removeNode],
+    [moveNode, removeNode, setSelectedNodes],
   )
 
   // One undo step per drag, not one per animation frame.
-  const onSelectionChange: OnSelectionChangeFunc = useCallback(
-    ({ nodes: selection }) => {
-      const ids = selection.map((n) => n.id)
-      const current = useInvestigationStore.getState().selectedNodeIds
-      // React Flow reports on every render; only a real change should write.
-      if (ids.length === current.length && ids.every((id, i) => id === current[i])) return
-      setSelectedNodes(ids)
-    },
-    [setSelectedNodes],
-  )
-
   const onNodeDragStart = useCallback(() => {
     pushHistory()
   }, [pushHistory])
 
-  const onNodeClick: NodeMouseHandler<Node<GenericNodeData>> = useCallback(
-    (_event, node) => {
-      selectNode(node.id)
-    },
-    [selectNode],
-  )
+  /*
+   * Selection is React Flow's to manage: it already understands click,
+   * ctrl-click to add and the marquee, and it reports the result through
+   * onSelectionChange. Forcing a single node here would undo a ctrl-click.
+   */
 
   const onPaneClick = useCallback(() => {
     selectNode(null)
@@ -441,6 +469,7 @@ function CanvasSurface({
 
     function handleMouseDown(event: MouseEvent) {
       if (event.button === 2) rightPressAt.current = { x: event.clientX, y: event.clientY }
+      addToSelection.current = event.ctrlKey || event.metaKey || event.shiftKey
     }
 
     function handleContextMenu(event: MouseEvent) {
@@ -464,10 +493,14 @@ function CanvasSurface({
       setPaneMenu({ x: event.clientX, y: event.clientY, flowX: spot.x, flowY: spot.y })
     }
 
-    area.addEventListener('mousedown', handleMouseDown)
+    /*
+     * Capture phase: React Flow stops the press from bubbling once it starts
+     * dragging a node, and the modifier has to be read before that happens.
+     */
+    area.addEventListener('mousedown', handleMouseDown, true)
     area.addEventListener('contextmenu', handleContextMenu)
     return () => {
-      area.removeEventListener('mousedown', handleMouseDown)
+      area.removeEventListener('mousedown', handleMouseDown, true)
       area.removeEventListener('contextmenu', handleContextMenu)
     }
   }, [screenToFlowPosition])
@@ -565,11 +598,9 @@ function CanvasSurface({
         onConnect={onConnect}
         onReconnect={onReconnect}
         onNodeDragStart={onNodeDragStart}
-        onNodeClick={onNodeClick}
         onNodeContextMenu={onNodeContextMenu}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onPaneClick={onPaneClick}
-        onSelectionChange={onSelectionChange}
         colorMode={theme}
         /* Selecting must not lift the whiteboard over the evidence sitting on it. */
         elevateNodesOnSelect={false}
@@ -590,8 +621,6 @@ function CanvasSurface({
             presenting={presenting}
             onTogglePresentation={onTogglePresentation}
             onStatus={setFeedback}
-            theme={theme}
-            onCycleTheme={onCycleTheme}
             onImportFile={onImportFile}
             onSaveLocally={onSaveLocally}
             onLoadDemo={onLoadDemo}

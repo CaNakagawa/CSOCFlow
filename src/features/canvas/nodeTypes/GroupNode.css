@@ -1,4 +1,9 @@
 .group-node {
+  /*
+   * The frame is scenery: clicks fall through to whatever sits inside it, and
+   * only the title bar takes the pointer, so the group can still be picked up.
+   */
+  pointer-events: none;
   border-radius: 10px;
   border: 1px dashed var(--muted-fg);
   background: color-mix(in srgb, var(--accent) 6%, transparent);
@@ -11,7 +16,9 @@
 }
 
 .group-node__bar {
-  display: flex;
+  pointer-events: auto;
+  display: inline-flex;
+  max-width: 100%;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
