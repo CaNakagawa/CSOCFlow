@@ -930,6 +930,105 @@ describe('investigationStore', () => {
     expect(useInvestigationStore.getState().nodes).toHaveLength(2)
   })
 
+  it('sends the subtechniques of a technique back off the canvas', () => {
+    const knowledgeBase = makeKnowledgeBaseWithSubtechnique()
+    const { addNode, expandSubtechniques, collapseSubtechniques } = useInvestigationStore.getState()
+    const parentId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1110',
+      label: 'T1110 - Brute Force',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    expandSubtechniques(parentId, knowledgeBase, 'en')
+
+    const removed = collapseSubtechniques(parentId)
+
+    const state = useInvestigationStore.getState()
+    expect(removed).toBe(1)
+    expect(state.nodes).toHaveLength(1)
+    expect(state.nodes[0].id).toBe(parentId)
+    expect(state.manualEdges).toHaveLength(0)
+  })
+
+  it('keeps a subtechnique that was wired into the rest of the investigation', () => {
+    const knowledgeBase = makeKnowledgeBaseWithSubtechnique()
+    const { addNode, expandSubtechniques, collapseSubtechniques, addManualEdge } =
+      useInvestigationStore.getState()
+    const parentId = addNode({
+      nodeType: 'mitre_technique',
+      definitionId: 'T1110',
+      label: 'T1110 - Brute Force',
+      position: { x: 0, y: 0 },
+      fieldDefinitions: [],
+    })
+    const hostId = addNode({
+      nodeType: 'host',
+      definitionId: 'evidence.infrastructure.host',
+      label: 'host-a',
+      position: { x: 400, y: 0 },
+      fieldDefinitions: [],
+    })
+    expandSubtechniques(parentId, knowledgeBase, 'en')
+    const child = useInvestigationStore
+      .getState()
+      .nodes.find((n) => n.definitionId === 'T1110.001')!
+    addManualEdge(child.id, hostId, 'executed_on')
+
+    expect(collapseSubtechniques(parentId)).toBe(0)
+    expect(useInvestigationStore.getState().nodes.map((n) => n.id)).toContain(child.id)
+  })
+
+  it('selects everything, copies it and pastes it beside the originals', () => {
+    const { addNode, selectAllNodes, copySelection, pasteClipboard } =
+      useInvestigationStore.getState()
+    addNode({
+      nodeType: 'host',
+      definitionId: 'd1',
+      label: 'host-a',
+      position: { x: 10, y: 10 },
+      fieldDefinitions: [],
+    })
+    addNode({
+      nodeType: 'ip_address',
+      definitionId: 'd2',
+      label: 'ip-b',
+      position: { x: 60, y: 10 },
+      fieldDefinitions: [],
+    })
+
+    selectAllNodes()
+    expect(useInvestigationStore.getState().selectedNodeIds).toHaveLength(2)
+    expect(copySelection()).toBe(2)
+    expect(pasteClipboard()).toBe(2)
+
+    const state = useInvestigationStore.getState()
+    expect(state.nodes).toHaveLength(4)
+    // The copies are offset, and they are what is selected now.
+    expect(state.selectedNodeIds).toHaveLength(2)
+    const copy = state.nodes.find((n) => n.id === state.selectedNodeIds[0])!
+    expect(copy.position).not.toEqual({ x: 10, y: 10 })
+  })
+
+  it('undoes a freehand stroke like any other change', () => {
+    const { addStroke, undo } = useInvestigationStore.getState()
+    addStroke({ id: 'stroke-1', points: [{ x: 0, y: 0 }], color: '#fff', width: 3 })
+
+    expect(useInvestigationStore.getState().drawings).toHaveLength(1)
+    undo()
+    expect(useInvestigationStore.getState().drawings).toHaveLength(0)
+  })
+
+  it('adds a free node the analyst names themselves', () => {
+    const { addFreeNode, updateNodeLabel } = useInvestigationStore.getState()
+    const id = addFreeNode({ nodeType: 'text', label: '', position: { x: 5, y: 5 } })
+    updateNodeLabel(id, 'Working theory')
+
+    const node = useInvestigationStore.getState().nodes.find((n) => n.id === id)
+    expect(node!.type).toBe('text')
+    expect(node!.label).toBe('Working theory')
+  })
+
   it('serializes the current state into an Investigation document', () => {
     const { addNode, toDocument } = useInvestigationStore.getState()
     addNode({

@@ -26,3 +26,14 @@
   padding: 24px;
   text-align: center;
 }
+
+/*
+ * Presentation mode: the canvas takes the screen and every panel steps aside.
+ * The tools stay, so the canvas can still be driven while presenting.
+ */
+.app-shell--presenting > .top-bar,
+.app-shell--presenting .node-library,
+.app-shell--presenting .right-panel,
+.app-shell--presenting .panel-resizer {
+  display: none;
+}

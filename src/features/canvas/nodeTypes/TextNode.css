@@ -1,0 +1,40 @@
+.text-node {
+  min-width: 120px;
+  max-width: 320px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  color: var(--fg);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.text-node--selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.text-node__body {
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 18px;
+  cursor: text;
+}
+
+.text-node__input {
+  width: 260px;
+  min-height: 52px;
+  padding: 4px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--accent);
+  background: var(--input-bg);
+  color: inherit;
+  font: inherit;
+  resize: both;
+}
+
+/* An empty text node still needs to be findable on the canvas. */
+.text-node__body:empty::before,
+.text-node .text-node__body:not(:has(*)):empty {
+  color: var(--muted-fg);
+}

@@ -1,6 +1,8 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ReactFlow,
+  ReactFlowProvider,
+  useReactFlow,
   Background,
   Controls,
   MiniMap,
@@ -17,13 +19,19 @@ import {
   type EdgeChange,
   type OnConnect,
   type OnReconnect,
+  type OnSelectionChangeFunc,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { combineEdges, useInvestigationStore } from '../../investigation/store/investigationStore'
 import { GenericNode, type GenericNodeData } from '../nodeTypes/GenericNode'
 import { CanvasActions } from './CanvasActions'
-import { CanvasEditToolbar } from './CanvasEditToolbar'
 import { NodeContextMenu, type ContextMenuState } from './NodeContextMenu'
+import { PaneContextMenu, type PaneMenuState } from './PaneContextMenu'
+import { CanvasToolRail } from './CanvasToolRail'
+import { DrawingStrokes, DrawingSurface } from './DrawingLayer'
+import { TextNode } from '../nodeTypes/TextNode'
+import { WhiteboardNode } from '../nodeTypes/WhiteboardNode'
+import type { LibraryItem } from '../types/libraryItem'
 import { LiveScoreBadge } from './LiveScoreBadge'
 import { buildEdgeLabelStyle, readCssToken } from '../utils/edgeLabelStyle'
 import { relationshipKey } from '../utils/nodeVisuals'
@@ -33,7 +41,18 @@ import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/inve
 import type { DetectionAnalytic, KnowledgeBase } from '../../../shared/types/knowledge'
 import './Canvas.css'
 
-const nodeTypes = { generic: GenericNode }
+const nodeTypes = { generic: GenericNode, text: TextNode, whiteboard: WhiteboardNode }
+
+/** How far the pointer may travel on a right-click before it counts as a pan. */
+const CONTEXT_MENU_SLOP = 4
+
+/** Colour and thickness of the freehand pen. */
+const PEN = { color: '#f59e0b', width: 3 }
+
+function flowNodeType(type: string): string {
+  if (type === 'text' || type === 'whiteboard') return type
+  return 'generic'
+}
 
 const RELATIONSHIP_TYPES: RelationshipType[] = [
   'executed_by',
@@ -82,10 +101,28 @@ const EDGE_COLORS = [
 
 interface CanvasProps {
   knowledgeBase: KnowledgeBase | null
+  libraryItems: LibraryItem[]
+  presenting: boolean
+  onTogglePresentation: () => void
 }
 
-export function Canvas({ knowledgeBase }: CanvasProps) {
+/** The flow helpers are only available under a provider, so the canvas sits inside one. */
+export function Canvas(props: CanvasProps) {
+  return (
+    <ReactFlowProvider>
+      <CanvasSurface {...props} />
+    </ReactFlowProvider>
+  )
+}
+
+function CanvasSurface({
+  knowledgeBase,
+  libraryItems,
+  presenting,
+  onTogglePresentation,
+}: CanvasProps) {
   const { t, locale } = useI18n()
+  const { screenToFlowPosition } = useReactFlow()
   const nodes = useInvestigationStore((s) => s.nodes)
   const manualEdges = useInvestigationStore((s) => s.manualEdges)
   const inferredEdges = useInvestigationStore((s) => s.inferredEdges)
@@ -93,7 +130,6 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
     () => combineEdges(inferredEdges, manualEdges),
     [inferredEdges, manualEdges],
   )
-  const selectedNodeId = useInvestigationStore((s) => s.selectedNodeId)
   const selectedAnalytic = useInvestigationStore((s) => s.selectedAnalytic)
   const moveNode = useInvestigationStore((s) => s.moveNode)
   const selectNode = useInvestigationStore((s) => s.selectNode)
@@ -106,6 +142,9 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   const updateEdgeStyle = useInvestigationStore((s) => s.updateEdgeStyle)
   const pushHistory = useInvestigationStore((s) => s.pushHistory)
   const expandSubtechniques = useInvestigationStore((s) => s.expandSubtechniques)
+  const collapseSubtechniques = useInvestigationStore((s) => s.collapseSubtechniques)
+  const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
+  const setSelectedNodes = useInvestigationStore((s) => s.setSelectedNodes)
 
   /*
    * The nodes handed to React Flow are rebuilt from the store on every change,
@@ -117,6 +156,12 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
 
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
+  const [paneMenu, setPaneMenu] = useState<PaneMenuState | null>(null)
+  const [drawing, setDrawing] = useState(false)
+  const [feedback, setFeedback] = useState<string | null>(null)
+  // Where the right button went down, to tell a pan from a plain right-click.
+  const rightPressAt = useRef<{ x: number; y: number } | null>(null)
+  const areaRef = useRef<HTMLDivElement>(null)
   const [commentEditor, setCommentEditor] = useState<CommentEditorState | null>(null)
 
   const analyticsByDefinition = useMemo(() => {
@@ -140,6 +185,13 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   }, [knowledgeBase])
 
   const definitionsOnCanvas = useMemo(() => new Set(nodes.map((n) => n.definitionId)), [nodes])
+  const selectedIds = useMemo(() => new Set(selectedNodeIds), [selectedNodeIds])
+
+  useEffect(() => {
+    if (!feedback) return
+    const timer = window.setTimeout(() => setFeedback(null), 5000)
+    return () => window.clearTimeout(timer)
+  }, [feedback])
 
   const handleExpandSubtechniques = useCallback(
     (nodeId: string) => {
@@ -153,10 +205,14 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
     () =>
       nodes.map((n) => ({
         id: n.id,
-        type: 'generic',
+        type: flowNodeType(n.type),
         position: n.position,
-        selected: n.id === selectedNodeId,
+        selected: selectedIds.has(n.id),
         measured: nodeSizes[n.id],
+        // The whiteboard is a backdrop: it must not cover the evidence on it.
+        zIndex: n.type === 'whiteboard' ? -1 : 0,
+        width: n.type === 'whiteboard' ? n.size?.width : undefined,
+        height: n.type === 'whiteboard' ? n.size?.height : undefined,
         data: {
           label: n.label,
           nodeType: n.type,
@@ -174,18 +230,28 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
                   (id) => !definitionsOnCanvas.has(id),
                 ).length
               : 0,
+          presentSubtechniques:
+            n.type === 'mitre_technique'
+              ? (subtechniquesByParent.get(n.definitionId) ?? []).filter((id) =>
+                  definitionsOnCanvas.has(id),
+                ).length
+              : 0,
           onExpandSubtechniques: handleExpandSubtechniques,
+          onCollapseSubtechniques: collapseSubtechniques,
+          width: n.size?.width ?? 0,
+          height: n.size?.height ?? 0,
         },
       })),
     [
       nodes,
-      selectedNodeId,
+      selectedIds,
       analyticsByDefinition,
       selectedAnalytic,
       nodeSizes,
       subtechniquesByParent,
       definitionsOnCanvas,
       handleExpandSubtechniques,
+      collapseSubtechniques,
     ],
   )
 
@@ -236,6 +302,17 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   )
 
   // One undo step per drag, not one per animation frame.
+  const onSelectionChange: OnSelectionChangeFunc = useCallback(
+    ({ nodes: selection }) => {
+      const ids = selection.map((n) => n.id)
+      const current = useInvestigationStore.getState().selectedNodeIds
+      // React Flow reports on every render; only a real change should write.
+      if (ids.length === current.length && ids.every((id, i) => id === current[i])) return
+      setSelectedNodes(ids)
+    },
+    [setSelectedNodes],
+  )
+
   const onNodeDragStart = useCallback(() => {
     pushHistory()
   }, [pushHistory])
@@ -252,7 +329,52 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
     setSelectedEdgeId(null)
     setCommentEditor(null)
     setContextMenu(null)
+    setPaneMenu(null)
   }, [selectNode])
+
+  /*
+   * The right button does double duty: dragging pans the canvas, a plain click
+   * opens the menu. React Flow swallows its own pane context-menu callback once
+   * the right button is a pan button, so the event is taken from the DOM here,
+   * and the menu only opens when the pointer stayed put between press and
+   * release.
+   */
+  useEffect(() => {
+    const area = areaRef.current
+    if (!area) return
+
+    function handleMouseDown(event: MouseEvent) {
+      if (event.button === 2) rightPressAt.current = { x: event.clientX, y: event.clientY }
+    }
+
+    function handleContextMenu(event: MouseEvent) {
+      const target = event.target as HTMLElement | null
+      // Only empty canvas: nodes, edges and the panels have their own menus.
+      if (!target?.classList.contains('react-flow__pane')) return
+      event.preventDefault()
+
+      const press = rightPressAt.current
+      rightPressAt.current = null
+      if (
+        press &&
+        (Math.abs(press.x - event.clientX) > CONTEXT_MENU_SLOP ||
+          Math.abs(press.y - event.clientY) > CONTEXT_MENU_SLOP)
+      ) {
+        return
+      }
+
+      const spot = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+      setContextMenu(null)
+      setPaneMenu({ x: event.clientX, y: event.clientY, flowX: spot.x, flowY: spot.y })
+    }
+
+    area.addEventListener('mousedown', handleMouseDown)
+    area.addEventListener('contextmenu', handleContextMenu)
+    return () => {
+      area.removeEventListener('mousedown', handleMouseDown)
+      area.removeEventListener('contextmenu', handleContextMenu)
+    }
+  }, [screenToFlowPosition])
 
   const onNodeContextMenu: NodeMouseHandler<Node<GenericNodeData>> = useCallback(
     (event, node) => {
@@ -337,7 +459,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   }, [commentEditor, updateEdgeLabel, updateManualEdgeType, updateEdgeStyle])
 
   return (
-    <div className="canvas-area" role="application" aria-label={t('canvas.label')}>
+    <div className="canvas-area" role="application" aria-label={t('canvas.label')} ref={areaRef}>
       <ReactFlow
         nodes={flowNodes}
         edges={flowEdges}
@@ -351,23 +473,43 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
         onNodeContextMenu={onNodeContextMenu}
         onEdgeDoubleClick={onEdgeDoubleClick}
         onPaneClick={onPaneClick}
+        onSelectionChange={onSelectionChange}
         colorMode="system"
+        /* Selecting must not lift the whiteboard over the evidence sitting on it. */
+        elevateNodesOnSelect={false}
         connectionMode={ConnectionMode.Loose}
         deleteKeyCode={['Backspace', 'Delete']}
+        multiSelectionKeyCode={['Shift', 'Meta', 'Control']}
+        /* Left button draws a selection box; the right one drags the canvas. */
+        selectionOnDrag={!drawing}
+        panOnDrag={[2]}
+        selectionKeyCode={null}
         fitView
       >
         <Panel position="top-left">
-          <CanvasEditToolbar />
+          <CanvasToolRail
+            knowledgeBase={knowledgeBase}
+            drawing={drawing}
+            onToggleDrawing={() => setDrawing((value) => !value)}
+            presenting={presenting}
+            onTogglePresentation={onTogglePresentation}
+            onStatus={setFeedback}
+          />
         </Panel>
         <Panel position="top-center">
           <LiveScoreBadge knowledgeBase={knowledgeBase} />
         </Panel>
         <Panel position="top-right">
-          <CanvasActions knowledgeBase={knowledgeBase} />
+          <CanvasActions feedback={feedback} onStatus={setFeedback} />
         </Panel>
         <Background />
         <Controls />
         <MiniMap pannable zoomable />
+        {drawing ? (
+          <DrawingSurface color={PEN.color} width={PEN.width} />
+        ) : (
+          <DrawingStrokes pending={null} />
+        )}
       </ReactFlow>
 
       {contextMenu && (
@@ -376,6 +518,10 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
           knowledgeBase={knowledgeBase}
           onClose={() => setContextMenu(null)}
         />
+      )}
+
+      {paneMenu && (
+        <PaneContextMenu menu={paneMenu} items={libraryItems} onClose={() => setPaneMenu(null)} />
       )}
 
       {commentEditor && (

@@ -29,6 +29,8 @@ export const NODE_GLYPHS: Record<CanvasNodeType, string> = {
   analyst_note: 'NOTE',
   hypothesis: 'H',
   detection_use_case: 'UC',
+  text: 'TXT',
+  whiteboard: 'WB',
 }
 
 export const NODE_STATE_MARKERS: Record<NodeState, string> = {

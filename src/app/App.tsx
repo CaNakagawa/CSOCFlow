@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { useKnowledgeBase } from '../features/knowledge-base/hooks/useKnowledgeBase'
 import { useCorrelation } from '../features/correlation/selectors/useCorrelation'
 import { useEditShortcuts } from '../features/investigation/hooks/useEditShortcuts'
@@ -26,6 +26,38 @@ export function App() {
   const [isLibraryCollapsed, setLibraryCollapsed] = useState(false)
   const [isRightPanelCollapsed, setRightPanelCollapsed] = useState(false)
   const [panelWidths, setPanelWidths] = useState(getStoredPanelWidths)
+  const [presenting, setPresenting] = useState(false)
+
+  /*
+   * Presentation mode hides the chrome and asks the browser for the screen.
+   * Fullscreen can be refused (an iframe without permission, or a user gesture
+   * the browser did not like); the layout still goes full-window either way.
+   */
+  const togglePresentation = useCallback(() => {
+    setPresenting((value) => {
+      const next = !value
+      if (next) void document.documentElement.requestFullscreen?.().catch(() => undefined)
+      else if (document.fullscreenElement) void document.exitFullscreen?.().catch(() => undefined)
+      return next
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!presenting) return
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setPresenting(false)
+    }
+    // Leaving fullscreen by the browser's own shortcut must leave the mode too.
+    function handleFullscreenChange() {
+      if (!document.fullscreenElement) setPresenting(false)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    }
+  }, [presenting])
 
   useEffect(() => storePanelWidths(panelWidths), [panelWidths])
 
@@ -48,7 +80,7 @@ export function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${presenting ? ' app-shell--presenting' : ''}`}>
       <TopBar
         libraryCollapsed={isLibraryCollapsed}
         onToggleLibrary={() => setLibraryCollapsed((v) => !v)}
@@ -80,7 +112,12 @@ export function App() {
             onResize={(library) => setPanelWidths((widths) => ({ ...widths, library }))}
           />
         )}
-        <Canvas knowledgeBase={knowledgeBase} />
+        <Canvas
+          knowledgeBase={knowledgeBase}
+          libraryItems={libraryItems}
+          presenting={presenting}
+          onTogglePresentation={togglePresentation}
+        />
         {!isRightPanelCollapsed && (
           <PanelResizer
             side="right"

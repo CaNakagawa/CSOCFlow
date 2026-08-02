@@ -22,6 +22,10 @@ export type CanvasNodeType =
   | 'analyst_note'
   | 'hypothesis'
   | 'detection_use_case'
+  /** Free text the analyst types straight onto the canvas. */
+  | 'text'
+  /** A blank panel that sits behind everything, to group work visually. */
+  | 'whiteboard'
 
 export type NodeState =
   | 'unknown'
@@ -73,6 +77,8 @@ export interface InvestigationNode {
    * faded so the ATT&CK matrix frame never competes with real evidence.
    */
   scaffold?: boolean
+  /** Set for the shapes the analyst can resize, such as the whiteboard. */
+  size?: { width: number; height: number }
   createdAt: string
   updatedAt: string
 }
@@ -94,6 +100,14 @@ export interface InvestigationEdge {
 }
 
 export type EdgeLineStyle = 'solid' | 'dashed'
+
+/** One freehand line drawn on the canvas, in canvas coordinates. */
+export interface DrawingStroke {
+  id: string
+  points: { x: number; y: number }[]
+  color: string
+  width: number
+}
 
 export type InvestigationConclusion =
   'confirmed' | 'probable' | 'inconclusive' | 'legitimate_activity' | 'false_positive'
@@ -127,6 +141,7 @@ export interface Investigation {
     viewport: { x: number; y: number; zoom: number }
     nodes: InvestigationNode[]
     edges: InvestigationEdge[]
+    drawings?: DrawingStroke[]
   }
   hypotheses: HypothesisRecord[]
   timeline: TimelineEntry[]

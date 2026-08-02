@@ -14,6 +14,9 @@ export interface Rect {
   height: number
 }
 
+/** Controls that only make sense while editing, kept out of the picture. */
+export const EXPORT_HIDDEN_CLASS = 'canvas-export-hide'
+
 /** Blank margin around the drawing, in canvas units. */
 const PADDING = 48
 /** Rendered at 2x so text stays sharp in a slide or a printed page. */
@@ -89,6 +92,8 @@ export async function renderCanvasImage({
 
   const dataUrl = await render(element, {
     backgroundColor,
+    filter: (node) =>
+      !(node instanceof HTMLElement && node.classList.contains(EXPORT_HIDDEN_CLASS)),
     width: plan.width,
     height: plan.height,
     quality: 0.95,

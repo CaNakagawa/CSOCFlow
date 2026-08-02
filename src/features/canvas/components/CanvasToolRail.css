@@ -1,0 +1,85 @@
+.tool-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.tool-rail__handle {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-popover);
+  color: inherit;
+  cursor: pointer;
+}
+
+.tool-rail__handle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.tool-rail__handle:hover,
+.tool-rail--open .tool-rail__handle {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tool-rail__tools {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 4px;
+  border-radius: 20px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-popover);
+}
+
+.tool-rail__button {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tool-rail__button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.tool-rail__button:hover:not(:disabled) {
+  background: var(--hover-bg);
+  color: var(--accent);
+}
+
+.tool-rail__button--active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tool-rail__button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.tool-rail__divider {
+  width: 18px;
+  height: 1px;
+  margin: 3px 0;
+  background: var(--panel-border);
+}

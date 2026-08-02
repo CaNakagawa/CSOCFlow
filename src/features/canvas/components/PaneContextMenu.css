@@ -1,0 +1,65 @@
+.pane-menu {
+  position: fixed;
+  z-index: 30;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-popover);
+}
+
+.pane-menu > button,
+.pane-menu__suggestions button,
+.pane-menu__blank {
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  padding: 7px 9px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+}
+
+.pane-menu > button:hover,
+.pane-menu__suggestions button:hover,
+.pane-menu__blank:hover {
+  background: var(--hover-bg);
+  color: var(--accent);
+}
+
+.pane-menu__search {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 250px;
+}
+
+.pane-menu__search input {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--input-bg);
+  color: inherit;
+}
+
+.pane-menu__suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.pane-menu__blank {
+  color: var(--muted-fg);
+  border-top: 1px solid var(--panel-border);
+  border-radius: 0 0 6px 6px;
+}

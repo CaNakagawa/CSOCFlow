@@ -1,0 +1,8 @@
+.drawing-surface {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  cursor: crosshair;
+  touch-action: none;
+  background: transparent;
+}

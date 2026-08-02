@@ -3,6 +3,7 @@ import { generateId } from '../../../shared/utils/id'
 import type {
   AnalyticStatus,
   CanvasNodeType,
+  DrawingStroke,
   EdgeLineStyle,
   InvestigationEdge,
   InvestigationMeta,
@@ -93,7 +94,10 @@ interface InvestigationState {
   nodes: InvestigationNode[]
   manualEdges: InvestigationEdge[]
   inferredEdges: InvestigationEdge[]
+  drawings: DrawingStroke[]
   selectedNodeId: string | null
+  /** Everything the marquee or a shift-click caught; drives the bulk actions. */
+  selectedNodeIds: string[]
   checkAnswers: CheckAnswerRecord[]
   hypothesisResults: HypothesisResult[]
   useCaseSuggestions: UseCaseSuggestion[]
@@ -133,6 +137,21 @@ interface InvestigationState {
   removeNode: (nodeId: string) => void
   duplicateNode: (nodeId: string) => string | undefined
   expandSubtechniques: (nodeId: string, knowledgeBase: KnowledgeBase, locale: Locale) => number
+  collapseSubtechniques: (nodeId: string) => number
+  addFreeNode: (params: {
+    nodeType: CanvasNodeType
+    label: string
+    position: { x: number; y: number }
+    size?: { width: number; height: number }
+  }) => string
+  updateNodeLabel: (nodeId: string, label: string) => void
+  resizeNode: (nodeId: string, size: { width: number; height: number }) => void
+  setSelectedNodes: (nodeIds: string[]) => void
+  selectAllNodes: () => void
+  copySelection: () => number
+  pasteClipboard: () => number
+  addStroke: (stroke: DrawingStroke) => void
+  clearDrawings: () => void
   linkToNearest: (nodeId: string, handle: HandleId) => boolean
   selectNode: (nodeId: string | null) => void
   addManualEdge: (
@@ -175,18 +194,25 @@ const COALESCE_MS = 700
 interface HistorySnapshot {
   nodes: InvestigationNode[]
   manualEdges: InvestigationEdge[]
+  drawings: DrawingStroke[]
 }
+
+/** How far a pasted copy lands from its original. */
+const PASTE_OFFSET = 40
 
 export const useInvestigationStore = create<InvestigationState>((set, get) => {
   // Transient bookkeeping for coalescing; never part of the saved document.
   let lastPush: { key: string; at: number } | null = null
+  // The copy buffer lives outside the state: it is not part of the canvas.
+  let clipboard: InvestigationNode[] = []
 
   /** Keeps the selection only if it survived the snapshot being restored. */
   function selectionWithin(snapshot: HistorySnapshot, selectedNodeId: string | null) {
-    const stillThere =
-      selectedNodeId !== null && snapshot.nodes.some((n) => n.id === selectedNodeId)
+    const present = new Set(snapshot.nodes.map((n) => n.id))
+    const stillThere = selectedNodeId !== null && present.has(selectedNodeId)
     return {
       selectedNodeId: stillThere ? selectedNodeId : null,
+      selectedNodeIds: get().selectedNodeIds.filter((id) => present.has(id)),
       selectedAnalytic: null,
     }
   }
@@ -197,7 +223,9 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
     nodes: [],
     manualEdges: [],
     inferredEdges: [],
+    drawings: [],
     selectedNodeId: null,
+    selectedNodeIds: [],
     checkAnswers: [],
     hypothesisResults: [],
     useCaseSuggestions: [],
@@ -221,9 +249,10 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       lastPush = coalesceKey ? { key: coalesceKey, at: now } : null
 
       set((state) => ({
-        past: [...state.past, { nodes: state.nodes, manualEdges: state.manualEdges }].slice(
-          -HISTORY_LIMIT,
-        ),
+        past: [
+          ...state.past,
+          { nodes: state.nodes, manualEdges: state.manualEdges, drawings: state.drawings },
+        ].slice(-HISTORY_LIMIT),
         // A fresh edit invalidates anything that was undone.
         future: [],
       }))
@@ -238,11 +267,12 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       set({
         nodes: previous.nodes,
         manualEdges: previous.manualEdges,
+        drawings: previous.drawings,
         past: state.past.slice(0, -1),
-        future: [{ nodes: state.nodes, manualEdges: state.manualEdges }, ...state.future].slice(
-          0,
-          HISTORY_LIMIT,
-        ),
+        future: [
+          { nodes: state.nodes, manualEdges: state.manualEdges, drawings: state.drawings },
+          ...state.future,
+        ].slice(0, HISTORY_LIMIT),
         ...selectionWithin(previous, state.selectedNodeId),
       })
     },
@@ -256,9 +286,11 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       set({
         nodes: next.nodes,
         manualEdges: next.manualEdges,
-        past: [...state.past, { nodes: state.nodes, manualEdges: state.manualEdges }].slice(
-          -HISTORY_LIMIT,
-        ),
+        drawings: next.drawings,
+        past: [
+          ...state.past,
+          { nodes: state.nodes, manualEdges: state.manualEdges, drawings: state.drawings },
+        ].slice(-HISTORY_LIMIT),
         future: state.future.slice(1),
         ...selectionWithin(next, state.selectedNodeId),
       })
@@ -284,7 +316,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
         createdAt: now,
         updatedAt: now,
       }
-      set((state) => ({ nodes: [...state.nodes, node], selectedNodeId: id }))
+      set((state) => ({ nodes: [...state.nodes, node], selectedNodeId: id, selectedNodeIds: [id] }))
       return id
     },
 
@@ -656,6 +688,153 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
     },
 
     /**
+     * Sends the subtechniques brought in from a technique back where they came
+     * from.
+     *
+     * Only the ones still hanging off this technique alone go: a subtechnique
+     * the analyst wired into the rest of the investigation is evidence now, not
+     * scaffolding, and stays.
+     */
+    collapseSubtechniques: (nodeId) => {
+      const state = get()
+      const parent = state.nodes.find((n) => n.id === nodeId)
+      if (!parent) return 0
+
+      const children = state.nodes.filter(
+        (n) =>
+          n.type === 'mitre_subtechnique' &&
+          parentTechniqueId(n.definitionId) === parent.definitionId,
+      )
+      const removable = children.filter((child) =>
+        state.manualEdges
+          .concat(state.inferredEdges)
+          .every(
+            (edge) =>
+              (edge.source !== child.id && edge.target !== child.id) ||
+              edge.source === parent.id ||
+              edge.target === parent.id,
+          ),
+      )
+      if (removable.length === 0) return 0
+
+      get().pushHistory()
+      const removedIds = new Set(removable.map((n) => n.id))
+      set((current) => ({
+        nodes: current.nodes.filter((n) => !removedIds.has(n.id)),
+        manualEdges: current.manualEdges.filter(
+          (e) => !removedIds.has(e.source) && !removedIds.has(e.target),
+        ),
+        inferredEdges: current.inferredEdges.filter(
+          (e) => !removedIds.has(e.source) && !removedIds.has(e.target),
+        ),
+        selectedNodeId:
+          current.selectedNodeId && removedIds.has(current.selectedNodeId)
+            ? null
+            : current.selectedNodeId,
+        selectedNodeIds: current.selectedNodeIds.filter((id) => !removedIds.has(id)),
+      }))
+      return removable.length
+    },
+
+    /** A node the analyst writes themselves: free text, or the whiteboard panel. */
+    addFreeNode: ({ nodeType, label, position, size }) => {
+      get().pushHistory()
+      const now = new Date().toISOString()
+      const id = generateId('node')
+      const node: InvestigationNode = {
+        id,
+        definitionId: `free.${nodeType}`,
+        type: nodeType,
+        label,
+        state: 'unknown',
+        position,
+        size,
+        fields: {},
+        notes: '',
+        createdAt: now,
+        updatedAt: now,
+      }
+      set((state) => ({ nodes: [...state.nodes, node], selectedNodeId: id, selectedNodeIds: [id] }))
+      return id
+    },
+
+    updateNodeLabel: (nodeId, label) => {
+      // Typing is one undo step per burst, not one per character.
+      get().pushHistory(`label:${nodeId}`)
+      set((state) => ({
+        nodes: state.nodes.map((n) =>
+          n.id === nodeId ? { ...n, label, updatedAt: new Date().toISOString() } : n,
+        ),
+      }))
+    },
+
+    resizeNode: (nodeId, size) => {
+      get().pushHistory(`resize:${nodeId}`)
+      set((state) => ({
+        nodes: state.nodes.map((n) =>
+          n.id === nodeId ? { ...n, size, updatedAt: new Date().toISOString() } : n,
+        ),
+      }))
+    },
+
+    setSelectedNodes: (nodeIds) =>
+      set((state) => ({
+        selectedNodeIds: nodeIds,
+        // The details panel follows the last thing picked, and only shows
+        // something when a single node is in play.
+        selectedNodeId: nodeIds.length === 1 ? nodeIds[0] : null,
+        selectedAnalytic:
+          nodeIds.length === 1 && state.selectedAnalytic?.nodeId === nodeIds[0]
+            ? state.selectedAnalytic
+            : null,
+      })),
+
+    selectAllNodes: () => {
+      const ids = get().nodes.map((n) => n.id)
+      set({ selectedNodeIds: ids, selectedNodeId: ids.length === 1 ? ids[0] : null })
+    },
+
+    copySelection: () => {
+      const state = get()
+      const ids = new Set(state.selectedNodeIds)
+      clipboard = state.nodes.filter((n) => ids.has(n.id))
+      return clipboard.length
+    },
+
+    pasteClipboard: () => {
+      if (clipboard.length === 0) return 0
+      get().pushHistory()
+      const now = new Date().toISOString()
+      const copies = clipboard.map((node) => ({
+        ...node,
+        id: generateId('node'),
+        position: { x: node.position.x + PASTE_OFFSET, y: node.position.y + PASTE_OFFSET },
+        fields: { ...node.fields },
+        createdAt: now,
+        updatedAt: now,
+      }))
+      set((state) => ({
+        nodes: [...state.nodes, ...copies],
+        selectedNodeIds: copies.map((n) => n.id),
+        selectedNodeId: copies.length === 1 ? copies[0].id : null,
+      }))
+      // Pasting again lands beside the copies rather than on top of them.
+      clipboard = copies
+      return copies.length
+    },
+
+    addStroke: (stroke) => {
+      get().pushHistory()
+      set((state) => ({ drawings: [...state.drawings, stroke] }))
+    },
+
+    clearDrawings: () => {
+      if (get().drawings.length === 0) return
+      get().pushHistory()
+      set({ drawings: [] })
+    },
+
+    /**
      * Connects a node's connection point to whatever sits nearest on that side.
      *
      * Returns false when there is nothing that way, or when the two are already
@@ -687,6 +866,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
     selectNode: (nodeId) =>
       set((state) => ({
         selectedNodeId: nodeId,
+        selectedNodeIds: nodeId ? [nodeId] : [],
         // A different node's analytic must not stay selected in the details panel.
         selectedAnalytic: state.selectedAnalytic?.nodeId === nodeId ? state.selectedAnalytic : null,
       })),
@@ -785,7 +965,9 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
         nodes: doc.canvas.nodes,
         manualEdges: doc.canvas.edges.filter((e) => !e.automatic),
         inferredEdges: doc.canvas.edges.filter((e) => e.automatic),
+        drawings: doc.canvas.drawings ?? [],
         selectedNodeId: null,
+        selectedNodeIds: [],
         selectedAnalytic: null,
         checkAnswers: [],
         hypothesisResults: [],
@@ -804,6 +986,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
           viewport: state.viewport,
           nodes: state.nodes,
           edges: combineEdges(state.inferredEdges, state.manualEdges),
+          drawings: state.drawings,
         },
         hypotheses: state.hypothesisResults.map((h) => ({
           hypothesisId: h.hypothesisId,
@@ -826,7 +1009,9 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
         nodes: [],
         manualEdges: [],
         inferredEdges: [],
+        drawings: [],
         selectedNodeId: null,
+        selectedNodeIds: [],
         selectedAnalytic: null,
         checkAnswers: [],
         hypothesisResults: [],
@@ -841,7 +1026,9 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
         nodes: [],
         manualEdges: [],
         inferredEdges: [],
+        drawings: [],
         selectedNodeId: null,
+        selectedNodeIds: [],
         selectedAnalytic: null,
         hypothesisResults: [],
         useCaseSuggestions: [],

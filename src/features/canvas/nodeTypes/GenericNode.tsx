@@ -1,4 +1,4 @@
-import type { MouseEvent as ReactMouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import type { AnalyticStatus, CanvasNodeType, NodeState } from '../../../shared/types/investigation'
@@ -26,7 +26,10 @@ export interface GenericNodeData extends Record<string, unknown> {
   selectedAnalyticId: string | null
   /** Subtechniques of this technique that are not on the canvas yet. */
   missingSubtechniques: number
+  /** Subtechniques of this technique that are on the canvas and can go back. */
+  presentSubtechniques: number
   onExpandSubtechniques?: (nodeId: string) => void
+  onCollapseSubtechniques?: (nodeId: string) => void
 }
 
 const HANDLE_POSITIONS: Record<HandleId, Position> = {
@@ -48,11 +51,21 @@ export function GenericNode({ data, selected }: NodeProps) {
     analyticStatuses,
     selectedAnalyticId,
     missingSubtechniques,
+    presentSubtechniques,
     onExpandSubtechniques,
+    onCollapseSubtechniques,
   } = data as unknown as GenericNodeData
   const { t } = useI18n()
   const linkToNearest = useInvestigationStore((s) => s.linkToNearest)
+  const updateNodeLabel = useInvestigationStore((s) => s.updateNodeLabel)
   const stateLabel = t(nodeStateKey(state))
+  // A node added blank from the canvas menu starts out waiting for its name.
+  const [editingLabel, setEditingLabel] = useState(label.length === 0)
+  const labelInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (editingLabel) labelInputRef.current?.focus()
+  }, [editingLabel])
 
   // Double-clicking a connection point reaches for whatever is nearest on that
   // side, so a chain can be wired without dragging each link.
@@ -86,16 +99,37 @@ export function GenericNode({ data, selected }: NodeProps) {
         </span>
         <span className="generic-node__category">{t(nodeCategoryKey(nodeType))}</span>
       </div>
-      <div className="generic-node__label">{label}</div>
+      {editingLabel ? (
+        <input
+          ref={labelInputRef}
+          className="generic-node__label-input nodrag"
+          value={label}
+          placeholder={t('canvas.labelPlaceholder')}
+          aria-label={t('canvas.labelPlaceholder')}
+          onChange={(event) => updateNodeLabel(nodeId, event.target.value)}
+          onBlur={() => setEditingLabel(false)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === 'Escape') setEditingLabel(false)
+          }}
+        />
+      ) : (
+        <div
+          className="generic-node__label"
+          onDoubleClick={() => setEditingLabel(true)}
+          title={t('canvas.textEditHint')}
+        >
+          {label || t('canvas.labelPlaceholder')}
+        </div>
+      )}
       <div className="generic-node__state" title={stateLabel}>
         <span aria-hidden="true">{NODE_STATE_MARKERS[state]}</span> {stateLabel}
       </div>
 
-      {/* Only offered while there is something left to bring in. */}
+      {/* Bring the subtechniques in, or send back the ones that came from here. */}
       {missingSubtechniques > 0 && (
         <button
           type="button"
-          className="node-analytics__toggle nodrag"
+          className="node-analytics__toggle nodrag canvas-export-hide"
           onClick={(event) => {
             event.stopPropagation()
             onExpandSubtechniques?.(nodeId)
@@ -105,6 +139,21 @@ export function GenericNode({ data, selected }: NodeProps) {
             ⤵
           </span>
           {t('canvas.expandSubtechniques', { count: String(missingSubtechniques) })}
+        </button>
+      )}
+      {presentSubtechniques > 0 && (
+        <button
+          type="button"
+          className="node-analytics__toggle nodrag canvas-export-hide"
+          onClick={(event) => {
+            event.stopPropagation()
+            onCollapseSubtechniques?.(nodeId)
+          }}
+        >
+          <span className="node-analytics__caret" aria-hidden="true">
+            ⤴
+          </span>
+          {t('canvas.collapseSubtechniques', { count: String(presentSubtechniques) })}
         </button>
       )}
 
