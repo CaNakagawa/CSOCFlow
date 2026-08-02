@@ -1,77 +1,137 @@
 [
   {
     "id": "TA0043",
-    "name": "Reconnaissance",
+    "name": {
+      "en": "Reconnaissance",
+      "pt": "Reconhecimento",
+      "de": "Aufklärung"
+    },
     "shortName": "reconnaissance"
   },
   {
     "id": "TA0042",
-    "name": "Resource Development",
+    "name": {
+      "en": "Resource Development",
+      "pt": "Desenvolvimento de Recursos",
+      "de": "Ressourcenentwicklung"
+    },
     "shortName": "resource-development"
   },
   {
     "id": "TA0001",
-    "name": "Initial Access",
+    "name": {
+      "en": "Initial Access",
+      "pt": "Acesso Inicial",
+      "de": "Erstzugriff"
+    },
     "shortName": "initial-access"
   },
   {
     "id": "TA0002",
-    "name": "Execution",
+    "name": {
+      "en": "Execution",
+      "pt": "Execução",
+      "de": "Ausführung"
+    },
     "shortName": "execution"
   },
   {
     "id": "TA0003",
-    "name": "Persistence",
+    "name": {
+      "en": "Persistence",
+      "pt": "Persistência",
+      "de": "Persistenz"
+    },
     "shortName": "persistence"
   },
   {
     "id": "TA0004",
-    "name": "Privilege Escalation",
+    "name": {
+      "en": "Privilege Escalation",
+      "pt": "Escalação de Privilégios",
+      "de": "Rechteausweitung"
+    },
     "shortName": "privilege-escalation"
   },
   {
     "id": "TA0005",
-    "name": "Stealth",
+    "name": {
+      "en": "Stealth",
+      "pt": "Furtividade",
+      "de": "Tarnung"
+    },
     "shortName": "stealth"
   },
   {
     "id": "TA0112",
-    "name": "Defense Impairment",
+    "name": {
+      "en": "Defense Impairment",
+      "pt": "Comprometimento das Defesas",
+      "de": "Beeinträchtigung der Abwehr"
+    },
     "shortName": "defense-impairment"
   },
   {
     "id": "TA0006",
-    "name": "Credential Access",
+    "name": {
+      "en": "Credential Access",
+      "pt": "Acesso a Credenciais",
+      "de": "Zugriff auf Anmeldedaten"
+    },
     "shortName": "credential-access"
   },
   {
     "id": "TA0007",
-    "name": "Discovery",
+    "name": {
+      "en": "Discovery",
+      "pt": "Descoberta",
+      "de": "Erkundung"
+    },
     "shortName": "discovery"
   },
   {
     "id": "TA0008",
-    "name": "Lateral Movement",
+    "name": {
+      "en": "Lateral Movement",
+      "pt": "Movimentação Lateral",
+      "de": "Laterale Bewegung"
+    },
     "shortName": "lateral-movement"
   },
   {
     "id": "TA0009",
-    "name": "Collection",
+    "name": {
+      "en": "Collection",
+      "pt": "Coleta",
+      "de": "Sammlung"
+    },
     "shortName": "collection"
   },
   {
     "id": "TA0011",
-    "name": "Command and Control",
+    "name": {
+      "en": "Command and Control",
+      "pt": "Comando e Controle",
+      "de": "Command and Control"
+    },
     "shortName": "command-and-control"
   },
   {
     "id": "TA0010",
-    "name": "Exfiltration",
+    "name": {
+      "en": "Exfiltration",
+      "pt": "Exfiltração",
+      "de": "Exfiltration"
+    },
     "shortName": "exfiltration"
   },
   {
     "id": "TA0040",
-    "name": "Impact",
+    "name": {
+      "en": "Impact",
+      "pt": "Impacto",
+      "de": "Auswirkung"
+    },
     "shortName": "impact"
   }
 ]

@@ -6,10 +6,10 @@ import { isHandleId } from '../../../shared/types/handles'
 
 /** Matrix order, where the ids are deliberately not sequential. */
 const tactics: MitreTactic[] = [
-  { id: 'TA0043', name: 'Reconnaissance', shortName: 'reconnaissance' },
-  { id: 'TA0001', name: 'Initial Access', shortName: 'initial-access' },
-  { id: 'TA0003', name: 'Persistence', shortName: 'persistence' },
-  { id: 'TA0040', name: 'Impact', shortName: 'impact' },
+  { id: 'TA0043', name: { en: 'Reconnaissance' }, shortName: 'reconnaissance' },
+  { id: 'TA0001', name: { en: 'Initial Access' }, shortName: 'initial-access' },
+  { id: 'TA0003', name: { en: 'Persistence' }, shortName: 'persistence' },
+  { id: 'TA0040', name: { en: 'Impact' }, shortName: 'impact' },
 ]
 
 function node(

@@ -52,7 +52,7 @@ const localizedTextSchema = z.object({
 
 export const mitreTacticSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  name: localizedTextSchema,
   shortName: z.string(),
 })
 

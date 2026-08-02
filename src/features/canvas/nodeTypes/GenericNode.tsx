@@ -24,6 +24,9 @@ export interface GenericNodeData extends Record<string, unknown> {
   analyticsExpanded: boolean
   analyticStatuses: Record<string, AnalyticStatus>
   selectedAnalyticId: string | null
+  /** Subtechniques of this technique that are not on the canvas yet. */
+  missingSubtechniques: number
+  onExpandSubtechniques?: (nodeId: string) => void
 }
 
 const HANDLE_POSITIONS: Record<HandleId, Position> = {
@@ -44,6 +47,8 @@ export function GenericNode({ data, selected }: NodeProps) {
     analyticsExpanded,
     analyticStatuses,
     selectedAnalyticId,
+    missingSubtechniques,
+    onExpandSubtechniques,
   } = data as unknown as GenericNodeData
   const { t } = useI18n()
   const linkToNearest = useInvestigationStore((s) => s.linkToNearest)
@@ -85,6 +90,23 @@ export function GenericNode({ data, selected }: NodeProps) {
       <div className="generic-node__state" title={stateLabel}>
         <span aria-hidden="true">{NODE_STATE_MARKERS[state]}</span> {stateLabel}
       </div>
+
+      {/* Only offered while there is something left to bring in. */}
+      {missingSubtechniques > 0 && (
+        <button
+          type="button"
+          className="node-analytics__toggle nodrag"
+          onClick={(event) => {
+            event.stopPropagation()
+            onExpandSubtechniques?.(nodeId)
+          }}
+        >
+          <span className="node-analytics__caret" aria-hidden="true">
+            ⤵
+          </span>
+          {t('canvas.expandSubtechniques', { count: String(missingSubtechniques) })}
+        </button>
+      )}
 
       <NodeAnalytics
         nodeId={nodeId}

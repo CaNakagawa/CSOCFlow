@@ -1,5 +1,6 @@
 import type { InvestigationNode } from '../../../shared/types/investigation'
 import type { KnowledgeBase, MitreTactic } from '../../../shared/types/knowledge'
+import type { LocalizedText } from '../../../shared/i18n/types'
 
 /** Reaching a tactic at all already counts for half; the rest is the chain behind it. */
 const DEPTH_FLOOR = 0.5
@@ -18,7 +19,7 @@ const STATE_CONFIRMATION: Partial<Record<InvestigationNode['state'], number>> = 
 
 export interface TacticScore {
   tacticId: string
-  name: string
+  name: LocalizedText
   /** 0-based position in the matrix. */
   position: number
   /** How much this tactic counts, growing left to right. */

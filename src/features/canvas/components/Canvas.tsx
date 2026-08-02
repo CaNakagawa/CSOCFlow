@@ -25,7 +25,9 @@ import { CanvasActions } from './CanvasActions'
 import { CanvasEditToolbar } from './CanvasEditToolbar'
 import { NodeContextMenu, type ContextMenuState } from './NodeContextMenu'
 import { LiveScoreBadge } from './LiveScoreBadge'
+import { buildEdgeLabelStyle, readCssToken } from '../utils/edgeLabelStyle'
 import { relationshipKey } from '../utils/nodeVisuals'
+import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
 import { useI18n } from '../../../shared/i18n'
 import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/investigation'
 import type { DetectionAnalytic, KnowledgeBase } from '../../../shared/types/knowledge'
@@ -83,7 +85,7 @@ interface CanvasProps {
 }
 
 export function Canvas({ knowledgeBase }: CanvasProps) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const nodes = useInvestigationStore((s) => s.nodes)
   const manualEdges = useInvestigationStore((s) => s.manualEdges)
   const inferredEdges = useInvestigationStore((s) => s.inferredEdges)
@@ -103,6 +105,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   const updateManualEdgeType = useInvestigationStore((s) => s.updateManualEdgeType)
   const updateEdgeStyle = useInvestigationStore((s) => s.updateEdgeStyle)
   const pushHistory = useInvestigationStore((s) => s.pushHistory)
+  const expandSubtechniques = useInvestigationStore((s) => s.expandSubtechniques)
 
   /*
    * The nodes handed to React Flow are rebuilt from the store on every change,
@@ -126,6 +129,26 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
     return map
   }, [knowledgeBase])
 
+  const subtechniquesByParent = useMemo(() => {
+    const map = new Map<string, string[]>()
+    for (const technique of knowledgeBase?.techniques ?? []) {
+      const parentId = parentTechniqueId(technique.id)
+      if (!parentId) continue
+      map.set(parentId, [...(map.get(parentId) ?? []), technique.id])
+    }
+    return map
+  }, [knowledgeBase])
+
+  const definitionsOnCanvas = useMemo(() => new Set(nodes.map((n) => n.definitionId)), [nodes])
+
+  const handleExpandSubtechniques = useCallback(
+    (nodeId: string) => {
+      if (!knowledgeBase) return
+      expandSubtechniques(nodeId, knowledgeBase, locale)
+    },
+    [expandSubtechniques, knowledgeBase, locale],
+  )
+
   const flowNodes: Node<GenericNodeData>[] = useMemo(
     () =>
       nodes.map((n) => ({
@@ -145,32 +168,49 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
           analyticStatuses: n.analyticStatuses ?? {},
           selectedAnalyticId:
             selectedAnalytic?.nodeId === n.id ? selectedAnalytic.analyticId : null,
+          missingSubtechniques:
+            n.type === 'mitre_technique'
+              ? (subtechniquesByParent.get(n.definitionId) ?? []).filter(
+                  (id) => !definitionsOnCanvas.has(id),
+                ).length
+              : 0,
+          onExpandSubtechniques: handleExpandSubtechniques,
         },
       })),
-    [nodes, selectedNodeId, analyticsByDefinition, selectedAnalytic, nodeSizes],
+    [
+      nodes,
+      selectedNodeId,
+      analyticsByDefinition,
+      selectedAnalytic,
+      nodeSizes,
+      subtechniquesByParent,
+      definitionsOnCanvas,
+      handleExpandSubtechniques,
+    ],
   )
 
-  const flowEdges: Edge<FlowEdgeData>[] = useMemo(
-    () =>
-      edges.map((e) => {
-        const stroke = e.color ?? (e.automatic ? AUTOMATIC_EDGE_COLOR : MANUAL_EDGE_COLOR)
-        const dashed = e.lineStyle ? e.lineStyle === 'dashed' : e.automatic
-        return {
-          id: e.id,
-          source: e.source,
-          target: e.target,
-          sourceHandle: e.sourceHandle,
-          targetHandle: e.targetHandle,
-          label: e.label,
-          selected: e.id === selectedEdgeId,
-          reconnectable: !e.automatic,
-          data: { automatic: e.automatic, type: e.type },
-          markerEnd: { type: MarkerType.ArrowClosed, color: stroke },
-          style: { stroke, strokeDasharray: dashed ? '4 3' : undefined },
-        }
-      }),
-    [edges, selectedEdgeId],
-  )
+  const flowEdges: Edge<FlowEdgeData>[] = useMemo(() => {
+    const labelStyle = buildEdgeLabelStyle(readCssToken)
+    return edges.map((e) => {
+      const stroke = e.color ?? (e.automatic ? AUTOMATIC_EDGE_COLOR : MANUAL_EDGE_COLOR)
+      const dashed = e.lineStyle ? e.lineStyle === 'dashed' : e.automatic
+      return {
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        sourceHandle: e.sourceHandle,
+        targetHandle: e.targetHandle,
+        label: e.label,
+        labelStyle,
+        labelShowBg: false,
+        selected: e.id === selectedEdgeId,
+        reconnectable: !e.automatic,
+        data: { automatic: e.automatic, type: e.type },
+        markerEnd: { type: MarkerType.ArrowClosed, color: stroke },
+        style: { stroke, strokeDasharray: dashed ? '4 3' : undefined },
+      }
+    })
+  }, [edges, selectedEdgeId])
 
   const onNodesChange: OnNodesChange<Node<GenericNodeData>> = useCallback(
     (changes: NodeChange<Node<GenericNodeData>>[]) => {
@@ -297,7 +337,7 @@ export function Canvas({ knowledgeBase }: CanvasProps) {
   }, [commentEditor, updateEdgeLabel, updateManualEdgeType, updateEdgeStyle])
 
   return (
-    <div className="canvas-area" role="application" aria-label="Investigation canvas">
+    <div className="canvas-area" role="application" aria-label={t('canvas.label')}>
       <ReactFlow
         nodes={flowNodes}
         edges={flowEdges}

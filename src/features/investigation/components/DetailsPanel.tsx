@@ -41,9 +41,10 @@ function findEducationalContent(
   if (!knowledgeBase) return null
   const technique = knowledgeBase.techniques.find((t) => t.id === definitionId)
   if (technique) {
-    const tacticNames = technique.tactics.map(
-      (tacticId) => knowledgeBase.tactics.find((t) => t.id === tacticId)?.name ?? tacticId,
-    )
+    const tacticNames = technique.tactics.map((tacticId) => {
+      const tactic = knowledgeBase.tactics.find((t) => t.id === tacticId)
+      return tactic ? localize(tactic.name, locale) : tacticId
+    })
     // Techniques imported in bulk from MITRE carry no curated teaching content;
     // their MITRE summary stands in for it and the extra sections stay empty.
     const context = technique.investigation_context

@@ -16,7 +16,8 @@ export interface InvestigationContext {
 
 export interface MitreTactic {
   id: string
-  name: string
+  /** MITRE publishes these in English; the other languages are ours. */
+  name: LocalizedText
   shortName: string
 }
 

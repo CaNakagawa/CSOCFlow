@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useInvestigationStore } from '../store/investigationStore'
 import { computeInvestigationScore, scoreBand } from '../scoring/investigationScore'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
-import { useI18n } from '../../../shared/i18n'
+import { localize, useI18n } from '../../../shared/i18n'
 import './ScorePanel.css'
 
 interface ScorePanelProps {
@@ -14,7 +14,7 @@ function percent(value: number): string {
 }
 
 export function ScorePanel({ knowledgeBase }: ScorePanelProps) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const nodes = useInvestigationStore((s) => s.nodes)
 
   const result = useMemo(
@@ -35,7 +35,7 @@ export function ScorePanel({ knowledgeBase }: ScorePanelProps) {
 
       <p className="score-panel__reach">
         {result.deepestTactic
-          ? t('score.reached', { tactic: result.deepestTactic.name })
+          ? t('score.reached', { tactic: localize(result.deepestTactic.name, locale) })
           : t('score.noneConfirmed')}
       </p>
 
@@ -70,7 +70,7 @@ export function ScorePanel({ knowledgeBase }: ScorePanelProps) {
         {result.tactics.map((tactic) => (
           <li key={tactic.tacticId}>
             <span className="score-panel__tactic-name">
-              {tactic.tacticId} — {tactic.name}
+              {tactic.tacticId} — {localize(tactic.name, locale)}
               {tactic.techniqueCount > 1 && (
                 <span className="score-panel__tactic-count"> ×{tactic.techniqueCount}</span>
               )}

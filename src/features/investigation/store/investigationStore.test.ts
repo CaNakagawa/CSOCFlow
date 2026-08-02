@@ -9,8 +9,8 @@ function makeKnowledgeBaseWithTechniques(): KnowledgeBase {
   return {
     version: '1.0.0',
     tactics: [
-      { id: 'TA0003', name: 'Persistence', shortName: 'persistence' },
-      { id: 'TA0005', name: 'Stealth', shortName: 'stealth' },
+      { id: 'TA0003', name: { en: 'Persistence' }, shortName: 'persistence' },
+      { id: 'TA0005', name: { en: 'Stealth' }, shortName: 'stealth' },
     ],
     techniques: [
       {
@@ -64,7 +64,11 @@ function makeKnowledgeBaseWithTechniques(): KnowledgeBase {
 
 function makeKnowledgeBaseWithSubtechnique(): KnowledgeBase {
   const base = makeKnowledgeBaseWithTechniques()
-  base.tactics.push({ id: 'TA0006', name: 'Credential Access', shortName: 'credential-access' })
+  base.tactics.push({
+    id: 'TA0006',
+    name: { en: 'Credential Access' },
+    shortName: 'credential-access',
+  })
   const shared = {
     type: 'mitre_technique' as const,
     tactics: ['TA0006'],
@@ -847,7 +851,8 @@ describe('investigationStore', () => {
     const copy = state.nodes.find((n) => n.id === copyId)
     expect(copyId).not.toBe(originalId)
     expect(copy).toBeDefined()
-    expect(copy!.label).toBe('root (cópia)')
+    // The suffix follows the interface language rather than being hard-coded.
+    expect(copy!.label).toBe('root (copy)')
     expect(copy!.position).toEqual({ x: 40, y: 50 })
     expect(copy!.fields.username).toBe('root')
     expect(copy!.state).toBe('suspicious')

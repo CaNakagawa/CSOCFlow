@@ -53,8 +53,32 @@ interface StixObject {
 
 interface Tactic {
   id: string
-  name: string
+  name: { en: string; pt: string; de: string }
   shortName: string
+}
+
+/*
+ * MITRE publishes ATT&CK in English only. These renderings are ours, kept here
+ * so regenerating from a new bundle carries them over instead of dropping the
+ * canvas back to English. A tactic without an entry stops the import rather
+ * than silently shipping half a translation.
+ */
+const TACTIC_NAMES: Record<string, { pt: string; de: string }> = {
+  TA0043: { pt: 'Reconhecimento', de: 'Aufklärung' },
+  TA0042: { pt: 'Desenvolvimento de Recursos', de: 'Ressourcenentwicklung' },
+  TA0001: { pt: 'Acesso Inicial', de: 'Erstzugriff' },
+  TA0002: { pt: 'Execução', de: 'Ausführung' },
+  TA0003: { pt: 'Persistência', de: 'Persistenz' },
+  TA0004: { pt: 'Escalação de Privilégios', de: 'Rechteausweitung' },
+  TA0005: { pt: 'Furtividade', de: 'Tarnung' },
+  TA0112: { pt: 'Comprometimento das Defesas', de: 'Beeinträchtigung der Abwehr' },
+  TA0006: { pt: 'Acesso a Credenciais', de: 'Zugriff auf Anmeldedaten' },
+  TA0007: { pt: 'Descoberta', de: 'Erkundung' },
+  TA0008: { pt: 'Movimentação Lateral', de: 'Laterale Bewegung' },
+  TA0009: { pt: 'Coleta', de: 'Sammlung' },
+  TA0011: { pt: 'Comando e Controle', de: 'Command and Control' },
+  TA0010: { pt: 'Exfiltração', de: 'Exfiltration' },
+  TA0040: { pt: 'Impacto', de: 'Auswirkung' },
 }
 
 function attackId(object: StixObject): string | undefined {
@@ -139,7 +163,11 @@ async function main() {
     .map((t) => {
       const id = attackId(t)
       if (!id || !t.name || !t.x_mitre_shortname) throw new Error(`Malformed tactic ${t.id}`)
-      return { id, name: t.name, shortName: t.x_mitre_shortname }
+      const translations = TACTIC_NAMES[id]
+      if (!translations) {
+        throw new Error(`No pt/de name for tactic ${id} (${t.name}); add it to TACTIC_NAMES`)
+      }
+      return { id, name: { en: t.name, ...translations }, shortName: t.x_mitre_shortname }
     })
   await writeFile(
     path.join(dataRoot, 'mitre/tactics.json'),

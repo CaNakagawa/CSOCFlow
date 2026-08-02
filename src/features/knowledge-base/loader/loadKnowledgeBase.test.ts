@@ -40,7 +40,7 @@ function baseFiles() {
     'schemas/check.schema.json': checkSchema,
     'schemas/use-case.schema.json': useCaseSchema,
     'mitre/tactics.json': [
-      { id: 'TA0006', name: 'Credential Access', shortName: 'credential-access' },
+      { id: 'TA0006', name: { en: 'Credential Access' }, shortName: 'credential-access' },
     ],
     'relationships/relationships.json': [],
   }
@@ -141,10 +141,10 @@ describe('loadKnowledgeBase', () => {
       },
       ...baseFiles(),
       'mitre/tactics.json': [
-        { id: 'TA0004', name: 'Privilege Escalation', shortName: 'privilege-escalation' },
-        { id: 'TA0005', name: 'Stealth', shortName: 'stealth' },
-        { id: 'TA0007', name: 'Discovery', shortName: 'discovery' },
-        { id: 'TA0040', name: 'Impact', shortName: 'impact' },
+        { id: 'TA0004', name: { en: 'Privilege Escalation' }, shortName: 'privilege-escalation' },
+        { id: 'TA0005', name: { en: 'Stealth' }, shortName: 'stealth' },
+        { id: 'TA0007', name: { en: 'Discovery' }, shortName: 'discovery' },
+        { id: 'TA0040', name: { en: 'Impact' }, shortName: 'impact' },
       ],
       // How MITRE actually ships T1055: Stealth before Privilege Escalation,
       // and skipping Discovery entirely.

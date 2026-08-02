@@ -201,7 +201,7 @@ export const en = {
   'hunting.tune': 'Tune before use',
   'hunting.copy': 'Copy',
   'hunting.copied': 'Copied',
-  'canvas.expandSubtechniques': 'Link subtechniques ({count})',
+  'canvas.expandSubtechniques': 'Expand subtechniques ({count})',
   'export.image': 'Export image',
   'export.imageHint':
     'Save the whole canvas as a picture, framed around everything on it — not just what is on screen.',
@@ -212,6 +212,7 @@ export const en = {
   'export.working': 'Exporting...',
   'export.done': '{format} exported.',
   'export.failed': 'Could not export the canvas. {reason}',
+  'canvas.label': 'Investigation canvas',
   'canvas.deleteHint': 'Delete the selected element',
   'canvas.nodeActions': 'Node actions',
   'canvas.commentPlaceholder': 'Connection comment...',

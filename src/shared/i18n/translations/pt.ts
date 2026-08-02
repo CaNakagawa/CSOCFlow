@@ -160,7 +160,7 @@ export const pt: Record<TranslationKey, string> = {
     'Nenhum caso de uso compatível ainda. Adicione uma técnica MITRE ATT&CK ao canvas, ou selecione um caso de uso diretamente na biblioteca.',
 
   'rightPanel.details': 'Detalhes',
-  'rightPanel.score': 'Score',
+  'rightPanel.score': 'Pontuação',
   'rightPanel.hypotheses': 'Hipóteses',
   'rightPanel.useCases': 'Casos de Uso',
   'rightPanel.collapse': 'Retrair painel',
@@ -196,14 +196,14 @@ export const pt: Record<TranslationKey, string> = {
   'canvas.edgeSolid': 'Sólida',
   'canvas.edgeDashed': 'Tracejada',
   'canvas.analyticsCount': '{count} analytics · {confirmed} confirmados',
-  'hunting.title': 'Hunting queries',
+  'hunting.title': 'Consultas de hunting',
   'hunting.disclaimer':
     'O MITRE não publica queries. Estes são pontos de partida montados a partir da fonte de log que ele publica — a lógica de detecção é um TODO. Revise e ajuste antes de executar.',
   'hunting.logSources': 'Fontes de log: ',
   'hunting.tune': 'Ajustar antes de usar',
   'hunting.copy': 'Copiar',
   'hunting.copied': 'Copiado',
-  'canvas.expandSubtechniques': 'Linkar subtécnicas ({count})',
+  'canvas.expandSubtechniques': 'Expandir subtécnicas ({count})',
   'export.image': 'Exportar imagem',
   'export.imageHint':
     'Salva o canvas inteiro como imagem, enquadrando tudo o que está nele — não apenas o que aparece na tela.',
@@ -214,6 +214,7 @@ export const pt: Record<TranslationKey, string> = {
   'export.working': 'Exportando...',
   'export.done': '{format} exportado.',
   'export.failed': 'Não foi possível exportar o canvas. {reason}',
+  'canvas.label': 'Canvas da investigação',
   'canvas.deleteHint': 'Excluir o elemento selecionado',
   'canvas.nodeActions': 'Ações do nó',
   'canvas.commentPlaceholder': 'Comentário da conexão...',

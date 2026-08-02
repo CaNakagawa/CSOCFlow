@@ -6,7 +6,7 @@ import {
   scoreBand,
 } from '../../investigation/scoring/investigationScore'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
-import { useI18n } from '../../../shared/i18n'
+import { localize, useI18n } from '../../../shared/i18n'
 import './LiveScoreBadge.css'
 
 /** How long the chip stays highlighted after the score moves. */
@@ -22,7 +22,7 @@ interface LiveScoreBadgeProps {
  * breakdown right there.
  */
 export function LiveScoreBadge({ knowledgeBase }: LiveScoreBadgeProps) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const nodes = useInvestigationStore((s) => s.nodes)
   const [open, setOpen] = useState(false)
   const [bumped, setBumped] = useState(false)
@@ -86,7 +86,7 @@ export function LiveScoreBadge({ knowledgeBase }: LiveScoreBadgeProps) {
         <span className="live-score__value">{result.score}</span>
         {/* Nothing confirmed yet needs no words: the 0 already says it. */}
         {result.deepestTactic && (
-          <span className="live-score__reach">{result.deepestTactic.name}</span>
+          <span className="live-score__reach">{localize(result.deepestTactic.name, locale)}</span>
         )}
         <span className="live-score__track" aria-hidden="true">
           <span style={{ width: `${result.score}%` }} />

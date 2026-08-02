@@ -1,6 +1,6 @@
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import type { UseCaseSuggestion } from '../../../shared/types/correlation'
-import { useI18n, localize, localizeList } from '../../../shared/i18n'
+import { useI18n, localize, localizeList, type Locale } from '../../../shared/i18n'
 import './UseCaseCard.css'
 
 interface UseCaseCardProps {
@@ -10,8 +10,9 @@ interface UseCaseCardProps {
   onApply?: () => void
 }
 
-function tacticName(knowledgeBase: KnowledgeBase, tacticId: string): string {
-  return knowledgeBase.tactics.find((t) => t.id === tacticId)?.name ?? tacticId
+function tacticName(knowledgeBase: KnowledgeBase, tacticId: string, locale: Locale): string {
+  const tactic = knowledgeBase.tactics.find((t) => t.id === tacticId)
+  return tactic ? localize(tactic.name, locale) : tacticId
 }
 
 function techniqueName(knowledgeBase: KnowledgeBase, techniqueId: string): string {
@@ -39,7 +40,7 @@ export function UseCaseCard({ useCaseId, knowledgeBase, suggestion, onApply }: U
 
       <p className="use-case-card__meta">
         {t('useCase.tactics')}
-        {useCase.tactics.map((tacticId) => tacticName(knowledgeBase, tacticId)).join(', ')}
+        {useCase.tactics.map((tacticId) => tacticName(knowledgeBase, tacticId, locale)).join(', ')}
       </p>
 
       <ul className="use-case-card__techniques">

@@ -114,7 +114,7 @@ export function buildLibraryItems(knowledgeBase: KnowledgeBase, locale: Locale):
   const tacticItems: LibraryItem[] = knowledgeBase.tactics.map((tactic) => ({
     definitionId: tactic.id,
     nodeType: 'mitre_tactic',
-    label: `${tactic.id} - ${tactic.name}`,
+    label: `${tactic.id} - ${localize(tactic.name, locale)}`,
     category: 'tactics',
     fieldDefinitions: [],
   }))

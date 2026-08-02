@@ -10,9 +10,9 @@ import type { InvestigationNode } from '../../../shared/types/investigation'
 import type { MitreTactic, MitreTechnique } from '../../../shared/types/knowledge'
 
 const tactics: MitreTactic[] = [
-  { id: 'TA0001', name: 'Initial Access', shortName: 'initial-access' },
-  { id: 'TA0003', name: 'Persistence', shortName: 'persistence' },
-  { id: 'TA0004', name: 'Privilege Escalation', shortName: 'privilege-escalation' },
+  { id: 'TA0001', name: { en: 'Initial Access' }, shortName: 'initial-access' },
+  { id: 'TA0003', name: { en: 'Persistence' }, shortName: 'persistence' },
+  { id: 'TA0004', name: { en: 'Privilege Escalation' }, shortName: 'privilege-escalation' },
 ]
 
 function technique(id: string, tacticIds: string[]): MitreTechnique {

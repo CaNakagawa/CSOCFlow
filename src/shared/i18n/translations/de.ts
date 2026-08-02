@@ -160,7 +160,7 @@ export const de: Record<TranslationKey, string> = {
     'Noch kein passender Anwendungsfall. Fügen Sie eine MITRE-ATT&CK-Technik zum Canvas hinzu oder wählen Sie einen Anwendungsfall direkt aus der Bibliothek.',
 
   'rightPanel.details': 'Details',
-  'rightPanel.score': 'Score',
+  'rightPanel.score': 'Bewertung',
   'rightPanel.hypotheses': 'Hypothesen',
   'rightPanel.useCases': 'Anwendungsfälle',
   'rightPanel.collapse': 'Panel einklappen',
@@ -203,7 +203,7 @@ export const de: Record<TranslationKey, string> = {
   'hunting.tune': 'Vor Gebrauch anpassen',
   'hunting.copy': 'Kopieren',
   'hunting.copied': 'Kopiert',
-  'canvas.expandSubtechniques': 'Subtechniken verknüpfen ({count})',
+  'canvas.expandSubtechniques': 'Subtechniken ausklappen ({count})',
   'export.image': 'Bild exportieren',
   'export.imageHint':
     'Speichert die gesamte Arbeitsfläche als Bild — mit allem darauf, nicht nur dem sichtbaren Ausschnitt.',
@@ -214,6 +214,7 @@ export const de: Record<TranslationKey, string> = {
   'export.working': 'Wird exportiert...',
   'export.done': '{format} exportiert.',
   'export.failed': 'Arbeitsfläche konnte nicht exportiert werden. {reason}',
+  'canvas.label': 'Untersuchungsfläche',
   'canvas.deleteHint': 'Ausgewähltes Element löschen',
   'canvas.nodeActions': 'Knotenaktionen',
   'canvas.commentPlaceholder': 'Kommentar zur Verbindung...',

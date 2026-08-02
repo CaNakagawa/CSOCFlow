@@ -4,12 +4,12 @@ import type { MitreTactic } from '../types/knowledge'
 
 /** A slice of the real matrix, in matrix order. Note the ids are not sequential. */
 const tactics: MitreTactic[] = [
-  { id: 'TA0043', name: 'Reconnaissance', shortName: 'reconnaissance' },
-  { id: 'TA0001', name: 'Initial Access', shortName: 'initial-access' },
-  { id: 'TA0003', name: 'Persistence', shortName: 'persistence' },
-  { id: 'TA0004', name: 'Privilege Escalation', shortName: 'privilege-escalation' },
-  { id: 'TA0005', name: 'Stealth', shortName: 'stealth' },
-  { id: 'TA0040', name: 'Impact', shortName: 'impact' },
+  { id: 'TA0043', name: { en: 'Reconnaissance' }, shortName: 'reconnaissance' },
+  { id: 'TA0001', name: { en: 'Initial Access' }, shortName: 'initial-access' },
+  { id: 'TA0003', name: { en: 'Persistence' }, shortName: 'persistence' },
+  { id: 'TA0004', name: { en: 'Privilege Escalation' }, shortName: 'privilege-escalation' },
+  { id: 'TA0005', name: { en: 'Stealth' }, shortName: 'stealth' },
+  { id: 'TA0040', name: { en: 'Impact' }, shortName: 'impact' },
 ]
 
 describe('sortTacticIds', () => {
