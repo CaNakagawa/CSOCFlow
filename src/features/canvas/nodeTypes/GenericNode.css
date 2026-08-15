@@ -137,12 +137,14 @@
   padding: 2px 4px;
 }
 
+/* Same reading as the card: a confirmed analytic is the technique happening. */
 .node-analytics__item--confirmed {
-  border-left-color: #22c55e;
+  border-left-color: #ef4444;
+  background: color-mix(in srgb, #ef4444 12%, var(--input-bg));
 }
 
 .node-analytics__item--not_confirmed {
-  border-left-color: #64748b;
+  border-left-color: #22c55e;
   opacity: 0.6;
 }
 
@@ -204,4 +206,48 @@
   width: 100%;
   height: 100%;
   overflow: auto;
+}
+
+/*
+ * The signal ramp: cleared through to confirmed. Five steps rather than a
+ * gradient, because a dozen cards side by side have to be told apart at a
+ * glance and neighbouring shades of one hue cannot do that.
+ *
+ * The colour lands on a thick left edge and a faint wash, so it reads from
+ * across the room without drowning the text.
+ */
+.generic-node {
+  border-left-width: 6px;
+}
+
+.generic-node--tone-clear {
+  border-color: #22c55e;
+  background: color-mix(in srgb, #22c55e 10%, var(--node-bg));
+}
+
+.generic-node--tone-low {
+  border-color: #a3e635;
+  background: color-mix(in srgb, #a3e635 9%, var(--node-bg));
+}
+
+.generic-node--tone-watch {
+  border-color: #facc15;
+  background: color-mix(in srgb, #facc15 10%, var(--node-bg));
+}
+
+.generic-node--tone-high {
+  border-color: #f97316;
+  background: color-mix(in srgb, #f97316 11%, var(--node-bg));
+}
+
+.generic-node--tone-confirmed {
+  border-color: #ef4444;
+  background: color-mix(in srgb, #ef4444 13%, var(--node-bg));
+}
+
+/* Scaffolding carries no verdict, so it keeps out of the ramp. */
+.generic-node--scaffold {
+  border-color: var(--panel-border);
+  background: var(--node-bg);
+  border-left-width: 2px;
 }

@@ -4,6 +4,7 @@ import type { LibraryItem } from '../types/libraryItem'
 import { CATEGORY_TRANSLATION_KEYS } from '../types/libraryItem'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import { nextGridPosition } from '../../../shared/utils/layout'
+import { LIBRARY_ITEM_MIME } from '../utils/dragAndDrop'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import { useI18n, type TranslationKey } from '../../../shared/i18n'
 import './NodeLibrary.css'
@@ -142,6 +143,12 @@ export function NodeLibrary({
           type="button"
           className={`node-library__item${isSub ? ' node-library__item--sub' : ''}`}
           title={item.brief}
+          draggable
+          onDragStart={(event) => {
+            // The canvas reads this back to know what was dropped on it.
+            event.dataTransfer.setData(LIBRARY_ITEM_MIME, item.definitionId)
+            event.dataTransfer.effectAllowed = 'copy'
+          }}
           onClick={() => handleItemClick(item)}
         >
           <span className="node-library__item-label">{item.label}</span>

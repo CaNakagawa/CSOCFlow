@@ -11,6 +11,7 @@ import {
   nodeStateKey,
 } from '../utils/nodeVisuals'
 import { HANDLE_IDS, type HandleId } from '../../../shared/types/handles'
+import { nodeSignal, signalTone } from '../utils/nodeSignal'
 import { useI18n } from '../../../shared/i18n'
 import './GenericNode.css'
 
@@ -69,6 +70,11 @@ export function GenericNode({ data, selected }: NodeProps) {
   const resizeNode = useInvestigationStore((s) => s.resizeNode)
   // Until it is resized the card sizes itself to what it holds.
   const sized = width > 0 && height > 0
+  /*
+   * The card is coloured by how much it is saying, so a board of a dozen can be
+   * read at a glance rather than one by one.
+   */
+  const tone = signalTone(nodeSignal(state, analyticStatuses ?? {}))
   const stateLabel = t(nodeStateKey(state))
   // A node added blank from the canvas menu starts out waiting for its name.
   const [editingLabel, setEditingLabel] = useState(label.length === 0)
@@ -88,7 +94,7 @@ export function GenericNode({ data, selected }: NodeProps) {
   return (
     <div
       className={
-        `generic-node generic-node--${state}` +
+        `generic-node generic-node--${state} generic-node--tone-${tone}` +
         (scaffold ? ' generic-node--scaffold' : '') +
         (selected ? ' generic-node--selected' : '') +
         (sized ? ' generic-node--sized' : '')

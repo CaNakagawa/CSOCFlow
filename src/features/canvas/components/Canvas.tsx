@@ -34,6 +34,7 @@ import { DrawingNode } from '../nodeTypes/DrawingNode'
 import { ImageNode } from '../nodeTypes/ImageNode'
 import { GroupNode } from '../nodeTypes/GroupNode'
 import type { LibraryItem } from '../types/libraryItem'
+import { LIBRARY_ITEM_MIME } from '../utils/dragAndDrop'
 import { LiveScoreBadge } from './LiveScoreBadge'
 import { buildEdgeLabelStyle, readCssToken } from '../utils/edgeLabelStyle'
 import { relationshipKey } from '../utils/nodeVisuals'
@@ -149,7 +150,7 @@ function CanvasSurface({
   onLoadDemo,
 }: CanvasProps) {
   const { t, locale } = useI18n()
-  const { screenToFlowPosition } = useReactFlow()
+  const { screenToFlowPosition, getViewport } = useReactFlow()
   const nodes = useInvestigationStore((s) => s.nodes)
   const manualEdges = useInvestigationStore((s) => s.manualEdges)
   const inferredEdges = useInvestigationStore((s) => s.inferredEdges)
@@ -171,6 +172,8 @@ function CanvasSurface({
   const expandSubtechniques = useInvestigationStore((s) => s.expandSubtechniques)
   const collapseSubtechniques = useInvestigationStore((s) => s.collapseSubtechniques)
   const addImageNode = useInvestigationStore((s) => s.addImageNode)
+  const addNode = useInvestigationStore((s) => s.addNode)
+  const applyUseCase = useInvestigationStore((s) => s.applyUseCase)
   const pasteClipboard = useInvestigationStore((s) => s.pasteClipboard)
   const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
   const setSelectedNodes = useInvestigationStore((s) => s.setSelectedNodes)
@@ -189,7 +192,11 @@ function CanvasSurface({
   const [drawing, setDrawing] = useState(false)
   const [feedback, setFeedback] = useState<string | null>(null)
   // Where the right button went down, to tell a pan from a plain right-click.
-  const rightPressAt = useRef<{ x: number; y: number } | null>(null)
+  const rightPressAt = useRef<{
+    x: number
+    y: number
+    viewport: { x: number; y: number; zoom: number }
+  } | null>(null)
   const areaRef = useRef<HTMLDivElement>(null)
   /** Whether the pointer that is acting was carrying a multi-select modifier. */
   const addToSelection = useRef(false)
@@ -448,6 +455,34 @@ function CanvasSurface({
    * onSelectionChange. Forcing a single node here would undo a ctrl-click.
    */
 
+  /** Something dragged out of the library lands where it was let go. */
+  const handleDrop = useCallback(
+    (event: React.DragEvent) => {
+      const definitionId = event.dataTransfer.getData(LIBRARY_ITEM_MIME)
+      if (!definitionId) return
+      event.preventDefault()
+
+      const item = libraryItems.find((entry) => entry.definitionId === definitionId)
+      if (!item) return
+
+      const position = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+      if (item.isUseCase && knowledgeBase) {
+        const useCase = knowledgeBase.useCases.find((entry) => entry.id === item.definitionId)
+        if (useCase) applyUseCase(useCase, knowledgeBase, locale)
+        return
+      }
+
+      addNode({
+        nodeType: item.nodeType,
+        definitionId: item.definitionId,
+        label: item.label,
+        position,
+        fieldDefinitions: item.fieldDefinitions,
+      })
+    },
+    [addNode, applyUseCase, knowledgeBase, libraryItems, locale, screenToFlowPosition],
+  )
+
   const onPaneClick = useCallback(() => {
     selectNode(null)
     setSelectedEdgeId(null)
@@ -468,7 +503,11 @@ function CanvasSurface({
     if (!area) return
 
     function handleMouseDown(event: MouseEvent) {
-      if (event.button === 2) rightPressAt.current = { x: event.clientX, y: event.clientY }
+      if (event.button === 2) {
+        // Both the pointer and the canvas position: either one moving means the
+        // press was a pan, not a click asking for the menu.
+        rightPressAt.current = { x: event.clientX, y: event.clientY, viewport: getViewport() }
+      }
       addToSelection.current = event.ctrlKey || event.metaKey || event.shiftKey
     }
 
@@ -480,13 +519,16 @@ function CanvasSurface({
 
       const press = rightPressAt.current
       rightPressAt.current = null
-      if (
-        press &&
-        (Math.abs(press.x - event.clientX) > CONTEXT_MENU_SLOP ||
-          Math.abs(press.y - event.clientY) > CONTEXT_MENU_SLOP)
-      ) {
-        return
-      }
+      if (!press) return
+
+      const viewport = getViewport()
+      const panned =
+        Math.abs(press.viewport.x - viewport.x) > CONTEXT_MENU_SLOP ||
+        Math.abs(press.viewport.y - viewport.y) > CONTEXT_MENU_SLOP
+      const pointerMoved =
+        Math.abs(press.x - event.clientX) > CONTEXT_MENU_SLOP ||
+        Math.abs(press.y - event.clientY) > CONTEXT_MENU_SLOP
+      if (panned || pointerMoved) return
 
       const spot = screenToFlowPosition({ x: event.clientX, y: event.clientY })
       setContextMenu(null)
@@ -503,7 +545,7 @@ function CanvasSurface({
       area.removeEventListener('mousedown', handleMouseDown, true)
       area.removeEventListener('contextmenu', handleContextMenu)
     }
-  }, [screenToFlowPosition])
+  }, [getViewport, screenToFlowPosition])
 
   const onNodeContextMenu: NodeMouseHandler<Node<GenericNodeData>> = useCallback(
     (event, node) => {
@@ -588,7 +630,19 @@ function CanvasSurface({
   }, [commentEditor, updateEdgeLabel, updateManualEdgeType, updateEdgeStyle])
 
   return (
-    <div className="canvas-area" role="application" aria-label={t('canvas.label')} ref={areaRef}>
+    <div
+      className="canvas-area"
+      role="application"
+      aria-label={t('canvas.label')}
+      ref={areaRef}
+      onDragOver={(event) => {
+        if (!event.dataTransfer.types.includes(LIBRARY_ITEM_MIME)) return
+        // Without this the browser refuses the drop.
+        event.preventDefault()
+        event.dataTransfer.dropEffect = 'copy'
+      }}
+      onDrop={handleDrop}
+    >
       <ReactFlow
         nodes={flowNodes}
         edges={flowEdges}
@@ -602,6 +656,12 @@ function CanvasSurface({
         onEdgeDoubleClick={onEdgeDoubleClick}
         onPaneClick={onPaneClick}
         colorMode={theme}
+        /*
+         * The wheel scrolls the canvas the way a page scrolls: plain wheel goes
+         * up and down, Shift goes sideways, and Ctrl is the one that zooms.
+         */
+        panOnScroll
+        zoomOnScroll={false}
         /* Selecting must not lift the whiteboard over the evidence sitting on it. */
         elevateNodesOnSelect={false}
         connectionMode={ConnectionMode.Loose}
