@@ -12,6 +12,7 @@ import {
 } from '../utils/nodeVisuals'
 import { HANDLE_IDS, type HandleId } from '../../../shared/types/handles'
 import { nodeSignal, signalTone } from '../utils/nodeSignal'
+import { nodeColorStyle } from '../utils/nodePalette'
 import { useI18n } from '../../../shared/i18n'
 import './GenericNode.css'
 
@@ -34,6 +35,8 @@ export interface GenericNodeData extends Record<string, unknown> {
   /** Set once the analyst has resized this element; zero means fit the content. */
   width: number
   height: number
+  /** A colour picked by hand, overriding the one the state would give. */
+  color?: string
 }
 
 /** Small enough to still read the label, large enough to grab a corner. */
@@ -63,6 +66,7 @@ export function GenericNode({ data, selected }: NodeProps) {
     onCollapseSubtechniques,
     width,
     height,
+    color,
   } = data as unknown as GenericNodeData
   const { t } = useI18n()
   const linkToNearest = useInvestigationStore((s) => s.linkToNearest)
@@ -99,6 +103,7 @@ export function GenericNode({ data, selected }: NodeProps) {
         (selected ? ' generic-node--selected' : '') +
         (sized ? ' generic-node--sized' : '')
       }
+      style={nodeColorStyle(color)}
     >
       <NodeResizer
         isVisible={selected}

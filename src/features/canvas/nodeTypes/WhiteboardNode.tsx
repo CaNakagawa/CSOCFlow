@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { NodeResizer, type NodeProps } from '@xyflow/react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
+import { nodeColorStyle } from '../utils/nodePalette'
 import { useI18n } from '../../../shared/i18n'
 import './WhiteboardNode.css'
 
@@ -9,6 +10,8 @@ export interface WhiteboardNodeData extends Record<string, unknown> {
   nodeId: string
   width: number
   height: number
+  /** A colour picked by hand. */
+  color?: string
 }
 
 const MIN_SIZE = { width: 200, height: 140 }
@@ -18,7 +21,7 @@ const MIN_SIZE = { width: 200, height: 140 }
  * investigation the way a whiteboard section would.
  */
 export function WhiteboardNode({ data, selected }: NodeProps) {
-  const { label, nodeId, width, height } = data as unknown as WhiteboardNodeData
+  const { label, nodeId, width, height, color } = data as unknown as WhiteboardNodeData
   const { t } = useI18n()
   const updateNodeLabel = useInvestigationStore((s) => s.updateNodeLabel)
   const resizeNode = useInvestigationStore((s) => s.resizeNode)
@@ -32,7 +35,7 @@ export function WhiteboardNode({ data, selected }: NodeProps) {
   return (
     <div
       className={`whiteboard-node${selected ? ' whiteboard-node--selected' : ''}`}
-      style={{ width, height }}
+      style={{ width, height, ...nodeColorStyle(color) }}
     >
       <NodeResizer
         isVisible={selected}

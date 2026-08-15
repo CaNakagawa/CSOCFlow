@@ -11,6 +11,8 @@ export interface TextNodeData extends Record<string, unknown> {
   /** Set once the analyst has resized it; zero means fit the text. */
   width: number
   height: number
+  /** A colour picked by hand. */
+  color?: string
 }
 
 const MIN_SIZE = { width: 90, height: 40 }
@@ -24,7 +26,7 @@ const HANDLE_POSITIONS: Record<HandleId, Position> = {
 
 /** Free text on the canvas: a caption, a question, a working note. */
 export function TextNode({ data, selected }: NodeProps) {
-  const { label, nodeId, width, height } = data as unknown as TextNodeData
+  const { label, nodeId, width, height, color } = data as unknown as TextNodeData
   const { t } = useI18n()
   const updateNodeLabel = useInvestigationStore((s) => s.updateNodeLabel)
   const resizeNode = useInvestigationStore((s) => s.resizeNode)
@@ -47,6 +49,7 @@ export function TextNode({ data, selected }: NodeProps) {
   return (
     <div
       className={`text-node${selected ? ' text-node--selected' : ''}${sized ? ' text-node--sized' : ''}`}
+      style={color ? { color } : undefined}
     >
       <NodeResizer
         isVisible={selected}

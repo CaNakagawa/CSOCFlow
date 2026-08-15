@@ -1174,6 +1174,47 @@ describe('investigationStore', () => {
     expect(useInvestigationStore.getState().nodes[0].size).toBeDefined()
   })
 
+  it('paints every selected element at once', () => {
+    const { addFreeNode, setNodeColor } = useInvestigationStore.getState()
+    const a = addFreeNode({ nodeType: 'text', label: 'a', position: { x: 0, y: 0 } })
+    const b = addFreeNode({ nodeType: 'text', label: 'b', position: { x: 50, y: 0 } })
+
+    setNodeColor([a, b], '#ef4444')
+
+    const nodes = useInvestigationStore.getState().nodes
+    expect(nodes.map((n) => n.color)).toEqual(['#ef4444', '#ef4444'])
+  })
+
+  it('hands an element back to the automatic colour', () => {
+    const { addFreeNode, setNodeColor } = useInvestigationStore.getState()
+    const id = addFreeNode({ nodeType: 'text', label: 'a', position: { x: 0, y: 0 } })
+    setNodeColor([id], '#22c55e')
+
+    setNodeColor([id], null)
+    expect(useInvestigationStore.getState().nodes[0].color).toBeUndefined()
+  })
+
+  it('recolours a drawing by recolouring its stroke', () => {
+    const { addStroke, setNodeColor } = useInvestigationStore.getState()
+    addStroke({ id: 's', points: [{ x: 0, y: 0 }], color: '#f59e0b', width: 3 })
+    const drawing = useInvestigationStore.getState().nodes[0]
+
+    setNodeColor([drawing.id], '#3b82f6')
+
+    const painted = useInvestigationStore.getState().nodes[0]
+    expect(painted.stroke!.color).toBe('#3b82f6')
+    expect(painted.color).toBe('#3b82f6')
+  })
+
+  it('undoes a repaint in one step', () => {
+    const { addFreeNode, setNodeColor, undo } = useInvestigationStore.getState()
+    const id = addFreeNode({ nodeType: 'text', label: 'a', position: { x: 0, y: 0 } })
+    setNodeColor([id], '#a855f7')
+
+    undo()
+    expect(useInvestigationStore.getState().nodes[0].color).toBeUndefined()
+  })
+
   it('serializes the current state into an Investigation document', () => {
     const { addNode, toDocument } = useInvestigationStore.getState()
     addNode({

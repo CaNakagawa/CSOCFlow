@@ -96,6 +96,11 @@ export interface InvestigationNode {
   imageSrc?: string
   /** Where this sits in the stack; higher covers lower. Defaults to zero. */
   layer?: number
+  /**
+   * A colour the analyst picked by hand. When set it overrides the automatic
+   * one the investigative state would give the element.
+   */
+  color?: string
   createdAt: string
   updatedAt: string
 }

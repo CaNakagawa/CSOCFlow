@@ -113,6 +113,29 @@ export const TOOL_ICONS: Record<string, ReactNode> = {
       />
     </>
   ),
+  // Corners drawn inward: pull the frame back onto what is inside it.
+  fit: <path d="M6.4 2.4v4h-4M9.6 2.4v4h4M6.4 13.6v-4h-4M9.6 13.6v-4h4" />,
+  ungroup: (
+    <>
+      <rect x="1.6" y="1.6" width="5.8" height="5.8" rx="0.8" />
+      <rect x="8.6" y="8.6" width="5.8" height="5.8" rx="0.8" />
+    </>
+  ),
+  bringForward: (
+    <>
+      <rect x="2.2" y="6.4" width="7.4" height="7.4" rx="1" strokeDasharray="2.4 2" />
+      <path d="M12.2 8.6V2.4M10 4.6l2.2-2.2 2.2 2.2" />
+    </>
+  ),
+  sendBackward: (
+    <>
+      <rect x="2.2" y="2.2" width="7.4" height="7.4" rx="1" strokeDasharray="2.4 2" />
+      <path d="M12.2 7.4v6.2M10 11.4l2.2 2.2 2.2-2.2" />
+    </>
+  ),
+  // Chevrons: the list of subtechniques opening and closing.
+  expand: <path d="M4 6.2 8 10.2l4-4" />,
+  collapse: <path d="M4 9.8 8 5.8l4 4" />,
   theme: (
     <>
       <circle cx="8" cy="8" r="4.6" />

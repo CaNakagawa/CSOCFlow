@@ -1,7 +1,7 @@
 .node-context-menu {
   position: fixed;
   z-index: 50;
-  min-width: 150px;
+  min-width: 172px;
   padding: 4px;
   border-radius: 8px;
   border: 1px solid var(--panel-border);
@@ -12,9 +12,12 @@
   gap: 2px;
 }
 
-.node-context-menu button {
+.node-context-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   width: 100%;
-  padding: 7px 10px;
+  padding: 6px 10px;
   border: none;
   border-radius: 6px;
   background: transparent;
@@ -25,9 +28,21 @@
   cursor: pointer;
 }
 
-.node-context-menu button:hover {
+.node-context-menu__item svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--muted-fg);
+}
+
+.node-context-menu__item:hover {
   background: var(--hover-bg);
   color: var(--accent);
+}
+
+/* The icon follows the row it belongs to. */
+.node-context-menu__item:hover svg {
+  color: inherit;
 }
 
 .node-context-menu__danger:hover {
@@ -38,4 +53,37 @@
   height: 1px;
   margin: 4px 6px;
   background: var(--panel-border);
+}
+
+/* One row of dots: a whole palette in the height of a single menu entry. */
+.node-context-menu__swatches {
+  display: flex;
+  gap: 3px;
+  padding: 5px 7px 3px;
+}
+
+.node-context-menu__swatch {
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.node-context-menu__swatch:hover {
+  transform: scale(1.15);
+  border-color: var(--fg);
+}
+
+/* Back to the colour the investigative state would have given it. */
+.node-context-menu__swatch--auto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--input-bg);
+  color: var(--muted-fg);
+  font-size: 9px;
+  line-height: 1;
 }

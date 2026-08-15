@@ -3,10 +3,28 @@ import Fuse from 'fuse.js'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import type { LibraryItem } from '../types/libraryItem'
 import { WHITEBOARD_DEFAULT_SIZE } from '../utils/canvasDefaults'
+import { TOOL_ICONS } from './toolIcons'
 import { useI18n } from '../../../shared/i18n'
 import './PaneContextMenu.css'
 
 const MAX_SUGGESTIONS = 8
+
+/** The same 16x16 mark the tool rail uses, so a row reads the same either way. */
+function MenuIcon({ icon }: { icon: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {TOOL_ICONS[icon]}
+    </svg>
+  )
+}
 
 export interface PaneMenuState {
   /** Where to put the menu, in screen coordinates. */
@@ -98,22 +116,31 @@ export function PaneContextMenu({ menu, items, onClose }: PaneContextMenuProps) 
     >
       {!adding ? (
         <>
-          <button type="button" role="menuitem" onClick={() => setAdding(true)}>
+          <button
+            type="button"
+            role="menuitem"
+            className="pane-menu__item"
+            onClick={() => setAdding(true)}
+          >
+            <MenuIcon icon="add" />
             {t('canvas.add')}
           </button>
           <button
             type="button"
             role="menuitem"
+            className="pane-menu__item"
             onClick={() => {
               addFreeNode({ nodeType: 'text', label: '', position })
               onClose()
             }}
           >
+            <MenuIcon icon="text" />
             {t('canvas.addText')}
           </button>
           <button
             type="button"
             role="menuitem"
+            className="pane-menu__item"
             onClick={() => {
               addFreeNode({
                 nodeType: 'whiteboard',
@@ -124,6 +151,7 @@ export function PaneContextMenu({ menu, items, onClose }: PaneContextMenuProps) 
               onClose()
             }}
           >
+            <MenuIcon icon="whiteboard" />
             {t('canvas.addWhiteboard')}
           </button>
         </>

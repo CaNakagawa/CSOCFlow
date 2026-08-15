@@ -8,20 +8,22 @@ export interface ImageNodeData extends Record<string, unknown> {
   nodeId: string
   width: number
   height: number
+  /** A colour picked by hand, worn as a frame. */
+  color?: string
 }
 
 const MIN_SIZE = { width: 60, height: 40 }
 
 /** A picture pasted onto the canvas: a screenshot, a chart, a log excerpt. */
 export function ImageNode({ data, selected }: NodeProps) {
-  const { src, nodeId, width, height } = data as unknown as ImageNodeData
+  const { src, nodeId, width, height, color } = data as unknown as ImageNodeData
   const { t } = useI18n()
   const resizeNode = useInvestigationStore((s) => s.resizeNode)
 
   return (
     <div
       className={`image-node${selected ? ' image-node--selected' : ''}`}
-      style={{ width, height }}
+      style={{ width, height, borderColor: color }}
     >
       <NodeResizer
         isVisible={selected}

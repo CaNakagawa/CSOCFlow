@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
+import { NODE_PALETTE } from '../utils/nodePalette'
+import { TOOL_ICONS } from './toolIcons'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import { useI18n, type TranslationKey } from '../../../shared/i18n'
 import './NodeContextMenu.css'
@@ -28,6 +30,7 @@ export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMen
   const ungroupNode = useInvestigationStore((s) => s.ungroupNode)
   const restack = useInvestigationStore((s) => s.restack)
   const clearNodeSize = useInvestigationStore((s) => s.clearNodeSize)
+  const setNodeColor = useInvestigationStore((s) => s.setNodeColor)
   const nodes = useInvestigationStore((s) => s.nodes)
   const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -65,17 +68,28 @@ export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMen
     }
   }, [onClose])
 
-  function item(labelKey: TranslationKey, action: () => void, danger = false) {
+  function item(icon: string, labelKey: TranslationKey, action: () => void, danger = false) {
     return (
       <button
         type="button"
         role="menuitem"
-        className={danger ? 'node-context-menu__danger' : undefined}
+        className={`node-context-menu__item${danger ? ' node-context-menu__danger' : ''}`}
         onClick={() => {
           action()
           onClose()
         }}
       >
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          {TOOL_ICONS[icon]}
+        </svg>
         {t(labelKey)}
       </button>
     )
@@ -89,37 +103,71 @@ export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMen
       role="menu"
       aria-label={t('canvas.nodeActions')}
     >
-      {item('details.duplicate', () => targets.forEach((id) => duplicateNode(id)))}
+      {/* Painting the lot at once is the point when several are selected. */}
+      <div className="node-context-menu__swatches" role="group" aria-label={t('canvas.colour')}>
+        {NODE_PALETTE.map((colour) => (
+          <button
+            key={colour.value}
+            type="button"
+            className="node-context-menu__swatch"
+            style={{ background: colour.value }}
+            aria-label={t(colour.labelKey)}
+            title={t(colour.labelKey)}
+            onClick={() => {
+              setNodeColor(targets, colour.value)
+              onClose()
+            }}
+          />
+        ))}
+        <button
+          type="button"
+          className="node-context-menu__swatch node-context-menu__swatch--auto"
+          aria-label={t('canvas.colourAuto')}
+          title={t('canvas.colourAuto')}
+          onClick={() => {
+            setNodeColor(targets, null)
+            onClose()
+          }}
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+      </div>
+
+      <div className="node-context-menu__divider" aria-hidden="true" />
+
+      {item('duplicate', 'details.duplicate', () => targets.forEach((id) => duplicateNode(id)))}
 
       {targets.some((id) => {
         const target = nodes.find((n) => n.id === id)
         return target?.size && !target.stroke
-      }) && item('canvas.fitToContent', () => clearNodeSize(targets))}
+      }) && item('fit', 'canvas.fitToContent', () => clearNodeSize(targets))}
 
-      {targets.length > 1 && item('canvas.group', () => groupSelection())}
-      {node?.type === 'group' && item('canvas.ungroup', () => ungroupNode(menu.nodeId))}
+      {targets.length > 1 && item('group', 'canvas.group', () => groupSelection())}
+      {node?.type === 'group' && item('ungroup', 'canvas.ungroup', () => ungroupNode(menu.nodeId))}
 
       <div className="node-context-menu__divider" aria-hidden="true" />
 
-      {item('canvas.bringToFront', () => restack(targets, 'front'))}
-      {item('canvas.bringForward', () => restack(targets, 'forward'))}
-      {item('canvas.sendBackward', () => restack(targets, 'backward'))}
-      {item('canvas.sendToBack', () => restack(targets, 'back'))}
+      {item('bringToFront', 'canvas.bringToFront', () => restack(targets, 'front'))}
+      {item('bringForward', 'canvas.bringForward', () => restack(targets, 'forward'))}
+      {item('sendBackward', 'canvas.sendBackward', () => restack(targets, 'backward'))}
+      {item('sendToBack', 'canvas.sendToBack', () => restack(targets, 'back'))}
 
       {(subtechniques.missing > 0 || subtechniques.present > 0) && (
         <div className="node-context-menu__divider" aria-hidden="true" />
       )}
       {subtechniques.missing > 0 &&
         knowledgeBase &&
-        item('canvas.menuExpandSubtechniques', () =>
+        item('expand', 'canvas.menuExpandSubtechniques', () =>
           expandSubtechniques(menu.nodeId, knowledgeBase, locale),
         )}
       {subtechniques.present > 0 &&
-        item('canvas.menuCollapseSubtechniques', () => collapseSubtechniques(menu.nodeId))}
+        item('collapse', 'canvas.menuCollapseSubtechniques', () =>
+          collapseSubtechniques(menu.nodeId),
+        )}
 
       <div className="node-context-menu__divider" aria-hidden="true" />
 
-      {item('details.delete', () => targets.forEach((id) => removeNode(id)), true)}
+      {item('delete', 'details.delete', () => targets.forEach((id) => removeNode(id)), true)}
     </div>
   )
 }

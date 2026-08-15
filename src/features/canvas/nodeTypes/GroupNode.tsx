@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { NodeResizer, type NodeProps } from '@xyflow/react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
+import { nodeColorStyle } from '../utils/nodePalette'
 import { useI18n } from '../../../shared/i18n'
 import './GroupNode.css'
 
@@ -9,6 +10,8 @@ export interface GroupNodeData extends Record<string, unknown> {
   nodeId: string
   width: number
   height: number
+  /** A colour picked by hand. */
+  color?: string
 }
 
 const MIN_SIZE = { width: 160, height: 120 }
@@ -20,7 +23,7 @@ const MIN_SIZE = { width: 160, height: 120 }
  * so dragging the group moves them all and dragging one on its own still works.
  */
 export function GroupNode({ data, selected }: NodeProps) {
-  const { label, nodeId, width, height } = data as unknown as GroupNodeData
+  const { label, nodeId, width, height, color } = data as unknown as GroupNodeData
   const { t } = useI18n()
   const updateNodeLabel = useInvestigationStore((s) => s.updateNodeLabel)
   const resizeNode = useInvestigationStore((s) => s.resizeNode)
@@ -35,7 +38,7 @@ export function GroupNode({ data, selected }: NodeProps) {
   return (
     <div
       className={`group-node${selected ? ' group-node--selected' : ''}`}
-      style={{ width, height }}
+      style={{ width, height, ...nodeColorStyle(color) }}
     >
       <NodeResizer
         isVisible={selected}

@@ -33,6 +33,23 @@
   color: var(--accent);
 }
 
+.pane-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.pane-menu__item svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--muted-fg);
+}
+
+.pane-menu__item:hover svg {
+  color: inherit;
+}
+
 .pane-menu__search {
   display: flex;
   flex-direction: column;

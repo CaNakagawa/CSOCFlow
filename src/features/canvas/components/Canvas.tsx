@@ -345,11 +345,12 @@ function CanvasSurface({
           height: n.size?.height ?? 0,
           // Drawings and images carry their own payload.
           points: n.stroke?.points ?? [],
-          color: n.stroke?.color ?? '',
+          strokeColor: n.stroke?.color ?? '',
           strokeWidth: n.stroke?.width ?? 1,
           boxWidth: n.size?.width ?? 0,
           boxHeight: n.size?.height ?? 0,
           src: n.imageSrc ?? '',
+          color: n.color,
         },
       })),
     [
@@ -550,7 +551,13 @@ function CanvasSurface({
   const onNodeContextMenu: NodeMouseHandler<Node<GenericNodeData>> = useCallback(
     (event, node) => {
       event.preventDefault()
-      selectNode(node.id)
+      /*
+       * Right-clicking inside a selection keeps it: the menu is about to act on
+       * all of it. Right-clicking outside means the analyst meant that element.
+       */
+      if (!useInvestigationStore.getState().selectedNodeIds.includes(node.id)) {
+        selectNode(node.id)
+      }
       setContextMenu({ nodeId: node.id, x: event.clientX, y: event.clientY })
     },
     [selectNode],

@@ -3,7 +3,7 @@ import { strokePath } from '../utils/strokePath'
 
 export interface DrawingNodeData extends Record<string, unknown> {
   points: { x: number; y: number }[]
-  color: string
+  strokeColor: string
   /** Thickness of the line, not the size of the box. */
   strokeWidth: number
   boxWidth: number
@@ -18,7 +18,8 @@ export interface DrawingNodeData extends Record<string, unknown> {
  * `<svg>`, and a stroke styled by class would come out black.
  */
 export function DrawingNode({ data, selected }: NodeProps) {
-  const { points, color, strokeWidth, boxWidth, boxHeight } = data as unknown as DrawingNodeData
+  const { points, strokeColor, strokeWidth, boxWidth, boxHeight } =
+    data as unknown as DrawingNodeData
 
   return (
     <svg
@@ -34,7 +35,7 @@ export function DrawingNode({ data, selected }: NodeProps) {
           width={boxWidth}
           height={boxHeight}
           fill="none"
-          stroke={color}
+          stroke={strokeColor}
           strokeOpacity={0.5}
           strokeDasharray="4 3"
         />
@@ -42,7 +43,7 @@ export function DrawingNode({ data, selected }: NodeProps) {
       <path
         d={strokePath(points)}
         fill="none"
-        stroke={color}
+        stroke={strokeColor}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="round"

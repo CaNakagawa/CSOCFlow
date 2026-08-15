@@ -179,6 +179,8 @@ interface InvestigationState {
   resizeNode: (nodeId: string, size: { width: number; height: number }) => void
   /** Hands an element back to sizing itself around its contents. */
   clearNodeSize: (nodeIds: string[]) => void
+  /** Paints elements by hand; null hands them back to the automatic colour. */
+  setNodeColor: (nodeIds: string[], color: string | null) => void
   setSelectedNodes: (nodeIds: string[]) => void
   selectAllNodes: () => void
   copySelection: () => number
@@ -831,6 +833,22 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
             },
             updatedAt: now,
           }
+        }),
+      }))
+    },
+
+    setNodeColor: (nodeIds, color) => {
+      if (nodeIds.length === 0) return
+      const targets = new Set(nodeIds)
+
+      get().pushHistory()
+      const now = new Date().toISOString()
+      set((state) => ({
+        nodes: state.nodes.map((node) => {
+          if (!targets.has(node.id)) return node
+          // A drawing has no card to tint: the stroke itself is the colour.
+          const stroke = node.stroke && color ? { ...node.stroke, color } : node.stroke
+          return { ...node, color: color ?? undefined, stroke, updatedAt: now }
         }),
       }))
     },
