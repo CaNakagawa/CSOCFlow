@@ -158,6 +158,22 @@ export const en = {
   'useCase.steps': 'Investigation steps',
   'useCase.dataSources': 'Data sources: ',
   'useCase.basedOn': 'Based on: ',
+  'useCase.mine': 'My use cases',
+  'useCase.suggested': 'Suggested',
+  'useCase.import': 'Import JSON',
+  'useCase.importHint':
+    'A use case file you wrote yourself. It stays in this browser and is never sent anywhere.',
+  'useCase.export': 'Export JSON',
+  'useCase.importIsInvestigation':
+    'That is an investigation file, not a use case. Investigations are opened with Import in the tool rail; a use case file is the one Export JSON writes on a card below.',
+  'useCase.remove': 'Remove',
+  'useCase.imported': 'Use case "{name}" imported.',
+  'useCase.importNotJson': 'That file is not valid JSON.',
+  'useCase.importIdTaken': 'A use case that ships with the app already uses that id.',
+  'useCase.importInvalid': 'The file does not match the use case format — {reason}',
+  'useCase.importFailed': 'The file could not be read.',
+  'useCase.unknownTechniques':
+    'Not in the knowledge base, so they will not appear on the canvas: {ids}',
   'useCasePanel.disclaimer':
     'Suggested from the MITRE ATT&CK techniques present on the canvas. Add techniques from the library to see more compatible use cases.',
   'useCasePanel.empty':

@@ -119,3 +119,26 @@
 .use-case-card__detection-strategies a {
   color: #38bdf8;
 }
+
+.use-case-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.use-case-card__export {
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--muted-fg);
+  cursor: pointer;
+}
+
+.use-case-card__export:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}

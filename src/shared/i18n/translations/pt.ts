@@ -159,6 +159,22 @@ export const pt: Record<TranslationKey, string> = {
   'useCase.steps': 'Passo a passo da investigação',
   'useCase.dataSources': 'Fontes de dados: ',
   'useCase.basedOn': 'Baseado em: ',
+  'useCase.mine': 'Meus casos de uso',
+  'useCase.suggested': 'Sugeridos',
+  'useCase.import': 'Importar JSON',
+  'useCase.importHint':
+    'Um arquivo de caso de uso escrito por você. Ele fica neste navegador e não é enviado a lugar nenhum.',
+  'useCase.export': 'Exportar JSON',
+  'useCase.importIsInvestigation':
+    'Esse é um arquivo de investigação, não um caso de uso. Investigações são abertas pelo Importar na barra de ferramentas; um arquivo de caso de uso é o que o Exportar JSON de um card abaixo gera.',
+  'useCase.remove': 'Remover',
+  'useCase.imported': 'Caso de uso "{name}" importado.',
+  'useCase.importNotJson': 'Esse arquivo não é um JSON válido.',
+  'useCase.importIdTaken': 'Um caso de uso que já vem com a ferramenta usa esse id.',
+  'useCase.importInvalid': 'O arquivo não segue o formato de caso de uso — {reason}',
+  'useCase.importFailed': 'Não foi possível ler o arquivo.',
+  'useCase.unknownTechniques':
+    'Não estão na base de conhecimento e não aparecerão no canvas: {ids}',
   'useCasePanel.disclaimer':
     'Sugerido a partir das técnicas MITRE ATT&CK presentes no canvas. Adicione técnicas pela biblioteca para ver mais casos de uso compatíveis.',
   'useCasePanel.empty':

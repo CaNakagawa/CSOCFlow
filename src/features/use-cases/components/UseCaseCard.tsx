@@ -1,4 +1,5 @@
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
+import { fileNameForUseCase, serializeUseCase } from '../import/exportUseCase'
 import type { UseCaseSuggestion } from '../../../shared/types/correlation'
 import { useI18n, localize, localizeList, type Locale } from '../../../shared/i18n'
 import './UseCaseCard.css'
@@ -8,6 +9,16 @@ interface UseCaseCardProps {
   knowledgeBase: KnowledgeBase
   suggestion?: UseCaseSuggestion
   onApply?: () => void
+}
+
+/** Hands the case to the analyst as a file they can edit and bring back. */
+function download(json: string, fileName: string): void {
+  const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.click()
+  URL.revokeObjectURL(url)
 }
 
 function tacticName(knowledgeBase: KnowledgeBase, tacticId: string, locale: Locale): string {
@@ -62,11 +73,20 @@ export function UseCaseCard({ useCaseId, knowledgeBase, suggestion, onApply }: U
         ))}
       </ul>
 
-      {onApply && !suggestion?.applied && (
-        <button type="button" className="use-case-card__apply" onClick={onApply}>
-          {t('useCase.apply')}
+      <div className="use-case-card__actions">
+        {onApply && !suggestion?.applied && (
+          <button type="button" className="use-case-card__apply" onClick={onApply}>
+            {t('useCase.apply')}
+          </button>
+        )}
+        <button
+          type="button"
+          className="use-case-card__export"
+          onClick={() => download(serializeUseCase(useCase), fileNameForUseCase(useCase))}
+        >
+          {t('useCase.export')}
         </button>
-      )}
+      </div>
 
       <details className="use-case-card__steps">
         <summary>{t('useCase.steps')}</summary>

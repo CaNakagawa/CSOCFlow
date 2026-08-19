@@ -159,6 +159,22 @@ export const de: Record<TranslationKey, string> = {
   'useCase.steps': 'Schritte der Untersuchung',
   'useCase.dataSources': 'Datenquellen: ',
   'useCase.basedOn': 'Basierend auf: ',
+  'useCase.mine': 'Meine Anwendungsfälle',
+  'useCase.suggested': 'Vorgeschlagen',
+  'useCase.import': 'JSON importieren',
+  'useCase.importHint':
+    'Eine selbst geschriebene Anwendungsfall-Datei. Sie bleibt in diesem Browser und wird nirgendwohin gesendet.',
+  'useCase.export': 'JSON exportieren',
+  'useCase.importIsInvestigation':
+    'Das ist eine Ermittlungsdatei, kein Anwendungsfall. Ermittlungen werden über Importieren in der Werkzeugleiste geöffnet; eine Anwendungsfall-Datei erzeugt "JSON exportieren" auf einer Karte unten.',
+  'useCase.remove': 'Entfernen',
+  'useCase.imported': 'Anwendungsfall "{name}" importiert.',
+  'useCase.importNotJson': 'Diese Datei ist kein gültiges JSON.',
+  'useCase.importIdTaken': 'Ein mitgelieferter Anwendungsfall verwendet diese ID bereits.',
+  'useCase.importInvalid': 'Die Datei entspricht nicht dem Anwendungsfall-Format — {reason}',
+  'useCase.importFailed': 'Die Datei konnte nicht gelesen werden.',
+  'useCase.unknownTechniques':
+    'Nicht in der Wissensbasis, erscheinen daher nicht auf der Leinwand: {ids}',
   'useCasePanel.disclaimer':
     'Vorgeschlagen anhand der im Canvas vorhandenen MITRE-ATT&CK-Techniken. Fügen Sie Techniken aus der Bibliothek hinzu, um weitere passende Anwendungsfälle zu sehen.',
   'useCasePanel.empty':
