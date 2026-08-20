@@ -1,33 +1,86 @@
 # CSOC Flow
 
-**CSOC Flow** é uma aplicação web open source que ajuda analistas de SOC a construir investigações de segurança
-visualmente. Funciona como um canvas investigativo (na linha de Miro/Maltego/Neo4j Bloom), mas voltado para o dia a
-dia operacional de um SOC: você adiciona os fatos que encontrou (alertas, eventos de autenticação, processos,
-IPs, hashes, técnicas MITRE ATT&CK...) e a aplicação correlaciona essas evidências, sugere hipóteses de ataque,
-explica por que cada hipótese foi sugerida e recomenda os próximos passos da investigação.
+**Construa casos de uso de segurança visualmente, com o MITRE ATT&CK como base.**
 
-A plataforma também é orientada a **casos de uso de detecção**: uma base de conhecimento de cenários conhecidos
-(inspirados em regras de SIEM, como as analytics rules do Microsoft Sentinel) mapeia técnicas e táticas MITRE
-ATT&CK para nomes de detecção reconhecíveis pelo analista. Ao adicionar técnicas ao canvas, a aplicação sugere
-automaticamente os casos de uso compatíveis; ao aplicar um caso de uso, ela conecta as técnicas relacionadas e
-apresenta um passo a passo de investigação — incluindo, quando disponível, links para MITRE ATT&CK Detection
-Strategies que ajudam a validar cada etapa.
+CSOC Flow é uma aplicação web open source para montar investigações e casos de uso de detecção em um canvas. Você
+adiciona os fatos que encontrou (alertas, eventos de autenticação, processos, IPs, hashes, técnicas MITRE
+ATT&CK...) e a aplicação correlaciona as evidências, sugere hipóteses, explica por que cada uma foi sugerida e
+aponta os próximos passos da investigação.
+
+Roda inteiramente no navegador: sem login, sem backend, sem nada que saia da sua máquina.
+
+🔗 **[Abrir a aplicação](https://canakagawa.github.io/CSOCFlow/)** — não precisa instalar nada.
+
+## Para que serve
+
+Um caso de uso responde a uma pergunta simples, que nem sempre tem resposta fácil no dia a dia do SOC: **o que esse
+alerta significa?** Analistas juniores e times executivos costumam ter dificuldade real de enxergar o que está
+sendo tratado num alerta, e a explicação quase sempre sai mais complexa do que precisaria.
+
+A ideia aqui é tornar isso visual. Você monta o caso de uso sobre o MITRE ATT&CK, correlaciona as TTPs, adiciona
+insights externos, documenta o raciocínio e usa o resultado das duas formas: para entendimento técnico do time e
+para apresentação executiva. Depois exporta em JSON, guarda junto da sua documentação, revisa com o time e adapta
+ao seu ambiente.
 
 > ⚠️ **A aplicação auxilia o raciocínio investigativo, mas não confirma incidentes automaticamente.** As pontuações
-> de compatibilidade são calculadas por um conjunto de regras determinísticas e pesos — não são uma classificação
-> definitiva. A decisão final é sempre do analista.
+> de compatibilidade vêm de um conjunto de regras determinísticas e pesos — não são uma classificação definitiva.
+> A decisão final é sempre do analista.
 
-O MVP funciona **inteiramente no navegador**, sem login e sem backend obrigatório, e pode ser hospedado no GitHub
-Pages.
+## O que dá para fazer
 
-## Estado atual (fundação técnica)
+**No canvas**
 
-Este repositório está na primeira etapa de implementação (Marco 1–3 do roadmap): fundação do projeto, canvas básico
-e motor de correlação, com um único padrão investigativo completo (**SSH Brute Force**) para validar a arquitetura de
-ponta a ponta. Relatório automático, linha do tempo completa e demais padrões investigativos (password spraying,
-PowerShell suspeito, etc.) ainda não foram implementados — veja [Limitações](#limitações) e [Roadmap](#roadmap).
+- Arraste elementos da biblioteca ou clique para adicionar: táticas, técnicas e subtécnicas MITRE, tipos de
+  evidência, alertas, notas do analista.
+- Elementos livres para o que a base não cobre: texto, quadro branco, desenho à mão livre, imagem colada
+  (`Ctrl+V`) e agrupamento.
+- Seleção por retângulo com o botão esquerdo, navegação com o direito, `Ctrl`/`Shift`+clique para múltipla
+  seleção, roda do mouse rola, `Shift`+roda rola na horizontal, `Ctrl`+roda dá zoom.
+- Redimensionar qualquer elemento, ajustar ao conteúdo, ordenar em camadas, desfazer e refazer.
+- **Cores por significado**: cada elemento se colore sozinho conforme o estado investigativo, numa escala de verde
+  a vermelho — dá para ler o quadro de longe. E qualquer elemento (ou toda a seleção) pode ser pintado à mão pelo
+  menu do botão direito.
+- **Expandir subtécnicas** direto do nó da técnica, e retrair quando não precisar mais.
+- **Conectar automaticamente** evidências relacionadas e **organizar como a matriz MITRE**, em um clique.
+- **Modo apresentação** em tela cheia, para levar a investigação a uma reunião sem mostrar a ferramenta em volta.
 
-## Como executar
+**Correlação e leitura**
+
+- Hipóteses sugeridas com a explicação de por que foram sugeridas, e verificações recomendadas.
+- **Score da investigação** (0 a 100), medindo profundidade na kill chain, extensão da cadeia, atividade
+  independente confirmada e cobertura — com o detalhamento por tática.
+- Sugestão automática dos casos de uso compatíveis com as técnicas que estão no canvas.
+
+**Sair da ferramenta**
+
+- Exportação em **PNG, JPG, PDF, PPTX, JSON e CSV**.
+- Investigação salva localmente (IndexedDB) e importável de volta.
+- Interface em **português, inglês e alemão**, tema claro/escuro/do sistema, e layout que funciona no celular.
+
+## Casos de uso
+
+A plataforma é orientada a **casos de uso de detecção**: cenários conhecidos (inspirados em regras de SIEM, como as
+analytics rules do Microsoft Sentinel) que mapeiam técnicas e táticas MITRE para nomes de detecção que o analista
+reconhece. Ao aplicar um caso de uso, ele conecta as técnicas relacionadas e apresenta um passo a passo de
+investigação — incluindo, quando disponível, links para MITRE ATT&CK Detection Strategies.
+
+**O seu caso de uso também entra.** No painel direito, aba **Use Cases**:
+
+- **Importar JSON** — o arquivo fica guardado no seu navegador e em nenhum outro lugar. Ele passa a aparecer na
+  biblioteca, nas sugestões e no motor de correlação como qualquer outro.
+- **Exportar JSON** — em qualquer card, inclusive os que já vêm com a ferramenta. O ciclo fecha: exportar, editar
+  no seu editor, importar de volta. Para partir de um caso nativo, troque o `id` no arquivo — a ferramenta recusa
+  sobrescrever conteúdo de fábrica.
+
+Do texto, só o inglês é obrigatório (`en`); `pt` e `de` são opcionais. O formato completo está em
+[`public/data/schemas/use-case.schema.json`](public/data/schemas/use-case.schema.json), e os dois casos que
+acompanham a ferramenta servem de modelo.
+
+Se preferir que o caso de uso faça parte da ferramenta para todo mundo, e não só do seu navegador, coloque o
+arquivo em `public/data/use-cases/`, registre-o no `manifest.json`, rode `npm run validate:knowledge` e abra um
+pull request.
+
+## Como executar localmente
 
 Pré-requisitos: Node.js 20+ e npm.
 
@@ -36,8 +89,9 @@ npm install
 npm run dev
 ```
 
-Abra `http://localhost:5173`. Clique em **"Carregar caso de demonstração"** na barra superior para ver o fluxo
-completo (evidências → correlação → hipótese → verificações recomendadas) já preenchido.
+Abra `http://localhost:5173`. Na barra de ferramentas (o círculo no canto superior esquerdo do canvas), clique em
+**Carregar caso de demonstração** para ver o fluxo completo já preenchido: evidências → correlação → hipótese →
+verificações recomendadas.
 
 ## Como gerar o build
 
@@ -46,8 +100,8 @@ npm run build
 npm run preview
 ```
 
-O build é totalmente estático (`dist/`) e pode ser publicado em qualquer hospedagem de arquivos estáticos, incluindo
-GitHub Pages (veja `.github/workflows/deploy.yml`).
+O build é totalmente estático (`dist/`) e pode ser publicado em qualquer hospedagem de arquivos estáticos,
+incluindo GitHub Pages (veja `.github/workflows/deploy.yml`).
 
 ## Scripts disponíveis
 
@@ -60,7 +114,7 @@ GitHub Pages (veja `.github/workflows/deploy.yml`).
 | `npm run format` / `format:check` | Formata (ou verifica) o código com Prettier.                                 |
 | `npm test`                        | Testes unitários (Vitest).                                                   |
 | `npm run test:watch`              | Testes unitários em modo watch.                                              |
-| `npm run test:e2e`                | Testes end-to-end (Playwright) — suíte inicial ainda a ser escrita.          |
+| `npm run test:e2e`                | Testes end-to-end (Playwright) — suíte ainda a ser escrita.                  |
 | `npm run validate:knowledge`      | Valida todos os arquivos JSON da base de conhecimento contra os schemas.     |
 | `npm run import:mitre`            | Reimporta o catálogo MITRE ATT&CK Enterprise (táticas, técnicas, analytics). |
 
@@ -70,15 +124,15 @@ O projeto é organizado por funcionalidade, não por tipo de arquivo:
 
 ```text
 src/
-  app/                 Composição da aplicação (layout, barra superior, painel lateral)
-  shared/              Tipos e utilitários compartilhados entre features
+  app/                 Composição da aplicação (layout, barra superior, painéis laterais, tema)
+  shared/              Tipos, i18n e utilitários compartilhados entre features
   features/
-    canvas/            Canvas visual (React Flow), biblioteca de elementos, nós customizados
+    canvas/            Canvas visual (React Flow), biblioteca, nós customizados, exportação de imagem/PDF/PPTX
     knowledge-base/    Carregador + validador (JSON Schema/Zod) da base de conhecimento — não depende de React
     correlation/       Motor de correlação puro (operadores, pontuação, explicações, inferência de relações)
     hypotheses/        Painel de hipóteses
-    use-cases/         Painel e card de casos de uso de detecção (sugestão + passo a passo de investigação)
-    investigation/     Estado da investigação (Zustand), repositório (Dexie/IndexedDB), casos de demonstração
+    use-cases/         Casos de uso: painel, card, importação/exportação e armazenamento local dos seus próprios
+    investigation/     Estado da investigação (Zustand), repositório (Dexie/IndexedDB), score, casos de demonstração
 
 public/data/           Base de conhecimento em JSON (técnicas MITRE, evidências, hipóteses, verificações,
                        casos de uso de detecção, relações automáticas) + JSON Schemas
@@ -98,7 +152,7 @@ Camadas com responsabilidades isoladas:
 
 ## Base de conhecimento em duas camadas
 
-A biblioteca cobre o catálogo MITRE ATT&CK Enterprise completo (todas as táticas, técnicas e subtécnicas), em duas
+A biblioteca cobre o catálogo MITRE ATT&CK Enterprise completo (15 táticas e 697 técnicas e subtécnicas), em duas
 camadas com propósitos diferentes:
 
 - **Camada curada** — um arquivo por técnica em `public/data/mitre/techniques/T*.json`, escrito à mão. Traz o
@@ -136,19 +190,44 @@ Nenhuma mudança de código é necessária para ampliar a base de conhecimento.
 
 ## Limitações
 
-- Apenas dois casos de uso de detecção estão completos ("Autenticação suspeita" e "User Account Created/Deleted");
-  os demais cenários descritos na especificação original ainda não foram implementados.
-- Das 697 técnicas do catálogo, 18 têm conteúdo didático curado e tradução completa; as demais trazem apenas os
-  dados oficiais do MITRE, em inglês.
-- Não há geração de relatório em Markdown, linha do tempo visual completa, desfazer/refazer, nem testes end-to-end
-  ainda.
-- O layout prioriza uso em desktop.
+Melhor dizer o que ainda não existe do que deixar você descobrir sozinho:
+
+- **Cobertura da base**: das 697 técnicas do catálogo, 18 têm conteúdo didático curado e tradução completa; as
+  demais trazem apenas os dados oficiais do MITRE, em inglês. Há 2 casos de uso, 1 hipótese e 2 verificações
+  prontos.
+- **Não há geração de relatório em Markdown nem linha do tempo visual** — os dois estão no roadmap.
+- **Não há colaboração em tempo real.** Sem backend não dá: duas pessoas editando o mesmo canvas ao vivo exigiriam
+  no mínimo um servidor de sinalização. Por ora, a troca é assíncrona, pelo JSON exportado.
+- **Não há testes end-to-end** ainda (a suíte unitária tem 203 testes em 22 arquivos).
 
 ## Roadmap
 
-Veja a especificação técnica original do projeto para o roadmap completo (Fases 2–4: padrões customizados pela
-interface, integrações com SIEM/EDR, colaboração em time, etc.). Os próximos marcos deste repositório são: relatório
-automático + linha do tempo (Marco 5) e testes end-to-end + acessibilidade + demais casos de demonstração (Marco 6).
+Próximos marcos: relatório automático + linha do tempo visual; depois testes end-to-end, acessibilidade e mais
+casos de demonstração. Mais adiante: criação de padrões investigativos pela própria interface e integrações com
+SIEM/EDR.
+
+## Contribuindo
+
+Feedback da comunidade é muito bem-vindo — sugestões, melhorias, ideias ou crítica. Abra uma
+[issue](https://github.com/CaNakagawa/CSOCFlow/issues) ou um pull request, que eu reviso e aplico o que fizer
+sentido.
+
+O caminho mais fácil de contribuir é pela base de conhecimento: um caso de uso novo, uma técnica curada com o
+contexto investigativo bem escrito, ou uma tradução. Nada disso exige mexer em código.
+
+Antes de abrir o PR:
+
+```bash
+npm run validate:knowledge
+npm test
+npm run lint
+```
+
+## MITRE ATT&CK
+
+MITRE ATT&CK® é uma marca registrada da The MITRE Corporation. Este projeto não é afiliado ao MITRE; usa o conteúdo
+público do framework sob os [termos de uso](https://attack.mitre.org/resources/legal-and-branding/terms-of-use/) do
+próprio MITRE.
 
 ## Licença
 
