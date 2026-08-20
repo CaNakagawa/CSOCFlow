@@ -96,3 +96,19 @@
     height: 38px;
   }
 }
+
+/* A tool that carries its own flyout needs somewhere to anchor it. */
+.tool-rail__slot {
+  position: relative;
+  display: flex;
+}
+
+/* On a phone the rail hugs the left edge, so the flyout goes underneath. */
+@media (max-width: 620px) {
+  .tool-rail__slot .pen-bar {
+    left: 0;
+    top: 100%;
+    transform: none;
+    margin: 8px 0 0;
+  }
+}

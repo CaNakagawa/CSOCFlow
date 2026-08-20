@@ -87,3 +87,72 @@
   font-size: 9px;
   line-height: 1;
 }
+
+/* A grid of icons: three rows that a glance can cross. */
+.node-context-menu__icons {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  padding: 2px 5px 4px;
+}
+
+.node-context-menu__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted-fg);
+  cursor: pointer;
+}
+
+.node-context-menu__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.node-context-menu__icon:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.node-context-menu__icon--none {
+  font-size: 9px;
+  line-height: 1;
+}
+
+/* Thickness, sampled as the line it would leave behind. */
+.node-context-menu__widths {
+  display: flex;
+  gap: 4px;
+  padding: 4px 7px;
+}
+
+.node-context-menu__width {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.node-context-menu__width span {
+  display: block;
+  width: 20px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.node-context-menu__width:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}

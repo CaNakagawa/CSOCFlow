@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useReactFlow } from '@xyflow/react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import { WHITEBOARD_DEFAULT_SIZE } from '../utils/canvasDefaults'
 import { TOOL_ICONS } from './toolIcons'
 import { ShareMenu } from './ShareMenu'
+import { PenBar } from './PenBar'
+import type { PenSettings } from '../utils/penSettings'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import { useI18n, type TranslationKey } from '../../../shared/i18n'
 import './CanvasToolRail.css'
@@ -47,6 +49,8 @@ interface CanvasToolRailProps {
   knowledgeBase: KnowledgeBase | null
   drawing: boolean
   onSetDrawing: (drawing: boolean) => void
+  pen: PenSettings
+  onPenChange: (pen: PenSettings) => void
   presenting: boolean
   onTogglePresentation: () => void
   onStatus: (message: string) => void
@@ -63,6 +67,8 @@ export function CanvasToolRail({
   knowledgeBase,
   drawing,
   onSetDrawing,
+  pen,
+  onPenChange,
   presenting,
   onTogglePresentation,
   onStatus,
@@ -74,7 +80,6 @@ export function CanvasToolRail({
   const { screenToFlowPosition } = useReactFlow()
   const [open, setOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const rootRef = useRef<HTMLDivElement>(null)
 
   const undo = useInvestigationStore((s) => s.undo)
   const redo = useInvestigationStore((s) => s.redo)
@@ -93,23 +98,13 @@ export function CanvasToolRail({
   const newInvestigation = useInvestigationStore((s) => s.newInvestigation)
   const clearCanvas = useInvestigationStore((s) => s.clearCanvas)
 
-  // The open rail covers part of the canvas, so clicking away puts it back.
-  useEffect(() => {
-    if (!open) return
-    function handlePointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as globalThis.Node)) setOpen(false)
-    }
-    document.addEventListener('pointerdown', handlePointerDown)
-    return () => document.removeEventListener('pointerdown', handlePointerDown)
-  }, [open])
-
   /** Drop new things where the analyst is looking, not at the origin. */
   function centreOfView() {
     return screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 })
   }
 
   return (
-    <div className={`tool-rail${open ? ' tool-rail--open' : ''}`} ref={rootRef}>
+    <div className={`tool-rail${open ? ' tool-rail--open' : ''}`}>
       <button
         type="button"
         className="tool-rail__handle"
@@ -140,12 +135,16 @@ export function CanvasToolRail({
             active={!drawing}
             onClick={() => onSetDrawing(false)}
           />
-          <Tool
-            icon="draw"
-            labelKey="canvas.draw"
-            active={drawing}
-            onClick={() => onSetDrawing(true)}
-          />
+          {/* The pen's settings sit beside the pen, not at the end of the rail. */}
+          <div className="tool-rail__slot">
+            <Tool
+              icon="draw"
+              labelKey="canvas.draw"
+              active={drawing}
+              onClick={() => onSetDrawing(true)}
+            />
+            {drawing && <PenBar pen={pen} onChange={onPenChange} />}
+          </div>
           <Tool
             icon="erase"
             labelKey="canvas.clearDrawings"

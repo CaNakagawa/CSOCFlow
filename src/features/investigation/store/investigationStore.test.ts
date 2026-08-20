@@ -1215,6 +1215,56 @@ describe('investigationStore', () => {
     expect(useInvestigationStore.getState().nodes[0].color).toBeUndefined()
   })
 
+  it('puts an icon on every selected element at once', () => {
+    const { addFreeNode, setNodeIcon } = useInvestigationStore.getState()
+    const a = addFreeNode({ nodeType: 'evidence', label: 'a', position: { x: 0, y: 0 } })
+    const b = addFreeNode({ nodeType: 'evidence', label: 'b', position: { x: 50, y: 0 } })
+
+    setNodeIcon([a, b], 'bug')
+
+    expect(useInvestigationStore.getState().nodes.map((n) => n.icon)).toEqual(['bug', 'bug'])
+  })
+
+  it('takes the icon back off', () => {
+    const { addFreeNode, setNodeIcon } = useInvestigationStore.getState()
+    const id = addFreeNode({ nodeType: 'evidence', label: 'a', position: { x: 0, y: 0 } })
+    setNodeIcon([id], 'malware')
+
+    setNodeIcon([id], null)
+    expect(useInvestigationStore.getState().nodes[0].icon).toBeUndefined()
+  })
+
+  it('undoes an icon in one step', () => {
+    const { addFreeNode, setNodeIcon, undo } = useInvestigationStore.getState()
+    const id = addFreeNode({ nodeType: 'evidence', label: 'a', position: { x: 0, y: 0 } })
+    setNodeIcon([id], 'search')
+
+    undo()
+    expect(useInvestigationStore.getState().nodes[0].icon).toBeUndefined()
+  })
+
+  it('thickens a drawing that is already on the canvas', () => {
+    const { addStroke, setStrokeWidth } = useInvestigationStore.getState()
+    addStroke({ id: 's', points: [{ x: 0, y: 0 }], color: '#f59e0b', width: 3 })
+    const drawing = useInvestigationStore.getState().nodes[0]
+
+    setStrokeWidth([drawing.id], 10)
+    expect(useInvestigationStore.getState().nodes[0].stroke!.width).toBe(10)
+  })
+
+  it('leaves anything that is not a drawing alone when setting thickness', () => {
+    const { addFreeNode, addStroke, setStrokeWidth } = useInvestigationStore.getState()
+    const card = addFreeNode({ nodeType: 'evidence', label: 'a', position: { x: 0, y: 0 } })
+    addStroke({ id: 's', points: [{ x: 0, y: 0 }], color: '#f59e0b', width: 3 })
+    const drawing = useInvestigationStore.getState().nodes.find((n) => n.stroke)!
+
+    setStrokeWidth([card, drawing.id], 6)
+
+    const nodes = useInvestigationStore.getState().nodes
+    expect(nodes.find((n) => n.id === card)!.stroke).toBeUndefined()
+    expect(nodes.find((n) => n.id === drawing.id)!.stroke!.width).toBe(6)
+  })
+
   it('serializes the current state into an Investigation document', () => {
     const { addNode, toDocument } = useInvestigationStore.getState()
     addNode({

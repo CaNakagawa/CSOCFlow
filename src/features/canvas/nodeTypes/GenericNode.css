@@ -251,3 +251,10 @@
   background: var(--node-bg);
   border-left-width: 2px;
 }
+
+/* The chosen icon sits where the category glyph would be, at the same weight. */
+.generic-node__icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}

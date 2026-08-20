@@ -1,0 +1,82 @@
+/*
+ * Anchored to the pen button and taken out of the flow, so opening it never
+ * changes the width of the rail and shifts every other tool sideways.
+ */
+.pen-bar {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 10px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-popover);
+}
+
+.pen-bar__group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pen-bar__divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--panel-border);
+}
+
+.pen-bar__width {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pen-bar__width span {
+  display: block;
+  width: 16px;
+  border-radius: 999px;
+}
+
+.pen-bar__width:hover {
+  background: var(--hover-bg);
+}
+
+.pen-bar__width--active {
+  border-color: var(--accent);
+  background: var(--hover-bg);
+}
+
+.pen-bar__colour {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.pen-bar__colour:hover {
+  transform: scale(1.15);
+}
+
+.pen-bar__colour--active {
+  border-color: var(--fg);
+  box-shadow:
+    0 0 0 2px var(--surface-raised),
+    0 0 0 3px var(--accent);
+}

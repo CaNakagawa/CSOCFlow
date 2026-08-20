@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
 import { NODE_PALETTE } from '../utils/nodePalette'
+import { NODE_ICONS, NODE_ICON_KEYS } from '../utils/nodeIcons'
+import { STROKE_WIDTHS } from '../utils/penSettings'
 import { TOOL_ICONS } from './toolIcons'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import { useI18n, type TranslationKey } from '../../../shared/i18n'
@@ -31,6 +33,8 @@ export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMen
   const restack = useInvestigationStore((s) => s.restack)
   const clearNodeSize = useInvestigationStore((s) => s.clearNodeSize)
   const setNodeColor = useInvestigationStore((s) => s.setNodeColor)
+  const setNodeIcon = useInvestigationStore((s) => s.setNodeIcon)
+  const setStrokeWidth = useInvestigationStore((s) => s.setStrokeWidth)
   const nodes = useInvestigationStore((s) => s.nodes)
   const selectedNodeIds = useInvestigationStore((s) => s.selectedNodeIds)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -126,6 +130,68 @@ export function NodeContextMenu({ menu, knowledgeBase, onClose }: NodeContextMen
           title={t('canvas.colourAuto')}
           onClick={() => {
             setNodeColor(targets, null)
+            onClose()
+          }}
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+      </div>
+
+      {/* Thickness belongs to a drawing alone, so it only appears for one. */}
+      {targets.some((id) => nodes.find((n) => n.id === id)?.stroke) && (
+        <div className="node-context-menu__widths" role="group" aria-label={t('canvas.penWidth')}>
+          {STROKE_WIDTHS.map((width) => (
+            <button
+              key={width}
+              type="button"
+              className="node-context-menu__width"
+              aria-label={t('canvas.penWidthValue', { width: String(width) })}
+              title={t('canvas.penWidthValue', { width: String(width) })}
+              onClick={() => {
+                setStrokeWidth(targets, width)
+                onClose()
+              }}
+            >
+              <span style={{ height: `${width}px` }} aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Illustration, not classification: an icon never changes correlation. */}
+      <div className="node-context-menu__icons" role="group" aria-label={t('canvas.icon')}>
+        {NODE_ICON_KEYS.map((icon) => (
+          <button
+            key={icon.value}
+            type="button"
+            className="node-context-menu__icon"
+            aria-label={t(icon.labelKey)}
+            title={t(icon.labelKey)}
+            onClick={() => {
+              setNodeIcon(targets, icon.value)
+              onClose()
+            }}
+          >
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              {NODE_ICONS[icon.value]}
+            </svg>
+          </button>
+        ))}
+        <button
+          type="button"
+          className="node-context-menu__icon node-context-menu__icon--none"
+          aria-label={t('canvas.iconNone')}
+          title={t('canvas.iconNone')}
+          onClick={() => {
+            setNodeIcon(targets, null)
             onClose()
           }}
         >

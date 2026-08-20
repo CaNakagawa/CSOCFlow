@@ -28,6 +28,7 @@ import { NodeContextMenu, type ContextMenuState } from './NodeContextMenu'
 import { PaneContextMenu, type PaneMenuState } from './PaneContextMenu'
 import { CanvasToolRail } from './CanvasToolRail'
 import { DrawingSurface } from './DrawingLayer'
+import { getStoredPen, storePen, type PenSettings } from '../utils/penSettings'
 import { TextNode } from '../nodeTypes/TextNode'
 import { WhiteboardNode } from '../nodeTypes/WhiteboardNode'
 import { DrawingNode } from '../nodeTypes/DrawingNode'
@@ -64,7 +65,6 @@ const BACKDROP_TYPES = new Set(['whiteboard', 'group'])
 const CONTEXT_MENU_SLOP = 4
 
 /** Colour and thickness of the freehand pen. */
-const PEN = { color: '#f59e0b', width: 3 }
 
 /** Longest side a pasted picture starts at, in canvas units. */
 const MAX_PASTED_IMAGE = 640
@@ -190,6 +190,7 @@ function CanvasSurface({
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
   const [paneMenu, setPaneMenu] = useState<PaneMenuState | null>(null)
   const [drawing, setDrawing] = useState(false)
+  const [pen, setPen] = useState<PenSettings>(getStoredPen)
   const [feedback, setFeedback] = useState<string | null>(null)
   // Where the right button went down, to tell a pan from a plain right-click.
   const rightPressAt = useRef<{
@@ -351,6 +352,7 @@ function CanvasSurface({
           boxHeight: n.size?.height ?? 0,
           src: n.imageSrc ?? '',
           color: n.color,
+          icon: n.icon,
         },
       })),
     [
@@ -685,6 +687,11 @@ function CanvasSurface({
             knowledgeBase={knowledgeBase}
             drawing={drawing}
             onSetDrawing={setDrawing}
+            pen={pen}
+            onPenChange={(next) => {
+              setPen(next)
+              storePen(next)
+            }}
             presenting={presenting}
             onTogglePresentation={onTogglePresentation}
             onStatus={setFeedback}
@@ -702,7 +709,7 @@ function CanvasSurface({
         <Background />
         <Controls />
         <MiniMap pannable zoomable />
-        {drawing && <DrawingSurface color={PEN.color} width={PEN.width} />}
+        {drawing && <DrawingSurface color={pen.color} width={pen.width} />}
       </ReactFlow>
 
       {contextMenu && (

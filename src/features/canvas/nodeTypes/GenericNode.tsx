@@ -13,6 +13,7 @@ import {
 import { HANDLE_IDS, type HandleId } from '../../../shared/types/handles'
 import { nodeSignal, signalTone } from '../utils/nodeSignal'
 import { nodeColorStyle } from '../utils/nodePalette'
+import { NODE_ICONS } from '../utils/nodeIcons'
 import { useI18n } from '../../../shared/i18n'
 import './GenericNode.css'
 
@@ -37,6 +38,8 @@ export interface GenericNodeData extends Record<string, unknown> {
   height: number
   /** A colour picked by hand, overriding the one the state would give. */
   color?: string
+  /** An icon picked by hand, shown in place of the category's short glyph. */
+  icon?: string
 }
 
 /** Small enough to still read the label, large enough to grab a corner. */
@@ -67,6 +70,7 @@ export function GenericNode({ data, selected }: NodeProps) {
     width,
     height,
     color,
+    icon,
   } = data as unknown as GenericNodeData
   const { t } = useI18n()
   const linkToNearest = useInvestigationStore((s) => s.linkToNearest)
@@ -126,9 +130,32 @@ export function GenericNode({ data, selected }: NodeProps) {
       ))}
 
       <div className="generic-node__header">
-        <span className="generic-node__glyph" aria-hidden="true">
-          {NODE_GLYPHS[nodeType]}
-        </span>
+        {/* An icon the analyst chose says more than the two letters of a category. */}
+        {/*
+          The size is set as attributes as well as in CSS: an export loses the
+          stylesheet inside an SVG, and without them the icon would fall back
+          to the 300x150 default and wreck the card.
+        */}
+        {icon && NODE_ICONS[icon] ? (
+          <svg
+            className="generic-node__icon"
+            viewBox="0 0 16 16"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            {NODE_ICONS[icon]}
+          </svg>
+        ) : (
+          <span className="generic-node__glyph" aria-hidden="true">
+            {NODE_GLYPHS[nodeType]}
+          </span>
+        )}
         <span className="generic-node__category">{t(nodeCategoryKey(nodeType))}</span>
       </div>
       {editingLabel ? (

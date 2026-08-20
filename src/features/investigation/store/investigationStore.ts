@@ -181,6 +181,9 @@ interface InvestigationState {
   clearNodeSize: (nodeIds: string[]) => void
   /** Paints elements by hand; null hands them back to the automatic colour. */
   setNodeColor: (nodeIds: string[], color: string | null) => void
+  setNodeIcon: (nodeIds: string[], icon: string | null) => void
+  /** Thickness of an existing free drawing, in canvas units. */
+  setStrokeWidth: (nodeIds: string[], width: number) => void
   setSelectedNodes: (nodeIds: string[]) => void
   selectAllNodes: () => void
   copySelection: () => number
@@ -850,6 +853,36 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
           const stroke = node.stroke && color ? { ...node.stroke, color } : node.stroke
           return { ...node, color: color ?? undefined, stroke, updatedAt: now }
         }),
+      }))
+    },
+
+    setNodeIcon: (nodeIds, icon) => {
+      if (nodeIds.length === 0) return
+      const targets = new Set(nodeIds)
+
+      get().pushHistory()
+      const now = new Date().toISOString()
+      set((state) => ({
+        nodes: state.nodes.map((node) =>
+          targets.has(node.id) ? { ...node, icon: icon ?? undefined, updatedAt: now } : node,
+        ),
+      }))
+    },
+
+    setStrokeWidth: (nodeIds, width) => {
+      const targets = new Set(nodeIds)
+      // Only a drawing has a thickness; the rest of the selection is left alone.
+      const drawings = get().nodes.filter((node) => targets.has(node.id) && node.stroke)
+      if (drawings.length === 0) return
+
+      get().pushHistory()
+      const now = new Date().toISOString()
+      set((state) => ({
+        nodes: state.nodes.map((node) =>
+          targets.has(node.id) && node.stroke
+            ? { ...node, stroke: { ...node.stroke, width }, updatedAt: now }
+            : node,
+        ),
       }))
     },
 

@@ -101,6 +101,11 @@ export interface InvestigationNode {
    * one the investigative state would give the element.
    */
   color?: string
+  /**
+   * An icon the analyst picked to say at a glance what this is — a bug, a
+   * magnifier, a lock. Purely illustrative: it never changes correlation.
+   */
+  icon?: string
   createdAt: string
   updatedAt: string
 }
