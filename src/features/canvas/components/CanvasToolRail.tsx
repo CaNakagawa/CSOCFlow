@@ -56,7 +56,8 @@ interface CanvasToolRailProps {
   onStatus: (message: string) => void
   onImportFile: (file: File) => void
   onSaveLocally: () => void
-  onLoadDemo: () => void
+  timelineOpen: boolean
+  onToggleTimeline: () => void
 }
 
 /**
@@ -74,7 +75,8 @@ export function CanvasToolRail({
   onStatus,
   onImportFile,
   onSaveLocally,
-  onLoadDemo,
+  timelineOpen,
+  onToggleTimeline,
 }: CanvasToolRailProps) {
   const { t, locale } = useI18n()
   const { screenToFlowPosition } = useReactFlow()
@@ -244,7 +246,6 @@ export function CanvasToolRail({
           <div className="tool-rail__divider" aria-hidden="true" />
 
           <Tool icon="new" labelKey="topBar.newInvestigation" onClick={() => newInvestigation()} />
-          <Tool icon="demo" labelKey="topBar.loadDemo" onClick={onLoadDemo} />
           <Tool icon="save" labelKey="topBar.save" onClick={onSaveLocally} />
           <Tool
             icon="import"
@@ -256,6 +257,12 @@ export function CanvasToolRail({
 
           <div className="tool-rail__divider" aria-hidden="true" />
 
+          <Tool
+            icon="timeline"
+            labelKey="timeline.show"
+            active={timelineOpen}
+            onClick={onToggleTimeline}
+          />
           <Tool
             icon="fullscreen"
             labelKey="canvas.presentation"

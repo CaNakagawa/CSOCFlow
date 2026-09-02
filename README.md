@@ -43,6 +43,7 @@ ao seu ambiente.
 - **Expandir subtécnicas** direto do nó da técnica, e retrair quando não precisar mais.
 - **Conectar automaticamente** evidências relacionadas e **organizar como a matriz MITRE**, em um clique.
 - **Modo apresentação** em tela cheia, para levar a investigação a uma reunião sem mostrar a ferramenta em volta.
+- **Linha do tempo do ataque**, uma segunda leitura do mesmo quadro — veja abaixo.
 
 **Correlação e leitura**
 
@@ -53,10 +54,55 @@ ao seu ambiente.
 
 **Sair da ferramenta**
 
-- Exportação em **PNG, JPG, PDF, PPTX, JSON e CSV**.
+- **Quatro modelos de exportação**, para você escolher o que o leitor deve ver — veja abaixo.
 - **Camada do MITRE ATT&CK Navigator, nos dois sentidos.**
 - Investigação salva localmente (IndexedDB) e importável de volta.
 - Interface em **português, inglês e alemão**, tema claro/escuro/do sistema, e layout que funciona no celular.
+
+## Linha do tempo do ataque
+
+O canvas responde "o que achamos e como se conecta". A linha do tempo responde **"o que aconteceu, em que ordem"**
+— que costuma ser a primeira pergunta de uma sala de diretoria. É a mesma investigação lida de outro jeito, e foi
+pensada para a conversa executiva.
+
+Ela abre em **Mostrar linha do tempo do ataque**, na barra de ferramentas, e ocupa uma faixa abaixo do canvas, fora
+dele.
+
+- **Nada é duplicado.** Cada card é um elemento do canvas: mudar um muda o outro, e clicar num card seleciona o
+  elemento lá em cima. A ordem e os horários fazem parte da investigação, então acompanham o salvamento, a
+  exportação e o desfazer.
+- **Você numera os passos** — 1º, 2º, 3º — com as setas de cada card, ou **arrastando**: solte sobre uma coluna
+  para juntar ao passo, ou sobre a fresta entre duas colunas para abrir um passo novo ali, empurrando os
+  seguintes. O que compartilha o mesmo número **empilha na mesma coluna**, que é como se diz "isso aconteceu
+  junto".
+- **Cada elemento aceita um horário**, em texto livre de propósito: `10:42`, `2026-03-14 09:15` ou "por volta do
+  meio-dia" são todos coisas que um analista precisa registrar. Dentro de um passo, os que têm horário vêm primeiro,
+  na ordem do relógio.
+- **Horário que anda para trás é apontado**: lendo a linha na ordem, cada horário deve ser igual ou posterior ao
+  anterior, e o que não for ganha um aviso no card. É aviso, não bloqueio — o analista pode estar registrando
+  exatamente o que o log diz, e uma sequência que parece invertida é dele para explicar. Horário de relógio nunca é
+  comparado com data completa, e o que estiver escrito em prosa é deixado em paz.
+- O que ainda não entrou na história fica numa bandeja embaixo; um clique põe no fim.
+- Texto, quadros, desenhos, imagens, grupos e o esqueleto da matriz não entram: não são eventos.
+
+## Exportar: quatro modelos
+
+Em **Compartilhar**, a primeira pergunta é o que o leitor precisa ver, e só depois em que arquivo. Cada modelo sai
+em **PDF, PPTX, PNG ou JPG**:
+
+- **Somente o canvas** — o quadro como está, com as cores e as conexões.
+- **Somente a linha do tempo** — a sequência sozinha, impressa em folha branca, não uma foto da interface escura.
+- **Canvas e linha do tempo** — os dois na mesma peça: o quadro e, abaixo dele, a sequência.
+- **Relatório executivo** — um documento em A4 com cabeçalho (caso, analista, data, situação, conclusão),
+  pontuação da investigação e até onde a atividade confirmada chegou, resumo, a sequência numerada com horários, e
+  **uma tabela com todos os elementos** — passo, horário, tipo, estado, a quem está conectado e as observações —
+  mais a tabela de conexões.
+
+E **Dados**, para outra ferramenta ler: JSON (a investigação inteira), CSV e a camada do ATT&CK Navigator.
+
+O CSV é a mesma tabela do relatório, então planilha e documento nunca discordam. Ele sai com marca de ordem de
+bytes (BOM) porque, sem ela, o Excel lê o arquivo na codificação do sistema e estraga todo acento de uma
+investigação em português ou alemão.
 
 ## ATT&CK Navigator
 
@@ -123,9 +169,8 @@ npm install
 npm run dev
 ```
 
-Abra `http://localhost:5173`. Na barra de ferramentas (o círculo no canto superior esquerdo do canvas), clique em
-**Carregar caso de demonstração** para ver o fluxo completo já preenchido: evidências → correlação → hipótese →
-verificações recomendadas.
+Abra `http://localhost:5173`. No painel direito, aba **Use Cases**, clique em **Carregar demo** para ver o fluxo
+completo já preenchido: evidências → correlação → hipótese → verificações recomendadas.
 
 ## Como gerar o build
 

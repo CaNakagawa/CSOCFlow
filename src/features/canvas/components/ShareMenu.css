@@ -35,3 +35,55 @@
   background: var(--hover-bg);
   color: var(--accent);
 }
+
+.share-menu__list {
+  min-width: 250px;
+  gap: 2px;
+}
+
+.share-menu__heading {
+  margin: 4px 6px 2px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.55;
+}
+
+.share-menu__models {
+  display: flex;
+  flex-direction: column;
+}
+
+.share-menu__model--active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.share-menu__hint {
+  margin: 2px 9px 6px;
+  font-size: 11px;
+  opacity: 0.6;
+  white-space: normal;
+}
+
+/* Formats sit in a row: they are a second, smaller choice than the model. */
+.share-menu__formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 5px 4px;
+}
+
+.share-menu__formats button {
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 6px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+}
+
+.share-menu__formats button:hover {
+  border-color: var(--accent);
+}

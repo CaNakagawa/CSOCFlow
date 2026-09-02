@@ -106,6 +106,15 @@ export interface InvestigationNode {
    * magnifier, a lock. Purely illustrative: it never changes correlation.
    */
   icon?: string
+  /**
+   * Where this element sits in the attack timeline: 1 for first, 2 for second,
+   * and so on. Several elements may share a step when they happened together.
+   * Unset means it is not part of the story being told.
+   */
+  step?: number
+  /** When this happened, as the analyst wrote it. Free text on purpose: a log
+   * line, a clock time, or "around midday" are all things worth recording. */
+  eventAt?: string
   createdAt: string
   updatedAt: string
 }

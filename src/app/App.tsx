@@ -10,13 +10,13 @@ import {
   createInvestigationRepository,
   InvalidInvestigationFileError,
 } from '../features/investigation/repository/InvestigationRepository'
-import { DEMO_CASES, loadDemoCase } from '../features/investigation/services/demoCaseService'
 import {
   NavigatorImportError,
   parseNavigatorLayer,
 } from '../features/canvas/export/attackNavigatorImport'
 import { useInvestigationStore } from '../features/investigation/store/investigationStore'
 import { applyTheme, getStoredTheme, storeTheme } from '../shared/theme/theme'
+import { AttackTimeline } from '../features/timeline/components/AttackTimeline'
 import { RightPanel } from './RightPanel'
 import { PanelResizer } from './PanelResizer'
 import {
@@ -47,6 +47,7 @@ export function App() {
   const [isRightPanelCollapsed, setRightPanelCollapsed] = useState(startsCollapsed)
   const [panelWidths, setPanelWidths] = useState(getStoredPanelWidths)
   const [presenting, setPresenting] = useState(false)
+  const [showTimeline, setShowTimeline] = useState(false)
   const [theme, setTheme] = useState(getStoredTheme)
   const [status, setStatus] = useState<string | null>(null)
   const loadInvestigation = useInvestigationStore((s) => s.loadInvestigation)
@@ -62,12 +63,6 @@ export function App() {
     await repository.save(toDocument())
     setStatus(t('topBar.statusSaved'))
   }, [t, toDocument])
-
-  const loadDemo = useCallback(async () => {
-    const investigation = await loadDemoCase(DEMO_CASES[0])
-    loadInvestigation(investigation)
-    setStatus(t('topBar.statusDemoLoaded', { name: DEMO_CASES[0].title }))
-  }, [loadInvestigation, t])
 
   /*
    * One Import button for two kinds of file. An investigation replaces the
@@ -220,7 +215,8 @@ export function App() {
           theme={theme}
           onImportFile={(file) => void importFile(file)}
           onSaveLocally={() => void saveLocally()}
-          onLoadDemo={() => void loadDemo()}
+          timelineOpen={showTimeline}
+          onToggleTimeline={() => setShowTimeline((open) => !open)}
         />
         {!isRightPanelCollapsed && (
           <PanelResizer
@@ -238,6 +234,8 @@ export function App() {
           onToggleCollapsed={() => setRightPanelCollapsed((v) => !v)}
         />
       </div>
+
+      {showTimeline && <AttackTimeline onClose={() => setShowTimeline(false)} />}
     </div>
   )
 }

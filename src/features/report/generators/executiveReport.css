@@ -1,0 +1,181 @@
+/*
+ * The report is rendered off-screen and photographed, so it is styled in
+ * absolute units on a white page: it has to look the same whatever theme the
+ * analyst happens to be using and whatever size their window is.
+ */
+.report {
+  width: 794px; /* A4 at 96dpi */
+  padding: 40px 44px;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #11182a;
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.report h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+.report h2 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #475569;
+}
+
+.report header {
+  border-bottom: 2px solid #11182a;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+}
+
+.report dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+  margin: 10px 0 0;
+}
+
+.report dl div {
+  display: flex;
+  flex-direction: column;
+}
+
+.report dt {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.report dd {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.report section {
+  margin-bottom: 22px;
+  page-break-inside: avoid;
+}
+
+.report .score {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  border-left: 5px solid #0f172a;
+}
+
+.report .score__value {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.report .score__value strong {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.report .score__value span {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.report .score p {
+  margin: 0;
+}
+
+.report .steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: none;
+}
+
+.report .steps li {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.report .steps li:last-child {
+  border-bottom: none;
+}
+
+.report .ordinal {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.report .entry {
+  margin: 0 0 3px;
+}
+
+.report .entry .time {
+  margin-left: 8px;
+  font-variant-numeric: tabular-nums;
+  color: #0f172a;
+}
+
+.report .entry .state {
+  margin-left: 8px;
+  font-size: 10.5px;
+  color: #64748b;
+}
+
+.report table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.report th {
+  text-align: left;
+  padding: 6px 8px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.report td {
+  padding: 5px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+/* Banded rows: a long table of evidence is read across, not down. */
+.report tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.report .empty {
+  margin: 0;
+  color: #64748b;
+  font-style: italic;
+}

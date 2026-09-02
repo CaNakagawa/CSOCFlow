@@ -127,7 +127,8 @@ interface CanvasProps {
   theme: ThemePreference
   onImportFile: (file: File) => void
   onSaveLocally: () => void
-  onLoadDemo: () => void
+  timelineOpen: boolean
+  onToggleTimeline: () => void
 }
 
 /** The flow helpers are only available under a provider, so the canvas sits inside one. */
@@ -147,7 +148,8 @@ function CanvasSurface({
   theme,
   onImportFile,
   onSaveLocally,
-  onLoadDemo,
+  timelineOpen,
+  onToggleTimeline,
 }: CanvasProps) {
   const { t, locale } = useI18n()
   const { screenToFlowPosition, getViewport } = useReactFlow()
@@ -697,7 +699,8 @@ function CanvasSurface({
             onStatus={setFeedback}
             onImportFile={onImportFile}
             onSaveLocally={onSaveLocally}
-            onLoadDemo={onLoadDemo}
+            timelineOpen={timelineOpen}
+            onToggleTimeline={onToggleTimeline}
           />
         </Panel>
         <Panel position="top-center">

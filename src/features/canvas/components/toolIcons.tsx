@@ -114,6 +114,15 @@ export const TOOL_ICONS: Record<string, ReactNode> = {
       />
     </>
   ),
+  // Beads on a thread: one thing after another.
+  timeline: (
+    <>
+      <path d="M1.8 8h12.4" />
+      <circle cx="4.2" cy="8" r="1.5" />
+      <circle cx="8" cy="8" r="1.5" />
+      <circle cx="11.8" cy="8" r="1.5" />
+    </>
+  ),
   // Corners drawn inward: pull the frame back onto what is inside it.
   fit: <path d="M6.4 2.4v4h-4M9.6 2.4v4h4M6.4 13.6v-4h-4M9.6 13.6v-4h4" />,
   ungroup: (

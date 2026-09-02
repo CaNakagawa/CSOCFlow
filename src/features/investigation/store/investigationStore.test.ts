@@ -1266,6 +1266,35 @@ describe('investigationStore', () => {
     expect(nodes.find((n) => n.id === drawing.id)!.stroke!.width).toBe(6)
   })
 
+  it('opens a new step and pushes the later ones along', () => {
+    const { addFreeNode, setNodeStep, insertNodeAtStep } = useInvestigationStore.getState()
+    const a = addFreeNode({ nodeType: 'evidence', label: 'a', position: { x: 0, y: 0 } })
+    const b = addFreeNode({ nodeType: 'evidence', label: 'b', position: { x: 0, y: 0 } })
+    const c = addFreeNode({ nodeType: 'evidence', label: 'c', position: { x: 0, y: 0 } })
+    setNodeStep([a], 1)
+    setNodeStep([b], 2)
+
+    insertNodeAtStep(c, 2)
+
+    const byId = new Map(useInvestigationStore.getState().nodes.map((n) => [n.id, n.step]))
+    expect(byId.get(a)).toBe(1)
+    expect(byId.get(c)).toBe(2)
+    expect(byId.get(b)).toBe(3)
+  })
+
+  it('leaves what is outside the story where it is when a step opens', () => {
+    const { addFreeNode, setNodeStep, insertNodeAtStep } = useInvestigationStore.getState()
+    const placed = addFreeNode({ nodeType: 'evidence', label: 'a', position: { x: 0, y: 0 } })
+    const loose = addFreeNode({ nodeType: 'evidence', label: 'b', position: { x: 0, y: 0 } })
+    setNodeStep([placed], 1)
+
+    insertNodeAtStep(loose, 1)
+
+    const byId = new Map(useInvestigationStore.getState().nodes.map((n) => [n.id, n.step]))
+    expect(byId.get(loose)).toBe(1)
+    expect(byId.get(placed)).toBe(2)
+  })
+
   it('serializes the current state into an Investigation document', () => {
     const { addNode, toDocument } = useInvestigationStore.getState()
     addNode({

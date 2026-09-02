@@ -3,6 +3,7 @@ import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import { useUserUseCaseStore } from '../store/userUseCaseStore'
 import { UseCaseImportError } from '../import/parseUseCase'
+import { DEMO_CASES, loadDemoCase } from '../../investigation/services/demoCaseService'
 import { UseCaseCard } from './UseCaseCard'
 import { useI18n, localize } from '../../../shared/i18n'
 import './UseCasePanel.css'
@@ -15,6 +16,7 @@ export function UseCasePanel({ knowledgeBase }: UseCasePanelProps) {
   const { t, locale } = useI18n()
   const suggestions = useInvestigationStore((s) => s.useCaseSuggestions)
   const applyUseCase = useInvestigationStore((s) => s.applyUseCase)
+  const loadInvestigation = useInvestigationStore((s) => s.loadInvestigation)
   const userUseCases = useUserUseCaseStore((s) => s.useCases)
   const importFile = useUserUseCaseStore((s) => s.importFile)
   const removeUseCase = useUserUseCaseStore((s) => s.remove)
@@ -50,8 +52,31 @@ export function UseCasePanel({ knowledgeBase }: UseCasePanelProps) {
     }
   }
 
+  async function handleDemo() {
+    try {
+      loadInvestigation(await loadDemoCase(DEMO_CASES[0]))
+      setMessage({ text: t('useCase.demoLoaded', { name: DEMO_CASES[0].title }), failed: false })
+    } catch {
+      setMessage({ text: t('useCase.demoFailed'), failed: true })
+    }
+  }
+
   return (
     <div className="use-case-panel">
+      {/*
+        A worked example belongs beside the use cases: it is one, filled in.
+        Reaching for it in the canvas tools was reaching in the wrong place.
+      */}
+      <section className="use-case-panel__demo">
+        <div>
+          <h3>{t('useCase.demo')}</h3>
+          <p className="use-case-panel__hint">{t('useCase.demoHint')}</p>
+        </div>
+        <button type="button" className="use-case-panel__import" onClick={() => void handleDemo()}>
+          {t('useCase.demoLoad')}
+        </button>
+      </section>
+
       {/* The analyst's own cases, before the ones the app happens to suggest. */}
       <section className="use-case-panel__mine">
         <header className="use-case-panel__mine-header">

@@ -10,6 +10,13 @@ const nodeStateSchema = z.enum([
   'discarded',
 ])
 
+const analyticStatusSchema = z.enum(['pending', 'confirmed', 'not_confirmed'])
+
+/*
+ * Every field an element can carry, because Zod drops what it is not told
+ * about: anything missing here is silently lost when an investigation is
+ * imported back, which is the whole point of having exported it.
+ */
 const investigationNodeSchema = z.object({
   id: z.string(),
   definitionId: z.string(),
@@ -19,6 +26,24 @@ const investigationNodeSchema = z.object({
   position: z.object({ x: z.number(), y: z.number() }),
   fields: z.record(z.string(), z.unknown()),
   notes: z.string().optional(),
+  analyticStatuses: z.record(z.string(), analyticStatusSchema).optional(),
+  analyticsExpanded: z.boolean().optional(),
+  scaffold: z.boolean().optional(),
+  size: z.object({ width: z.number(), height: z.number() }).optional(),
+  parentId: z.string().optional(),
+  stroke: z
+    .object({
+      points: z.array(z.object({ x: z.number(), y: z.number() })),
+      color: z.string(),
+      width: z.number(),
+    })
+    .optional(),
+  imageSrc: z.string().optional(),
+  layer: z.number().optional(),
+  color: z.string().optional(),
+  icon: z.string().optional(),
+  step: z.number().optional(),
+  eventAt: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })
@@ -34,6 +59,8 @@ const investigationEdgeSchema = z.object({
   automatic: z.boolean(),
   confidence: z.number().optional(),
   explanation: z.string().optional(),
+  color: z.string().optional(),
+  lineStyle: z.enum(['solid', 'dashed']).optional(),
 })
 
 export const investigationSchema = z.object({

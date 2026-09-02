@@ -189,6 +189,12 @@ interface InvestigationState {
   /** Paints elements by hand; null hands them back to the automatic colour. */
   setNodeColor: (nodeIds: string[], color: string | null) => void
   setNodeIcon: (nodeIds: string[], icon: string | null) => void
+  /** Where elements sit in the attack timeline; null takes them out of it. */
+  setNodeStep: (nodeIds: string[], step: number | null) => void
+  /** When the event happened, in the analyst's own words. */
+  setNodeEventTime: (nodeId: string, eventAt: string) => void
+  /** Opens a new step at this position and drops the element into it. */
+  insertNodeAtStep: (nodeId: string, step: number) => void
   /** Thickness of an existing free drawing, in canvas units. */
   setStrokeWidth: (nodeIds: string[], width: number) => void
   setSelectedNodes: (nodeIds: string[]) => void
@@ -945,6 +951,45 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
         nodes: state.nodes.map((node) =>
           targets.has(node.id) ? { ...node, icon: icon ?? undefined, updatedAt: now } : node,
         ),
+      }))
+    },
+
+    setNodeStep: (nodeIds, step) => {
+      if (nodeIds.length === 0) return
+      const targets = new Set(nodeIds)
+
+      get().pushHistory()
+      const now = new Date().toISOString()
+      set((state) => ({
+        nodes: state.nodes.map((node) =>
+          targets.has(node.id) ? { ...node, step: step ?? undefined, updatedAt: now } : node,
+        ),
+      }))
+    },
+
+    setNodeEventTime: (nodeId, eventAt) => {
+      const trimmed = eventAt.trim()
+      set((state) => ({
+        nodes: state.nodes.map((node) =>
+          node.id === nodeId
+            ? { ...node, eventAt: trimmed || undefined, updatedAt: new Date().toISOString() }
+            : node,
+        ),
+      }))
+    },
+
+    insertNodeAtStep: (nodeId, step) => {
+      get().pushHistory()
+      const now = new Date().toISOString()
+      set((state) => ({
+        nodes: state.nodes.map((node) => {
+          if (node.id === nodeId) return { ...node, step, updatedAt: now }
+          // Everything from here on moves along to make room.
+          if (node.step !== undefined && node.step >= step) {
+            return { ...node, step: node.step + 1, updatedAt: now }
+          }
+          return node
+        }),
       }))
     },
 

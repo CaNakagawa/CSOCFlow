@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { investigationToCsv } from './investigationCsv'
+import { CSV_BOM, investigationToCsv } from './investigationCsv'
 import type { Investigation } from '../../../shared/types/investigation'
 
 function doc(overrides: Partial<Investigation['canvas']> = {}): Investigation {
@@ -42,9 +42,9 @@ describe('investigationToCsv', () => {
     const csv = investigationToCsv(
       doc({ nodes: [node('1', 'Phishing'), node('2', 'Brute Force')] }),
     )
-    const lines = csv.trim().split('\n')
+    const lines = csv.replace(CSV_BOM, '').trim().split('\n')
 
-    expect(lines[0]).toBe('kind,id,type,label,state,source,target,notes')
+    expect(lines[0]).toBe('kind,step,time,type,label,state,from,to,connections,notes')
     expect(lines).toHaveLength(3)
     expect(lines[1]).toContain('"element"')
     expect(lines[1]).toContain('"Phishing"')
@@ -70,6 +70,45 @@ describe('investigationToCsv', () => {
     expect(connection).toContain('"connection"')
     expect(connection).toContain('"Phishing"')
     expect(connection).toContain('"Brute Force"')
+  })
+
+  it('starts with the mark Excel needs to read it as UTF-8', () => {
+    const csv = investigationToCsv(doc({ nodes: [node('1', 'Invasão')] }))
+
+    // Without it Excel falls back to the system codepage and mangles accents.
+    expect(csv.startsWith(CSV_BOM)).toBe(true)
+    expect(csv).toContain('Invasão')
+  })
+
+  it('carries the place in the story and the time of the event', () => {
+    const csv = investigationToCsv(
+      doc({
+        nodes: [
+          { ...node('1', 'Phishing'), step: 2, eventAt: '10:42' },
+          { ...node('2', 'Brute Force'), step: 1 },
+        ],
+      }),
+    )
+    const lines = csv.replace(CSV_BOM, '').trim().split('\n')
+
+    // The story's order, not the order they were dropped on the canvas.
+    expect(lines[1]).toContain('"Brute Force"')
+    expect(lines[1]).toContain('"1"')
+    expect(lines[2]).toContain('"Phishing"')
+    expect(lines[2]).toContain('"10:42"')
+  })
+
+  it('lists what each element is connected to, in its own row', () => {
+    const csv = investigationToCsv(
+      doc({
+        nodes: [node('1', 'Phishing'), node('2', 'Brute Force')],
+        edges: [{ id: 'e1', source: '1', target: '2', type: 'occurred_before', automatic: false }],
+      }),
+    )
+    const lines = csv.replace(CSV_BOM, '').trim().split('\n')
+
+    expect(lines[1]).toContain('→ Brute Force')
+    expect(lines[2]).toContain('← Phishing')
   })
 
   it('escapes quotes so a label cannot break the table', () => {
