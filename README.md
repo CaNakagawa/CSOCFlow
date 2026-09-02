@@ -54,8 +54,42 @@ ao seu ambiente.
 **Sair da ferramenta**
 
 - Exportação em **PNG, JPG, PDF, PPTX, JSON e CSV**.
+- **Camada do MITRE ATT&CK Navigator, nos dois sentidos.**
 - Investigação salva localmente (IndexedDB) e importável de volta.
 - Interface em **português, inglês e alemão**, tema claro/escuro/do sistema, e layout que funciona no celular.
+
+## ATT&CK Navigator
+
+A ferramenta troca camadas (_layers_) com o [ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/),
+no formato 4.5, nos dois sentidos.
+
+**Exportar** — em Compartilhar → _Camada do ATT&CK Navigator_. No Navigator, abra em _Open Existing Layer → Upload
+from local_. Só técnicas e subtécnicas atravessam, cada uma na coluna da tática certa, com a pontuação vinda do
+mesmo estado investigativo que colore o card: o que está confirmado chega vermelho na matriz. Suas notas viram o
+comentário da célula, e uma cor escolhida à mão é respeitada.
+
+**Importar** — pelo mesmo botão _Importar_ da barra de ferramentas, que reconhece se o arquivo é uma investigação
+ou uma camada. As técnicas entram no canvas já organizadas como a matriz, somando-se ao que já está lá em vez de
+substituir. Uma técnica que ocupa várias colunas vira **um** card, não um por coluna, e reimportar o mesmo arquivo
+não duplica nada.
+
+**O que entra é o que você marcou.** Um layer não guarda a sua seleção: clicar em células no Navigator não deixa
+rastro no arquivo, enquanto _expandir subtécnicas_ escreve uma entrada para cada técnica que tenha subtécnicas. Por
+isso a regra é: se alguma técnica da camada tem **pontuação, cor ou comentário**, só essas entram — o resto é estado
+de layout. Se nada estiver marcado, a camada inteira entra, porque aí a lista é o conteúdo. A mensagem diz quantas
+ficaram de fora.
+
+Ou seja, para trazer uma escolha sua do Navigator: selecione as células e **aplique alguma coisa a elas** (uma
+pontuação, uma cor ou um comentário) antes de exportar.
+
+Um detalhe deliberado: **a pontuação de uma camada não vira veredito**. Nela cada autor mede uma coisa — cobertura,
+confiança, prioridade — e ler isso como "confirmado malicioso" seria pôr palavras na boca do analista. As técnicas
+chegam como _desconhecido_ e o número é anotado nas observações, para você decidir.
+
+A camada declara a versão do ATT&CK que a base carrega (hoje a **v19**, a que renomeou Defense Evasion para Stealth
+e criou Defense Impairment). O `npm run import:mitre` grava essa versão no manifesto lendo o próprio bundle do
+MITRE, então ela nunca fica para trás dos dados. Um Navigator antigo pode recusar uma camada de uma versão que ele
+não conhece.
 
 ## Casos de uso
 

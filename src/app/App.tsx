@@ -11,6 +11,10 @@ import {
   InvalidInvestigationFileError,
 } from '../features/investigation/repository/InvestigationRepository'
 import { DEMO_CASES, loadDemoCase } from '../features/investigation/services/demoCaseService'
+import {
+  NavigatorImportError,
+  parseNavigatorLayer,
+} from '../features/canvas/export/attackNavigatorImport'
 import { useInvestigationStore } from '../features/investigation/store/investigationStore'
 import { applyTheme, getStoredTheme, storeTheme } from '../shared/theme/theme'
 import { RightPanel } from './RightPanel'
@@ -47,6 +51,7 @@ export function App() {
   const [status, setStatus] = useState<string | null>(null)
   const loadInvestigation = useInvestigationStore((s) => s.loadInvestigation)
   const toDocument = useInvestigationStore((s) => s.toDocument)
+  const importNavigatorLayer = useInvestigationStore((s) => s.importNavigatorLayer)
 
   useEffect(() => {
     applyTheme(theme)
@@ -64,21 +69,63 @@ export function App() {
     setStatus(t('topBar.statusDemoLoaded', { name: DEMO_CASES[0].title }))
   }, [loadInvestigation, t])
 
+  /*
+   * One Import button for two kinds of file. An investigation replaces the
+   * canvas; an ATT&CK Navigator layer adds its techniques to what is already
+   * there, because a layer is a set of techniques rather than a whole case.
+   */
   const importFile = useCallback(
     async (file: File) => {
+      const text = await file.text()
+
       try {
-        const data: unknown = JSON.parse(await file.text())
+        const data: unknown = JSON.parse(text)
         loadInvestigation(await repository.import(data))
         setStatus(t('topBar.statusImported'))
+        return
+      } catch (error) {
+        if (!(error instanceof InvalidInvestigationFileError)) {
+          setStatus(t('topBar.statusImportFailedGeneric'))
+          return
+        }
+        // Not an investigation. It may still be a layer.
+      }
+
+      if (!knowledgeBase) {
+        setStatus(t('topBar.statusImportFailedGeneric'))
+        return
+      }
+
+      try {
+        const layer = parseNavigatorLayer(text)
+        const { added, skipped, unknown } = importNavigatorLayer(
+          layer.entries,
+          knowledgeBase,
+          locale,
+        )
+        setStatus(
+          [
+            t('topBar.statusLayerImported', { added: String(added) }),
+            skipped > 0 ? t('topBar.statusLayerSkipped', { skipped: String(skipped) }) : '',
+            layer.ignored > 0
+              ? t('topBar.statusLayerIgnored', { ignored: String(layer.ignored) })
+              : '',
+            unknown.length > 0
+              ? t('topBar.statusLayerUnknown', { ids: unknown.slice(0, 5).join(', ') })
+              : '',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        )
       } catch (error) {
         setStatus(
-          error instanceof InvalidInvestigationFileError
-            ? error.message
+          error instanceof NavigatorImportError
+            ? t('topBar.statusLayerFailed')
             : t('topBar.statusImportFailedGeneric'),
         )
       }
     },
-    [loadInvestigation, t],
+    [importNavigatorLayer, knowledgeBase, loadInvestigation, locale, t],
   )
 
   /*

@@ -8,6 +8,7 @@ const LL = (items: string[]) => ({ en: items, pt: items, de: items })
 function makeKnowledgeBaseWithTechniques(): KnowledgeBase {
   return {
     version: '1.0.0',
+    attackVersion: '19.1',
     tactics: [
       { id: 'TA0003', name: { en: 'Persistence' }, shortName: 'persistence' },
       { id: 'TA0005', name: { en: 'Stealth' }, shortName: 'stealth' },

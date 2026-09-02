@@ -71,9 +71,10 @@ export const TOOL_ICONS: Record<string, ReactNode> = {
       <path d="M5.4 2.8v3.6h5.2V2.8M5.4 13.7V9.9h5.2v3.8" />
     </>
   ),
+  // Out of the tray and upward: bringing a file in, not taking one away.
   import: (
     <>
-      <path d="M8 2.6v6.9M5.2 6.9 8 9.7l2.8-2.8" />
+      <path d="M8 9.8V2.9M5.2 5.7 8 2.9l2.8 2.8" />
       <path d="M2.8 11.4v1.1a1 1 0 0 0 1 1h8.4a1 1 0 0 0 1-1v-1.1" />
     </>
   ),

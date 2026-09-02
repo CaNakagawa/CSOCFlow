@@ -139,6 +139,7 @@ export async function loadKnowledgeBase(
 
   return {
     version: manifest.version,
+    attackVersion: manifest.attackVersion,
     tactics,
     techniques,
     evidenceTypes,

@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 export const manifestSchema = z.object({
   version: z.string(),
+  /** The ATT&CK release the catalogue was imported from, e.g. "19.1". */
+  attackVersion: z.string(),
   tactics: z.string(),
   techniques: z.array(z.string()),
   evidenceTypes: z.array(z.string()),

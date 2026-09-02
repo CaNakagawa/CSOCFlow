@@ -3,12 +3,14 @@ import { getNodesBounds, useReactFlow } from '@xyflow/react'
 import { useInvestigationStore } from '../../investigation/store/investigationStore'
 import { exportCanvas, toFileName, type ExportFormat } from '../export/canvasImage'
 import { investigationToCsv } from '../export/investigationCsv'
+import { toNavigatorLayer } from '../export/attackNavigatorLayer'
+import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import { TOOL_ICONS } from './toolIcons'
 import { useI18n, type TranslationKey } from '../../../shared/i18n'
 import './ShareMenu.css'
 
 /** Everything the canvas can leave the app as. */
-type ShareFormat = ExportFormat | 'json' | 'csv'
+type ShareFormat = ExportFormat | 'json' | 'csv' | 'navigator'
 
 const FORMATS: { format: ShareFormat; labelKey: TranslationKey }[] = [
   { format: 'png', labelKey: 'export.png' },
@@ -17,6 +19,7 @@ const FORMATS: { format: ShareFormat; labelKey: TranslationKey }[] = [
   { format: 'pptx', labelKey: 'export.pptx' },
   { format: 'json', labelKey: 'export.json' },
   { format: 'csv', labelKey: 'export.csv' },
+  { format: 'navigator', labelKey: 'export.navigator' },
 ]
 
 function downloadText(text: string, fileName: string, type: string): void {
@@ -30,13 +33,15 @@ function downloadText(text: string, fileName: string, type: string): void {
 
 interface ShareMenuProps {
   onStatus: (message: string) => void
+  /** Needed to place each technique in its tactic column of the matrix. */
+  knowledgeBase: KnowledgeBase | null
 }
 
 /**
  * Hands the investigation to someone else: as a picture, a page, a slide, or as
  * data another tool can read.
  */
-export function ShareMenu({ onStatus }: ShareMenuProps) {
+export function ShareMenu({ onStatus, knowledgeBase }: ShareMenuProps) {
   const { t } = useI18n()
   const { getNodes } = useReactFlow()
   const title = useInvestigationStore((s) => s.meta.title)
@@ -71,6 +76,14 @@ export function ShareMenu({ onStatus }: ShareMenuProps) {
         downloadText(JSON.stringify(doc, null, 2), toFileName(title, 'json'), 'application/json')
       } else if (format === 'csv') {
         downloadText(investigationToCsv(toDocument()), toFileName(title, 'csv'), 'text/csv')
+      } else if (format === 'navigator') {
+        if (!knowledgeBase) return
+        const layer = toNavigatorLayer(toDocument(), knowledgeBase)
+        downloadText(
+          JSON.stringify(layer, null, 2),
+          toFileName(`${title} - navigator`, 'json'),
+          'application/json',
+        )
       } else {
         const viewport = document.querySelector<HTMLElement>('.react-flow__viewport')
         if (!viewport) return
@@ -82,7 +95,11 @@ export function ShareMenu({ onStatus }: ShareMenuProps) {
           title,
         })
       }
-      onStatus(t('export.done', { format: format.toUpperCase() }))
+      onStatus(
+        t('export.done', {
+          format: format === 'navigator' ? 'ATT&CK Navigator' : format.toUpperCase(),
+        }),
+      )
     } catch (error) {
       onStatus(t('export.failed', { reason: error instanceof Error ? error.message : '' }))
     } finally {

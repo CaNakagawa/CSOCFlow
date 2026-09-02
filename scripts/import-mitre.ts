@@ -43,6 +43,7 @@ interface StixObject {
   x_mitre_log_source_references?: { name?: string; channel?: string }[]
   x_mitre_mutable_elements?: { field?: string; description?: string }[]
   x_mitre_shortname?: string
+  x_mitre_version?: string
   tactic_refs?: string[]
   external_references?: StixExternalReference[]
   kill_chain_phases?: { kill_chain_name: string; phase_name: string }[]
@@ -276,13 +277,27 @@ async function main() {
     'utf-8',
   )
 
+  /*
+   * Which ATT&CK release this catalogue is, straight from the bundle. The
+   * Navigator layer export has to declare it, and a hand-kept constant would
+   * quietly drift from the data the moment someone reimports.
+   */
+  const collection = objects.find((o) => o.type === 'x-mitre-collection')
+  if (!collection?.x_mitre_version) {
+    throw new Error('No x-mitre-collection version found in the bundle')
+  }
+
   // Curated files stay ahead of the generated catalogue in the manifest.
   const manifestPath = path.join(dataRoot, 'manifest.json')
-  const manifest = JSON.parse(await readFile(manifestPath, 'utf-8')) as { techniques: string[] }
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf-8')) as {
+    techniques: string[]
+    attackVersion?: string
+  }
   manifest.techniques = [
     ...manifest.techniques.filter((p) => p !== catalogRelativePath),
     catalogRelativePath,
   ]
+  manifest.attackVersion = collection.x_mitre_version
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf-8')
 
   const subtechniques = catalog.filter((t) => t.type === 'mitre_subtechnique').length

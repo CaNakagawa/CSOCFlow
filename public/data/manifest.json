@@ -1,5 +1,6 @@
 {
   "version": "1.0.0",
+  "attackVersion": "19.1",
   "tactics": "mitre/tactics.json",
   "techniques": [
     "mitre/techniques/T1110.json",

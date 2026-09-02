@@ -251,7 +251,7 @@ export function CanvasToolRail({
             labelKey="topBar.import"
             onClick={() => fileInputRef.current?.click()}
           />
-          <ShareMenu onStatus={onStatus} />
+          <ShareMenu onStatus={onStatus} knowledgeBase={knowledgeBase} />
           <Tool icon="erase" labelKey="topBar.clear" onClick={() => clearCanvas()} />
 
           <div className="tool-rail__divider" aria-hidden="true" />

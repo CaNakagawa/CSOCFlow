@@ -51,6 +51,7 @@ describe('loadKnowledgeBase', () => {
     const source = createInMemorySource({
       'manifest.json': {
         version: '1.0.0',
+        attackVersion: '19.1',
         tactics: 'mitre/tactics.json',
         techniques: ['mitre/techniques/T1110.json'],
         evidenceTypes: [],
@@ -74,6 +75,7 @@ describe('loadKnowledgeBase', () => {
     const source = createInMemorySource({
       'manifest.json': {
         version: '1.0.0',
+        attackVersion: '19.1',
         tactics: 'mitre/tactics.json',
         techniques: ['mitre/techniques/T1110.json', 'mitre/techniques/attack-catalog.json'],
         evidenceTypes: [],
@@ -107,6 +109,7 @@ describe('loadKnowledgeBase', () => {
     const source = createInMemorySource({
       'manifest.json': {
         version: '1.0.0',
+        attackVersion: '19.1',
         tactics: 'mitre/tactics.json',
         techniques: ['mitre/techniques/attack-catalog.json'],
         evidenceTypes: [],
@@ -131,6 +134,7 @@ describe('loadKnowledgeBase', () => {
     const source = createInMemorySource({
       'manifest.json': {
         version: '1.0.0',
+        attackVersion: '19.1',
         tactics: 'mitre/tactics.json',
         techniques: ['mitre/techniques/T1055.json'],
         evidenceTypes: [],
@@ -165,6 +169,7 @@ describe('loadKnowledgeBase', () => {
     const source = createInMemorySource({
       'manifest.json': {
         version: '1.0.0',
+        attackVersion: '19.1',
         tactics: 'mitre/tactics.json',
         techniques: ['mitre/techniques/broken.json'],
         evidenceTypes: [],
@@ -185,6 +190,7 @@ describe('loadKnowledgeBase', () => {
     const source = createInMemorySource({
       'manifest.json': {
         version: '1.0.0',
+        attackVersion: '19.1',
         tactics: 'mitre/tactics.json',
         techniques: ['mitre/techniques/broken.json'],
         evidenceTypes: [],

@@ -18,6 +18,7 @@ import {
 } from '../../correlation/engine/buildSubtechniqueEdges'
 import { buildTacticChainEdges } from '../../correlation/engine/buildTacticChainEdges'
 import { layoutLikeMitre } from '../../canvas/utils/mitreLayout'
+import type { NavigatorEntry } from '../../canvas/export/attackNavigatorImport'
 import { OPPOSITE_HANDLE, findNearestNodeInDirection } from '../../canvas/utils/nearestNode'
 import type { HandleId } from '../../../shared/types/handles'
 import { sortTacticIds } from '../../../shared/utils/tacticOrder'
@@ -156,6 +157,12 @@ interface InvestigationState {
   }) => string
   runAutoLink: (knowledgeBase: KnowledgeBase, locale: Locale) => number
   organizeLikeMitre: (knowledgeBase: KnowledgeBase, locale: Locale) => number
+  /** Puts the techniques of an ATT&CK Navigator layer onto the canvas. */
+  importNavigatorLayer: (
+    entries: NavigatorEntry[],
+    knowledgeBase: KnowledgeBase,
+    locale: Locale,
+  ) => { added: number; skipped: number; unknown: string[] }
   applyUseCase: (useCase: UseCaseDefinition, knowledgeBase: KnowledgeBase, locale: Locale) => void
   updateNodeFields: (nodeId: string, fields: Record<string, unknown>) => void
   updateNodeState: (nodeId: string, state: NodeState) => void
@@ -526,6 +533,78 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       })
 
       return addedTactics
+    },
+
+    importNavigatorLayer: (entries, knowledgeBase, locale) => {
+      const onCanvas = new Set(
+        get()
+          .nodes.filter((n) => n.type === 'mitre_technique' || n.type === 'mitre_subtechnique')
+          .map((n) => n.definitionId),
+      )
+      const arriving = entries.filter((entry) => !onCanvas.has(entry.techniqueId))
+      if (arriving.length === 0) {
+        return { added: 0, skipped: entries.length, unknown: [] }
+      }
+
+      get().pushHistory()
+      const unknown: string[] = []
+
+      set((state) => {
+        const now = new Date().toISOString()
+        const nodes = [...state.nodes]
+
+        for (const entry of arriving) {
+          const definition = knowledgeBase.techniques.find((t) => t.id === entry.techniqueId)
+          if (!definition) unknown.push(entry.techniqueId)
+
+          /*
+           * A layer's score means whatever its author meant by it — coverage,
+           * confidence, priority. Reading it as a verdict would put words in
+           * the analyst's mouth, so every technique lands unknown and the
+           * number is written down for them to judge.
+           */
+          const notes = [
+            entry.comment,
+            entry.score !== undefined
+              ? translate(locale, 'canvas.navigatorScoreNote', { score: String(entry.score) })
+              : undefined,
+          ]
+            .filter(Boolean)
+            .join('\n')
+
+          nodes.push({
+            id: generateId('node'),
+            definitionId: entry.techniqueId,
+            type:
+              definition?.type ??
+              (entry.techniqueId.includes('.') ? 'mitre_subtechnique' : 'mitre_technique'),
+            label: definition ? `${definition.id} - ${definition.name}` : entry.techniqueId,
+            state: 'unknown',
+            position: { x: 0, y: 0 },
+            fields: {},
+            notes,
+            ...(entry.color ? { color: entry.color } : {}),
+            createdAt: now,
+            updatedAt: now,
+          })
+        }
+
+        // A layer is a matrix, so lay it out as one instead of a bare grid.
+        const positions = layoutLikeMitre(nodes, knowledgeBase.tactics, knowledgeBase.techniques)
+        const positioned = nodes.map((node) => {
+          const position = positions.get(node.id)
+          return position ? { ...node, position } : node
+        })
+
+        const existingEdgeIds = new Set(state.manualEdges.map((e) => e.id))
+        const newEdges = buildSubtechniqueEdges(positioned, locale).filter(
+          (edge) => !existingEdgeIds.has(edge.id),
+        )
+
+        return { nodes: positioned, manualEdges: [...state.manualEdges, ...newEdges] }
+      })
+
+      return { added: arriving.length, skipped: entries.length - arriving.length, unknown }
     },
 
     applyUseCase: (useCase, knowledgeBase, locale) => {

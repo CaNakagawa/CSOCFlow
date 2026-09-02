@@ -2,8 +2,23 @@
   "id": "T1078",
   "name": "Valid Accounts",
   "type": "mitre_technique",
-  "tactics": ["TA0001", "TA0003", "TA0004"],
-  "platforms": ["Windows", "Linux", "macOS", "Azure AD", "Office 365", "SaaS", "IaaS", "Google Workspace", "Containers"],
+  "tactics": [
+    "TA0001",
+    "TA0003",
+    "TA0004",
+    "TA0005"
+  ],
+  "platforms": [
+    "Windows",
+    "Linux",
+    "macOS",
+    "Azure AD",
+    "Office 365",
+    "SaaS",
+    "IaaS",
+    "Google Workspace",
+    "Containers"
+  ],
   "brief": {
     "en": "Adversaries may obtain and abuse credentials of existing accounts as a means of gaining initial access, maintaining persistence, escalating privileges, or evading defenses.",
     "pt": "Adversários podem obter e abusar de credenciais de contas existentes como forma de obter acesso inicial, manter persistência, escalar privilégios ou evitar detecção.",
@@ -69,7 +84,12 @@
       ]
     }
   },
-  "expected_evidence": ["authentication_event", "user", "host", "ip_address"],
+  "expected_evidence": [
+    "authentication_event",
+    "user",
+    "host",
+    "ip_address"
+  ],
   "related_hypotheses": [],
   "suggested_checks": [],
   "detection_analytics": [],

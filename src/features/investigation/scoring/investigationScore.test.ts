@@ -61,6 +61,7 @@ function technique(id: string, tactics: string[], analyticIds: string[] = []): M
 function knowledgeBase(techniques: MitreTechnique[]): KnowledgeBase {
   return {
     version: '1.0.0',
+    attackVersion: '19.1',
     tactics: TACTIC_IDS.map((id, i) => ({ id, name: { en: id }, shortName: `t${i}` })),
     techniques,
     evidenceTypes: [],

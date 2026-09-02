@@ -219,6 +219,8 @@ export interface KnowledgeManifest {
 
 export interface KnowledgeBase {
   version: string
+  /** The ATT&CK release this catalogue came from, as MITRE numbers it. */
+  attackVersion: string
   tactics: MitreTactic[]
   techniques: MitreTechnique[]
   evidenceTypes: EvidenceTypeDefinition[]
