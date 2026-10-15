@@ -1,0 +1,83 @@
+{
+  "project": {
+    "id": "project-csoc-flow",
+    "name": "CSOC Flow",
+    "category": "Projects",
+    "phase": "Product evolution",
+    "summary": "Browser-only visual investigation canvas that correlates evidence, MITRE ATT&CK techniques and analyst hypotheses.",
+    "path": "3-Projects/csoc-flow",
+    "owner": "Unassigned",
+    "health": "on-track",
+    "startDate": "2026-09-02",
+    "targetDate": ""
+  },
+  "cards": [
+    {
+      "id": "csoc-canonical",
+      "title": "Resolve canonical CSOC codebase decision",
+      "description": "Owner must decide how the live CSOCFlow repo relates to the protected backup prototype before any cleanup. Decided 2026-10-15: the live csoc-flow repo (Vite + React 19, browser-only, Forgejo naka/csoc-flow) is canonical; the older Next/vinext + Cloudflare D1 prototype (6 commits, 2026-07-28; ~/Projects/.bkp/csoc-flow-prototype) is a read-only ancestor archive. Nothing is deleted.",
+      "owner": "Owner",
+      "dueDate": "2026-10-15",
+      "priority": "high",
+      "column": "done"
+    },
+    {
+      "id": "csoc-roadmap",
+      "title": "Confirm next product milestone",
+      "description": "Select the next user outcome after the current investigation narrative work.",
+      "owner": "PM",
+      "dueDate": "",
+      "priority": "medium",
+      "column": "planned"
+    },
+    {
+      "id": "csoc-qa",
+      "title": "Validate export and presentation flows",
+      "description": "Exercise technical and executive outputs with a representative investigation.",
+      "owner": "QA",
+      "dueDate": "",
+      "priority": "medium",
+      "column": "planned"
+    },
+    {
+      "id": "csoc-core",
+      "title": "Visual investigation foundation delivered",
+      "description": "Evidence, hypotheses, MITRE context and browser-local operation are documented.",
+      "owner": "Engineering",
+      "dueDate": "2026-09-02",
+      "priority": "low",
+      "column": "done"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "csoc-m1",
+      "title": "Investigation canvas baseline",
+      "note": "Core evidence and hypothesis workflow available.",
+      "date": "2026-09-02",
+      "status": "done"
+    },
+    {
+      "id": "csoc-m2",
+      "title": "Narrative and handoff flow",
+      "note": "Investigation can be told as a sequence and handed upward.",
+      "date": "2026-09-02",
+      "status": "done"
+    },
+    {
+      "id": "csoc-m3",
+      "title": "Canonical repository decision",
+      "note": "Owner records which CSOC lineage remains authoritative. Decided 2026-10-15: the live csoc-flow repo (Vite + React 19, browser-only, Forgejo naka/csoc-flow) is canonical; the Next/vinext + Cloudflare D1 prototype (2026-07-28; ~/Projects/.bkp/csoc-flow-prototype) stays a read-only ancestor archive. Nothing deleted.",
+      "date": "2026-10-15",
+      "status": "done"
+    },
+    {
+      "id": "csoc-m4",
+      "title": "Next release",
+      "note": "Selected user outcome is built, verified and published.",
+      "date": "",
+      "status": "planned"
+    }
+  ],
+  "updatedAt": "2026-10-15T05:49:21Z"
+}
