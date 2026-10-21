@@ -15,7 +15,7 @@
     {
       "id": "csoc-canonical",
       "title": "Resolve canonical CSOC codebase decision",
-      "description": "Owner must decide how the live CSOCFlow repo relates to the protected backup prototype before any cleanup. Decided 2026-10-15: the live csoc-flow repo (Vite + React 19, browser-only, Forgejo naka/csoc-flow) is canonical; the older Next/vinext + Cloudflare D1 prototype (6 commits, 2026-07-28; ~/Projects/.bkp/csoc-flow-prototype) is a read-only ancestor archive. Nothing is deleted.",
+      "description": "Owner must decide how the live CSOCFlow repo relates to the protected backup prototype before any cleanup. Decided 2026-10-15: the live csoc-flow repo (Vite + React 19, browser-only, Forgejo naka/csoc-flow) is canonical; the older Next/vinext + Cloudflare D1 prototype (6 commits, 2026-07-28; a backup folder on the owner laptop) is a read-only ancestor archive. Nothing is deleted.",
       "owner": "Owner",
       "dueDate": "2026-10-15",
       "priority": "high",
@@ -67,7 +67,7 @@
     {
       "id": "csoc-m3",
       "title": "Canonical repository decision",
-      "note": "Owner records which CSOC lineage remains authoritative. Decided 2026-10-15: the live csoc-flow repo (Vite + React 19, browser-only, Forgejo naka/csoc-flow) is canonical; the Next/vinext + Cloudflare D1 prototype (2026-07-28; ~/Projects/.bkp/csoc-flow-prototype) stays a read-only ancestor archive. Nothing deleted.",
+      "note": "Owner records which CSOC lineage remains authoritative. Decided 2026-10-15: the live csoc-flow repo (Vite + React 19, browser-only, Forgejo naka/csoc-flow) is canonical; the Next/vinext + Cloudflare D1 prototype (2026-07-28; a backup folder on the owner laptop) stays a read-only ancestor archive. Nothing deleted.",
       "date": "2026-10-15",
       "status": "done"
     },

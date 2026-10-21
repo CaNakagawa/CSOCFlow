@@ -22,10 +22,17 @@ const localizedList = z.object({
   de: z.array(z.string()).optional(),
 })
 
+// Imported links end up in <a href>. A link is a web page, so anything but
+// http(s) — javascript:, data:, file: — is turned away at the door.
+const webUrl = z
+  .string()
+  .url()
+  .refine((value) => /^https?:\/\//i.test(value), 'must be an http(s) link')
+
 const detectionStrategy = z.object({
   id: z.string(),
   name: localizedText,
-  url: z.string().url(),
+  url: webUrl,
 })
 
 const investigationStep = z.object({
@@ -44,7 +51,7 @@ export const useCaseSchema = z.object({
   investigationSteps: z.array(investigationStep).default([]),
   dataSources: localizedList.default({ en: [] }),
   relatedHypotheses: z.array(z.string()).default([]),
-  sourceReference: z.object({ title: z.string(), url: z.string().url() }).nullish(),
+  sourceReference: z.object({ title: z.string(), url: webUrl }).nullish(),
 })
 
 function isInvestigationDocument(data: unknown): boolean {
