@@ -63,6 +63,27 @@ describe('parseUseCase', () => {
     expect(() => parseUseCase(JSON.stringify(wrong), options)).toThrow(/T1110/)
   })
 
+  it('turns away a link that is not a web page', () => {
+    for (const url of ['javascript:alert(1)', 'data:text/html,<b>x</b>', 'file:///etc/passwd']) {
+      const viaSource = { ...VALID, sourceReference: { title: 'x', url } }
+      expect(() => parseUseCase(JSON.stringify(viaSource), options)).toThrow(/http\(s\)/)
+      const viaStrategy = {
+        ...VALID,
+        investigationSteps: [
+          { ...VALID.investigationSteps[0], detectionStrategies: [{ id: 's', name: { en: 's' }, url }] },
+        ],
+      }
+      expect(() => parseUseCase(JSON.stringify(viaStrategy), options)).toThrow(/http\(s\)/)
+    }
+  })
+
+  it('keeps an https link', () => {
+    const ok = { ...VALID, sourceReference: { title: 'ATT&CK', url: 'https://attack.mitre.org/techniques/T1078/' } }
+    expect(parseUseCase(JSON.stringify(ok), options).sourceReference?.url).toBe(
+      'https://attack.mitre.org/techniques/T1078/',
+    )
+  })
+
   it('recognises an investigation file and says so', () => {
     const investigation = {
       schemaVersion: '1.0.0',
