@@ -16,6 +16,11 @@
   padding: 8px 12px;
 }
 
+.top-bar__name {
+  margin: 0;
+  font: inherit;
+}
+
 .top-bar__brand {
   display: flex;
   align-items: center;
@@ -58,6 +63,12 @@
   background: var(--input-bg);
   border-color: var(--accent);
   outline: none;
+}
+
+/* A one-pixel border change was the only sign of keyboard focus. */
+.top-bar__title:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .top-bar__primary-right {
@@ -233,7 +244,7 @@
 }
 
 @media (max-width: 860px) {
-  .top-bar__brand span {
+  .top-bar__brand .top-bar__name {
     display: none;
   }
 

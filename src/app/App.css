@@ -11,8 +11,44 @@
 }
 
 .canvas-area {
+  position: relative;
   flex: 1;
   min-width: 0;
+}
+
+/* Shown below 768px only: building a case needs the room of a larger screen. */
+.small-screen-notice {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .small-screen-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--panel-border);
+    background: var(--accent-soft);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .small-screen-notice p {
+    flex: 1;
+    margin: 0;
+  }
+
+  .small-screen-notice button {
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 32px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    background: var(--panel-bg);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
 }
 
 .app-loading,

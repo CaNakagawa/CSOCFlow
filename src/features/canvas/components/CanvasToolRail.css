@@ -112,3 +112,28 @@
     margin: 8px 0 0;
   }
 }
+
+/*
+ * Opened on a short window the rail ran down over the zoom controls in the
+ * bottom-left corner. It now stops above them and its tools scroll instead.
+ */
+.react-flow__panel.top.left {
+  max-height: calc(100% - 150px);
+  display: flex;
+}
+
+.react-flow__panel.top.left > .tool-rail {
+  min-height: 0;
+  max-height: 100%;
+}
+
+.react-flow__panel.top.left .tool-rail__tools {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Scroll the column rather than squeeze the buttons into each other. */
+.react-flow__panel.top.left .tool-rail__handle,
+.react-flow__panel.top.left .tool-rail__tools > * {
+  flex-shrink: 0;
+}

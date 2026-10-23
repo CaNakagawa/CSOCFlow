@@ -74,7 +74,7 @@ export function TopBar({ status, onStatusCleared, theme, onThemeChange }: TopBar
             />
             <circle cx="8" cy="8" r="2.2" fill="currentColor" />
           </svg>
-          <span>CSOC Flow</span>
+          <h1 className="top-bar__name">CSOC Flow</h1>
         </div>
 
         <input

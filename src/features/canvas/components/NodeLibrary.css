@@ -155,7 +155,9 @@
 
 .node-library__expand {
   flex-shrink: 0;
-  width: 20px;
+  /* 24px is the WCAG 2.2 minimum target size. */
+  width: 24px;
+  min-height: 24px;
   border: none;
   background: transparent;
   color: inherit;
