@@ -387,6 +387,15 @@ export const en = {
   'canvas.nodeActions': 'Node actions',
   'canvas.commentPlaceholder': 'Connection comment...',
   'canvas.save': 'Save',
+  'canvas.emptyTitle': 'Start an investigation',
+  'canvas.emptyHint':
+    'Open the worked example to see how evidence, correlation and hypotheses fit together, import a saved case, or start with an empty canvas and add elements from the library.',
+  'canvas.emptyExample': 'Open example case',
+  'canvas.emptyImport': 'Import JSON',
+  'canvas.emptyBlank': 'Start blank',
+  'app.smallScreenNotice':
+    'CSOC Flow is built for a larger screen. On a phone you can open and present a case; building one works best on a computer or tablet.',
+  'app.smallScreenNoticeClose': 'OK',
 } satisfies Record<string, string>
 
 export type TranslationKey = keyof typeof en

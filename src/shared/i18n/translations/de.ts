@@ -390,4 +390,13 @@ export const de: Record<TranslationKey, string> = {
   'canvas.nodeActions': 'Knotenaktionen',
   'canvas.commentPlaceholder': 'Kommentar zur Verbindung...',
   'canvas.save': 'Speichern',
+  'canvas.emptyTitle': 'Untersuchung beginnen',
+  'canvas.emptyHint':
+    'Öffne den Beispielfall, um zu sehen, wie Beweise, Korrelation und Hypothesen zusammenpassen, importiere einen gespeicherten Fall oder beginne mit einer leeren Fläche und füge Elemente aus der Bibliothek hinzu.',
+  'canvas.emptyExample': 'Beispielfall öffnen',
+  'canvas.emptyImport': 'JSON importieren',
+  'canvas.emptyBlank': 'Leer beginnen',
+  'app.smallScreenNotice':
+    'CSOC Flow ist für größere Bildschirme gebaut. Auf dem Handy kannst du einen Fall öffnen und präsentieren; zum Erstellen eignet sich ein Computer oder Tablet besser.',
+  'app.smallScreenNoticeClose': 'OK',
 }

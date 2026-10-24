@@ -50,6 +50,7 @@ export function App() {
   const [showTimeline, setShowTimeline] = useState(false)
   const [theme, setTheme] = useState(getStoredTheme)
   const [status, setStatus] = useState<string | null>(null)
+  const [smallScreenNoticeOpen, setSmallScreenNoticeOpen] = useState(true)
   const loadInvestigation = useInvestigationStore((s) => s.loadInvestigation)
   const toDocument = useInvestigationStore((s) => s.toDocument)
   const importNavigatorLayer = useInvestigationStore((s) => s.importNavigatorLayer)
@@ -182,7 +183,15 @@ export function App() {
         theme={theme}
         onThemeChange={setTheme}
       />
-      <div
+      {smallScreenNoticeOpen && !presenting && (
+        <div className="small-screen-notice" role="note">
+          <p>{t('app.smallScreenNotice')}</p>
+          <button type="button" onClick={() => setSmallScreenNoticeOpen(false)}>
+            {t('app.smallScreenNoticeClose')}
+          </button>
+        </div>
+      )}
+      <main
         className="app-body"
         style={
           {
@@ -233,7 +242,7 @@ export function App() {
           collapsed={isRightPanelCollapsed}
           onToggleCollapsed={() => setRightPanelCollapsed((v) => !v)}
         />
-      </div>
+      </main>
 
       {showTimeline && <AttackTimeline onClose={() => setShowTimeline(false)} />}
     </div>

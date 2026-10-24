@@ -73,7 +73,8 @@
 
 .live-score__chip--low .live-score__value,
 .live-score__chip--low .live-score__track {
-  color: #94a3b8;
+  /* Theme muted text: #94a3b8 measured 2.56:1 on the light panel. */
+  color: var(--muted-fg);
 }
 .live-score__chip--moderate .live-score__value,
 .live-score__chip--moderate .live-score__track {

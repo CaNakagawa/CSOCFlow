@@ -37,6 +37,7 @@ import { GroupNode } from '../nodeTypes/GroupNode'
 import type { LibraryItem } from '../types/libraryItem'
 import { LIBRARY_ITEM_MIME } from '../utils/dragAndDrop'
 import { LiveScoreBadge } from './LiveScoreBadge'
+import { CanvasEmptyState } from './CanvasEmptyState'
 import { buildEdgeLabelStyle, readCssToken } from '../utils/edgeLabelStyle'
 import { relationshipKey } from '../utils/nodeVisuals'
 import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
@@ -703,9 +704,12 @@ function CanvasSurface({
             onToggleTimeline={onToggleTimeline}
           />
         </Panel>
-        <Panel position="top-center">
-          <LiveScoreBadge knowledgeBase={knowledgeBase} />
-        </Panel>
+        {/* A score of 0 on an empty canvas says nothing; it appears with the first element. */}
+        {nodes.length > 0 && (
+          <Panel position="top-center">
+            <LiveScoreBadge knowledgeBase={knowledgeBase} />
+          </Panel>
+        )}
         <Panel position="top-right">
           <CanvasActions feedback={feedback} />
         </Panel>
@@ -714,6 +718,8 @@ function CanvasSurface({
         <MiniMap pannable zoomable />
         {drawing && <DrawingSurface color={pen.color} width={pen.width} />}
       </ReactFlow>
+
+      {nodes.length === 0 && !drawing && <CanvasEmptyState onImportFile={onImportFile} />}
 
       {contextMenu && (
         <NodeContextMenu
