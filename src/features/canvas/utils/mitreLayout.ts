@@ -29,7 +29,7 @@ const PACKED_GAP: Record<Exclude<Spacing, 'normal'>, { x: number; y: number }> =
   compact: { x: 24, y: 10 },
   tight: { x: 8, y: 4 },
   // Wide lanes so every link has room to be followed by eye.
-  exploded: { x: 90, y: 40 },
+  exploded: { x: 60, y: 40 },
 }
 
 /** What a card measures before the canvas has drawn it. */
@@ -54,6 +54,77 @@ export interface LayoutOrder {
 
 function isTechniqueNode(node: InvestigationNode): boolean {
   return node.type === 'mitre_technique' || node.type === 'mitre_subtechnique'
+}
+
+/** Widest a row of exploded clusters grows before it wraps. */
+const EXPLODED_ROW_WIDTH = 3600
+
+/**
+ * Exploded layout: every technique with its subtechniques is a cluster, the
+ * parent in the middle and the subtechniques spread around it on a ring, so
+ * each link is short and runs in its own direction. Clusters are scattered
+ * over the canvas in rows, with room between them, instead of being stacked
+ * in tactic columns. Tactic headers stay in a row along the top.
+ */
+function explode(
+  nodes: InvestigationNode[],
+  rootCards: InvestigationNode[],
+  childrenOf: Map<string, InvestigationNode[]>,
+  positions: Map<string, Position>,
+  packing: Packing,
+  columnOf: Map<string, number>,
+) {
+  const gap = PACKED_GAP.exploded
+  const sizeOf = (node: InvestigationNode): Size => packing.sizeOf(node.id) ?? DEFAULT_CARD
+
+  let headerBottom = 0
+  for (const [tacticId, column] of columnOf) {
+    const header = nodes.find((n) => n.type === 'mitre_tactic' && n.definitionId === tacticId)
+    if (!header) continue
+    positions.set(header.id, { x: column * COLUMN_WIDTH, y: TACTIC_ROW_Y })
+    headerBottom = Math.max(headerBottom, TACTIC_ROW_Y + sizeOf(header).height)
+  }
+
+  let x = 0
+  let y = headerBottom > 0 ? headerBottom + gap.y * 3 : 0
+  let rowHeight = 0
+  for (const root of rootCards) {
+    const children = childrenOf.get(root.definitionId) ?? []
+    const center = sizeOf(root)
+    const kids = children.map(sizeOf)
+    const widest = Math.max(0, ...kids.map((k) => k.width))
+    const tallest = Math.max(0, ...kids.map((k) => k.height))
+    // Neighbours on the ring must not touch: the ring is as long as the cards need side by side.
+    const around = kids.reduce((sum, k) => sum + Math.max(k.width, k.height) + gap.x, 0)
+    const radius =
+      children.length === 0
+        ? 0
+        : Math.max(
+            Math.max(center.width, center.height) / 2 + Math.max(widest, tallest) / 2 + gap.x,
+            around / (2 * Math.PI),
+          )
+    const width = radius * 2 + Math.max(center.width, widest)
+    const height = radius * 2 + Math.max(center.height, tallest)
+
+    if (x > 0 && x + width > EXPLODED_ROW_WIDTH) {
+      x = 0
+      y += rowHeight + gap.y * 2
+      rowHeight = 0
+    }
+    const cx = x + width / 2
+    const cy = y + height / 2
+    positions.set(root.id, { x: cx - center.width / 2, y: cy - center.height / 2 })
+    children.forEach((child, index) => {
+      // Start at the top and go round, so the first child sits straight above the parent.
+      const angle = -Math.PI / 2 + (2 * Math.PI * index) / children.length
+      positions.set(child.id, {
+        x: cx + radius * Math.cos(angle) - kids[index].width / 2,
+        y: cy + radius * Math.sin(angle) - kids[index].height / 2,
+      })
+    })
+    x += width + gap.x
+    rowHeight = Math.max(rowHeight, height)
+  }
 }
 
 /**
@@ -132,11 +203,12 @@ export function layoutLikeMitre(
     }
   }
 
+  const roots = () => (order ? sortByScoreView(rootTechniques, order) : rootTechniques)
+
   if (order?.order === 'score') {
     for (const card of sortByScoreView(techniqueNodes, order)) place(card, columnFor(card))
   } else {
-    const roots = order ? sortByScoreView(rootTechniques, order) : rootTechniques
-    for (const technique of roots) {
+    for (const technique of roots()) {
       const column = columnFor(technique)
       place(technique, column)
       for (const child of childrenOf.get(technique.definitionId) ?? []) {
@@ -148,7 +220,11 @@ export function layoutLikeMitre(
   const deepestRow = Math.max(0, ...nextRowInColumn.values())
   let otherY = TECHNIQUE_START_Y + deepestRow * ROW_HEIGHT + OTHER_ROW_GAP
 
-  if (packing) {
+  if (packing?.spacing === 'exploded') {
+    explode(nodes, roots(), childrenOf, positions, packing, columnOf)
+    const bottom = Math.max(0, ...[...positions.values()].map((p) => p.y)) + DEFAULT_CARD.height
+    otherY = bottom + OTHER_ROW_GAP / 2
+  } else if (packing) {
     const gap = PACKED_GAP[packing.spacing]
     const sizeOf = (node: InvestigationNode): Size => packing.sizeOf(node.id) ?? DEFAULT_CARD
     const headers = new Map<number, InvestigationNode>()
