@@ -128,6 +128,15 @@
   padding: 4px 6px;
   text-align: left;
   border-bottom: 1px solid var(--panel-border);
+}
+
+/* The id stays on one line, a long name is the one that wraps. */
+.navigator-panel__table td:first-child,
+.navigator-panel__row-button {
+  white-space: nowrap;
+}
+
+.navigator-panel__table td:nth-child(2) {
   overflow-wrap: anywhere;
 }
 
