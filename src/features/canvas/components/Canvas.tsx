@@ -46,6 +46,7 @@ import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/inve
 import type { ThemePreference } from '../../../shared/theme/theme'
 import type { DetectionAnalytic, KnowledgeBase } from '../../../shared/types/knowledge'
 import { isHiddenByScore } from '../utils/scoreView'
+import { measuredNodeSizes } from '../utils/nodeMeasures'
 import './Canvas.css'
 
 const nodeTypes = {
@@ -154,9 +155,38 @@ function CanvasSurface({
   onToggleTimeline,
 }: CanvasProps) {
   const { t, locale } = useI18n()
-  const { screenToFlowPosition, getViewport } = useReactFlow()
+  const { screenToFlowPosition, getViewport, fitView } = useReactFlow()
+  const fitRequest = useInvestigationStore((s) => s.fitRequest)
   const nodes = useInvestigationStore((s) => s.nodes)
   const scoreView = useInvestigationStore((s) => s.scoreView)
+
+  /*
+   * A change of spacing resizes the cards. The sizes React Flow reports arrive late and in
+   * waves, so the waiting arrangement reads what is actually on screen: the browser has laid
+   * the cards out by the time this runs, and an element's size is always the current one.
+   */
+  const pendingArrange = useInvestigationStore((s) => s.pendingArrange)
+  useEffect(() => {
+    if (!pendingArrange || !knowledgeBase) return
+    const timer = window.setTimeout(() => {
+      for (const element of document.querySelectorAll<HTMLElement>('.react-flow__node[data-id]')) {
+        measuredNodeSizes.set(element.dataset.id as string, {
+          width: element.offsetWidth,
+          height: element.offsetHeight,
+        })
+      }
+      useInvestigationStore.setState({ pendingArrange: false })
+      useInvestigationStore.getState().arrangeByScoreView(knowledgeBase)
+    }, 150)
+    return () => window.clearTimeout(timer)
+  }, [pendingArrange, knowledgeBase])
+
+  // After the canvas is rearranged, bring the whole result into view.
+  useEffect(() => {
+    if (fitRequest === 0) return
+    const timer = window.setTimeout(() => void fitView({ padding: 0.1, duration: 250 }), 60)
+    return () => window.clearTimeout(timer)
+  }, [fitRequest, fitView])
   const manualEdges = useInvestigationStore((s) => s.manualEdges)
   const inferredEdges = useInvestigationStore((s) => s.inferredEdges)
   const edges = useMemo(
@@ -361,6 +391,7 @@ function CanvasSurface({
           color: n.color,
           icon: n.icon,
           score: n.navigatorScore,
+          spacing: scoreView.spacing,
         },
       })),
     [
@@ -442,9 +473,11 @@ function CanvasSurface({
         if (change.type === 'remove') {
           removeNode(change.id)
           setNodeSizes(({ [change.id]: _removed, ...rest }) => rest)
+          measuredNodeSizes.delete(change.id)
         }
         if (change.type === 'dimensions' && change.dimensions) {
           const { width, height } = change.dimensions
+          measuredNodeSizes.set(change.id, { width, height })
           setNodeSizes((sizes) => {
             const current = sizes[change.id]
             if (current?.width === width && current?.height === height) return sizes
@@ -690,6 +723,8 @@ function CanvasSurface({
         panOnDrag={[2]}
         selectionKeyCode={null}
         fitView
+        /* The default floor is 0.5, too close for a layer of hundreds of techniques to fit on screen. */
+        minZoom={0.05}
       >
         <Panel position="top-left">
           <CanvasToolRail

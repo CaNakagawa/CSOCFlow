@@ -42,6 +42,11 @@ export interface GenericNodeData extends Record<string, unknown> {
   icon?: string
   /** The score an imported Navigator layer gave this technique. */
   score?: number
+  /**
+   * How close together the canvas packs its cards. Packed cards stay narrow, so a long
+   * name wraps instead of widening the card; `tight` also drops the state and analytics rows.
+   */
+  spacing?: 'normal' | 'compact' | 'tight'
 }
 
 /** Small enough to still read the label, large enough to grab a corner. */
@@ -74,6 +79,7 @@ export function GenericNode({ data, selected }: NodeProps) {
     color,
     icon,
     score,
+    spacing,
   } = data as unknown as GenericNodeData
   const { t } = useI18n()
   const linkToNearest = useInvestigationStore((s) => s.linkToNearest)
@@ -107,6 +113,8 @@ export function GenericNode({ data, selected }: NodeProps) {
       className={
         `generic-node generic-node--${state} generic-node--tone-${tone}` +
         (scaffold ? ' generic-node--scaffold' : '') +
+        (spacing && spacing !== 'normal' ? ' generic-node--packed' : '') +
+        (spacing === 'tight' ? ' generic-node--dense' : '') +
         (selected ? ' generic-node--selected' : '') +
         (sized ? ' generic-node--sized' : '')
       }

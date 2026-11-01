@@ -271,3 +271,14 @@
   line-height: 1.5;
   font-variant-numeric: tabular-nums;
 }
+
+/* A packed canvas keeps every card narrow, so a long name wraps rather than pushing its column wider. */
+.generic-node--packed {
+  max-width: 230px;
+}
+
+/* The tightest packing keeps what identifies a card (id, name, score) and drops the rows under it. */
+.generic-node--dense .generic-node__state,
+.generic-node--dense .node-analytics {
+  display: none;
+}

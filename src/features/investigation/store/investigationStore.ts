@@ -18,6 +18,7 @@ import {
 } from '../../correlation/engine/buildSubtechniqueEdges'
 import { buildTacticChainEdges } from '../../correlation/engine/buildTacticChainEdges'
 import { layoutLikeMitre } from '../../canvas/utils/mitreLayout'
+import { measuredNodeSizes } from '../../canvas/utils/nodeMeasures'
 import type { HeatScale } from '../../canvas/utils/heatScale'
 import { DEFAULT_SCORE_VIEW, isHiddenByScore, type ScoreView } from '../../canvas/utils/scoreView'
 import type { NavigatorEntry } from '../../canvas/export/attackNavigatorImport'
@@ -131,6 +132,10 @@ interface InvestigationState {
   heatScale: HeatScale | null
   /** Which scores of a Navigator layer to show and in what order; a view, never saved. */
   scoreView: ScoreView
+  /** Counts up each time the canvas is rearranged, so the view can fit itself to the result. */
+  fitRequest: number
+  /** An arrangement is waiting for the cards to be measured again after they changed size. */
+  pendingArrange: boolean
   manualEdges: InvestigationEdge[]
   inferredEdges: InvestigationEdge[]
   selectedNodeId: string | null
@@ -174,6 +179,12 @@ interface InvestigationState {
   setScoreView: (patch: Partial<ScoreView>) => void
   /** Lays the techniques out column by column in the order the score view asks for. */
   arrangeByScoreView: (knowledgeBase: KnowledgeBase) => number
+  /**
+   * Arranges once the cards have been measured at their new size, which is what
+   * a change of spacing needs. The canvas fires it when sizes settle; a timer
+   * covers the case where no card changes size at all.
+   */
+  scheduleArrange: (knowledgeBase: KnowledgeBase) => void
   applyUseCase: (useCase: UseCaseDefinition, knowledgeBase: KnowledgeBase, locale: Locale) => void
   updateNodeFields: (nodeId: string, fields: Record<string, unknown>) => void
   updateNodeState: (nodeId: string, state: NodeState) => void
@@ -300,6 +311,8 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
     nodes: [],
     heatScale: null,
     scoreView: DEFAULT_SCORE_VIEW,
+    fitRequest: 0,
+    pendingArrange: false,
     manualEdges: [],
     inferredEdges: [],
     selectedNodeId: null,
@@ -633,20 +646,35 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
 
     setScoreView: (patch) => set((state) => ({ scoreView: { ...state.scoreView, ...patch } })),
 
+    scheduleArrange: (knowledgeBase) => {
+      set({ pendingArrange: true })
+      window.setTimeout(() => {
+        if (!get().pendingArrange) return
+        set({ pendingArrange: false })
+        get().arrangeByScoreView(knowledgeBase)
+      }, 1500)
+    },
+
     arrangeByScoreView: (knowledgeBase) => {
       const { nodes, scoreView } = get()
       // A card the range takes off the canvas must not leave a gap in its column.
       const shown = nodes.filter((node) => !isHiddenByScore(node, scoreView))
-      const positions = layoutLikeMitre(shown, knowledgeBase.tactics, knowledgeBase.techniques, {
-        order: scoreView.order,
-        direction: scoreView.direction,
-      })
+      const positions = layoutLikeMitre(
+        shown,
+        knowledgeBase.tactics,
+        knowledgeBase.techniques,
+        { order: scoreView.order, direction: scoreView.direction },
+        scoreView.spacing === 'normal'
+          ? undefined
+          : { spacing: scoreView.spacing, sizeOf: (id) => measuredNodeSizes.get(id) },
+      )
       get().pushHistory()
       set((state) => ({
         nodes: state.nodes.map((node) => {
           const position = positions.get(node.id)
           return position ? { ...node, position } : node
         }),
+        fitRequest: state.fitRequest + 1,
       }))
       return positions.size
     },

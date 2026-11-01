@@ -8,6 +8,7 @@ import {
   listForView,
   type ScoreDirection,
   type ScoreOrder,
+  type ScoreSpacing,
 } from '../../canvas/utils/scoreView'
 import type { KnowledgeBase } from '../../../shared/types/knowledge'
 import { useI18n } from '../../../shared/i18n'
@@ -38,6 +39,7 @@ export function NavigatorPanel({ knowledgeBase }: NavigatorPanelProps) {
   const setScoreView = useInvestigationStore((s) => s.setScoreView)
   const selectNode = useInvestigationStore((s) => s.selectNode)
   const arrangeByScoreView = useInvestigationStore((s) => s.arrangeByScoreView)
+  const scheduleArrange = useInvestigationStore((s) => s.scheduleArrange)
 
   const scored = useMemo(
     () => nodes.filter((n) => isTechniqueNode(n) && n.navigatorScore !== undefined),
@@ -96,6 +98,26 @@ export function NavigatorPanel({ knowledgeBase }: NavigatorPanelProps) {
         </label>
       </div>
 
+      <label className="navigator-panel__field">
+        <span>{t('navigator.spacing')}</span>
+        <select
+          value={view.spacing}
+          onChange={(event) => {
+            const spacing = event.target.value as ScoreSpacing
+            setScoreView({ spacing })
+            if (!knowledgeBase) return
+            // Spacing is about how the canvas looks, so it redraws the view by itself. A packed
+            // spacing changes the size of the cards first, so wait for them to be measured again.
+            if (spacing === 'normal') arrangeByScoreView(knowledgeBase)
+            else scheduleArrange(knowledgeBase)
+          }}
+        >
+          <option value="normal">{t('navigator.spacingNormal')}</option>
+          <option value="compact">{t('navigator.spacingCompact')}</option>
+          <option value="tight">{t('navigator.spacingTight')}</option>
+        </select>
+      </label>
+
       <fieldset className="navigator-panel__range">
         <legend>{t('navigator.range')}</legend>
         <label className="navigator-panel__field">
@@ -148,7 +170,12 @@ export function NavigatorPanel({ knowledgeBase }: NavigatorPanelProps) {
         <button
           type="button"
           className="navigator-panel__button navigator-panel__button--quiet"
-          disabled={!hasScoreRange(view) && view.order === DEFAULT_SCORE_VIEW.order}
+          disabled={
+            !hasScoreRange(view) &&
+            view.order === DEFAULT_SCORE_VIEW.order &&
+            view.direction === DEFAULT_SCORE_VIEW.direction &&
+            view.spacing === DEFAULT_SCORE_VIEW.spacing
+          }
           onClick={() => setScoreView({ ...DEFAULT_SCORE_VIEW })}
         >
           {t('navigator.clear')}

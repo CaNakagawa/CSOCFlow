@@ -120,3 +120,79 @@ describe('layoutLikeMitre with an order', () => {
     expect(column(positions, 0)).toEqual(['T1078', 'T1190', 'T1566', 'T1566.001'])
   })
 })
+
+describe('layoutLikeMitre packed by measured sizes', () => {
+  const sizes = new Map([
+    ['n-T1078', { width: 200, height: 100 }],
+    ['n-T1190', { width: 260, height: 140 }],
+    ['n-T1566', { width: 200, height: 100 }],
+    ['n-T1566.001', { width: 200, height: 100 }],
+    ['n-T1053', { width: 180, height: 80 }],
+  ])
+  const sizeOf = (id: string) => sizes.get(id)
+  const order = { order: 'score', direction: 'desc' } as const
+
+  it('stacks cards right under each other, a small gap apart', () => {
+    const positions = layoutLikeMitre(nodes, tactics, techniques, order, {
+      spacing: 'tight',
+      sizeOf,
+    })
+    // Tight leaves 4 px: T1078 is 100 tall, so the next card starts 104 below it.
+    const first = positions.get('n-T1078')!
+    const second = positions.get('n-T1190')!
+    expect(second.x).toBe(first.x)
+    expect(second.y - first.y).toBe(100 + 4)
+  })
+
+  it('makes a column as wide as its widest card', () => {
+    const positions = layoutLikeMitre(nodes, tactics, techniques, order, {
+      spacing: 'tight',
+      sizeOf,
+    })
+    // The first column holds a 260 wide card; the next column starts after it plus the 8 px gap.
+    expect(positions.get('n-T1053')!.x).toBe(positions.get('n-T1078')!.x + 260 + 8)
+  })
+
+  it('leaves more room at the compact spacing than at the tightest', () => {
+    const tight = layoutLikeMitre(nodes, tactics, techniques, order, { spacing: 'tight', sizeOf })
+    const compact = layoutLikeMitre(nodes, tactics, techniques, order, {
+      spacing: 'compact',
+      sizeOf,
+    })
+    expect(compact.get('n-T1053')!.x).toBeGreaterThan(tight.get('n-T1053')!.x)
+    expect(compact.get('n-T1190')!.y).toBeGreaterThan(tight.get('n-T1190')!.y)
+  })
+
+  it('never lets two cards of a column overlap', () => {
+    const positions = layoutLikeMitre(nodes, tactics, techniques, order, {
+      spacing: 'tight',
+      sizeOf,
+    })
+    const ids = column(positions, 0)
+    for (let i = 1; i < ids.length; i += 1) {
+      const above = positions.get(`n-${ids[i - 1]}`)!
+      const below = positions.get(`n-${ids[i]}`)!
+      expect(below.y).toBeGreaterThanOrEqual(above.y + sizes.get(`n-${ids[i - 1]}`)!.height)
+    }
+  })
+
+  it('skips a column that has nothing in it', () => {
+    const onlyPersistence = [card('T1053', 9)]
+    const positions = layoutLikeMitre(onlyPersistence, tactics, techniques, order, {
+      spacing: 'tight',
+      sizeOf,
+    })
+    expect(positions.get('n-T1053')!.x).toBe(0)
+  })
+
+  it('uses a sensible size for a card that has not been drawn yet', () => {
+    const positions = layoutLikeMitre(nodes, tactics, techniques, order, {
+      spacing: 'tight',
+      sizeOf: () => undefined,
+    })
+    const [a, b] = column(positions, 0)
+      .slice(0, 2)
+      .map((id) => positions.get(`n-${id}`)!)
+    expect(b.y - a.y).toBe(104 + 4)
+  })
+})

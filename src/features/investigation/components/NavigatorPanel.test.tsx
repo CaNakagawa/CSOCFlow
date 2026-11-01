@@ -110,4 +110,16 @@ describe('NavigatorPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'T1078' }))
     expect(useInvestigationStore.getState().selectedNodeId).toBe('n-T1078')
   })
+
+  it('keeps the spacing choice in the view and offers three levels', async () => {
+    renderPanel()
+    const spacing = screen.getByLabelText('Bring cards closer')
+    expect(
+      within(spacing)
+        .getAllByRole('option')
+        .map((o) => o.textContent),
+    ).toEqual(['Normal', 'Closer', 'Tightest'])
+    await userEvent.selectOptions(spacing, 'tight')
+    expect(useInvestigationStore.getState().scoreView.spacing).toBe('tight')
+  })
 })

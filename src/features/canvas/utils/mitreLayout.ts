@@ -16,6 +16,34 @@ export interface Position {
   y: number
 }
 
+export interface Size {
+  width: number
+  height: number
+}
+
+/** How close together the cards are packed. `normal` is the matrix grid; the others follow real card sizes. */
+export type Spacing = 'normal' | 'compact' | 'tight'
+
+/** Space left between neighbouring cards for each packed spacing. */
+const PACKED_GAP: Record<Exclude<Spacing, 'normal'>, { x: number; y: number }> = {
+  compact: { x: 24, y: 10 },
+  tight: { x: 8, y: 4 },
+}
+
+/** What a card measures before the canvas has drawn it. */
+const DEFAULT_CARD: Size = { width: 210, height: 104 }
+
+/**
+ * Packs the matrix by the measured size of each card instead of a fixed grid:
+ * a column is as wide as its widest card, and a card sits right under the one
+ * above it, so nothing overlaps and nothing is further apart than it has to be.
+ */
+export interface Packing {
+  spacing: Exclude<Spacing, 'normal'>
+  /** The drawn size of a card, when known. */
+  sizeOf: (nodeId: string) => Size | undefined
+}
+
 /** How the cards in each column are put in order; without it they keep the order they came in. */
 export interface LayoutOrder {
   order: ScoreOrder
@@ -48,6 +76,7 @@ export function layoutLikeMitre(
   tactics: MitreTactic[],
   techniques: MitreTechnique[],
   order?: LayoutOrder,
+  packing?: Packing,
 ): Map<string, Position> {
   const positions = new Map<string, Position>()
   const columnOf = new Map(tactics.map((tactic, index) => [tactic.id, index]))
@@ -62,6 +91,7 @@ export function layoutLikeMitre(
   // column past the matrix rather than being dropped on top of it.
   const overflowColumn = tactics.length
   const nextRowInColumn = new Map<number, number>()
+  const cardsInColumn = new Map<number, InvestigationNode[]>()
   const techniqueNodes = nodes.filter(isTechniqueNode)
 
   function columnFor(node: InvestigationNode): number {
@@ -76,6 +106,7 @@ export function layoutLikeMitre(
   function place(node: InvestigationNode, column: number) {
     const row = nextRowInColumn.get(column) ?? 0
     nextRowInColumn.set(column, row + 1)
+    cardsInColumn.set(column, [...(cardsInColumn.get(column) ?? []), node])
     positions.set(node.id, {
       x: column * COLUMN_WIDTH,
       y: TECHNIQUE_START_Y + row * ROW_HEIGHT,
@@ -113,7 +144,42 @@ export function layoutLikeMitre(
   }
 
   const deepestRow = Math.max(0, ...nextRowInColumn.values())
-  const otherY = TECHNIQUE_START_Y + deepestRow * ROW_HEIGHT + OTHER_ROW_GAP
+  let otherY = TECHNIQUE_START_Y + deepestRow * ROW_HEIGHT + OTHER_ROW_GAP
+
+  if (packing) {
+    const gap = PACKED_GAP[packing.spacing]
+    const sizeOf = (node: InvestigationNode): Size => packing.sizeOf(node.id) ?? DEFAULT_CARD
+    const headers = new Map<number, InvestigationNode>()
+    for (const [tacticId, column] of columnOf) {
+      const header = nodes.find((n) => n.type === 'mitre_tactic' && n.definitionId === tacticId)
+      if (header) headers.set(column, header)
+    }
+
+    // A column with neither a header nor a card takes no room at all.
+    const used = [...new Set([...headers.keys(), ...cardsInColumn.keys()])].sort((a, b) => a - b)
+    const headerHeight = Math.max(0, ...[...headers.values()].map((h) => sizeOf(h).height))
+    const startY = headers.size > 0 ? TACTIC_ROW_Y + headerHeight + gap.y * 2 : TACTIC_ROW_Y
+
+    let x = 0
+    let bottom = startY
+    for (const column of used) {
+      const header = headers.get(column)
+      const cards = cardsInColumn.get(column) ?? []
+      const width = Math.max(
+        header ? sizeOf(header).width : 0,
+        ...cards.map((card) => sizeOf(card).width),
+      )
+      if (header) positions.set(header.id, { x, y: TACTIC_ROW_Y })
+      let y = startY
+      for (const card of cards) {
+        positions.set(card.id, { x, y })
+        y += sizeOf(card).height + gap.y
+      }
+      bottom = Math.max(bottom, y)
+      x += width + gap.x
+    }
+    otherY = bottom + OTHER_ROW_GAP / 2
+  }
 
   const others = nodes.filter((n) => n.type !== 'mitre_tactic' && !isTechniqueNode(n))
   others.forEach((node, index) => {

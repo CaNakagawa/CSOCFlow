@@ -8,6 +8,8 @@ import type { InvestigationNode } from '../../../shared/types/investigation'
  */
 export type ScoreOrder = 'technique' | 'score'
 export type ScoreDirection = 'asc' | 'desc'
+/** How close together the cards are packed when the canvas is arranged. */
+export type ScoreSpacing = 'normal' | 'compact' | 'tight'
 
 export interface ScoreView {
   /** Lowest score to show; null for no lower limit. */
@@ -19,6 +21,8 @@ export interface ScoreView {
   direction: ScoreDirection
   /** Whether the cards outside the range leave the canvas, or only the list narrows. */
   hideOutside: boolean
+  /** How tightly the canvas packs the cards when it is arranged. */
+  spacing: ScoreSpacing
 }
 
 export const DEFAULT_SCORE_VIEW: ScoreView = {
@@ -27,6 +31,7 @@ export const DEFAULT_SCORE_VIEW: ScoreView = {
   order: 'technique',
   direction: 'asc',
   hideOutside: true,
+  spacing: 'normal',
 }
 
 export function isTechniqueNode(node: InvestigationNode): boolean {
