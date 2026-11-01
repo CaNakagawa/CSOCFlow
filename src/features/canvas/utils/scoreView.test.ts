@@ -5,6 +5,7 @@ import {
   inScoreRange,
   isHiddenByScore,
   listForView,
+  scoreVisibility,
   sortByScoreView,
   type ScoreView,
 } from './scoreView'
@@ -143,5 +144,33 @@ describe('listForView', () => {
       'T2',
       'T3',
     ])
+  })
+})
+
+describe('scoreVisibility', () => {
+  const nodes = [
+    card('T1059', 4),
+    card('T1059.001', 26, 'mitre_subtechnique'),
+    card('T1003', 3),
+    card('T1003.001', 2, 'mitre_subtechnique'),
+    card('T1053.005', 20, 'mitre_subtechnique'),
+  ]
+  const ids = (set: Set<string>) => [...set].sort()
+
+  it('keeps a hidden parent as a faded card while its subtechnique is shown', () => {
+    const { hidden, ghosts } = scoreVisibility(nodes, view({ min: 15 }))
+    expect(ids(ghosts)).toEqual(['n-T1059'])
+    expect(ids(hidden)).toEqual(['n-T1003', 'n-T1003.001'])
+  })
+
+  it('hides the parent too when the view says so', () => {
+    const { hidden, ghosts } = scoreVisibility(nodes, view({ min: 15, showParents: false }))
+    expect(ghosts.size).toBe(0)
+    expect(hidden.has('n-T1059')).toBe(true)
+  })
+
+  it('does nothing without a range or when the cards are not being hidden', () => {
+    expect(scoreVisibility(nodes, DEFAULT_SCORE_VIEW).hidden.size).toBe(0)
+    expect(scoreVisibility(nodes, view({ min: 15, hideOutside: false })).ghosts.size).toBe(0)
   })
 })

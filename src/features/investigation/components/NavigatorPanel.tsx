@@ -115,6 +115,7 @@ export function NavigatorPanel({ knowledgeBase }: NavigatorPanelProps) {
           <option value="normal">{t('navigator.spacingNormal')}</option>
           <option value="compact">{t('navigator.spacingCompact')}</option>
           <option value="tight">{t('navigator.spacingTight')}</option>
+          <option value="exploded">{t('navigator.spacingExploded')}</option>
         </select>
       </label>
 
@@ -157,6 +158,15 @@ export function NavigatorPanel({ knowledgeBase }: NavigatorPanelProps) {
         />
         <span>{t('navigator.hideOutside')}</span>
       </label>
+      <label className="navigator-panel__check">
+        <input
+          type="checkbox"
+          checked={view.showParents}
+          disabled={!view.hideOutside}
+          onChange={(event) => setScoreView({ showParents: event.target.checked })}
+        />
+        <span>{t('navigator.showParents')}</span>
+      </label>
 
       <div className="navigator-panel__actions">
         <button
@@ -174,7 +184,8 @@ export function NavigatorPanel({ knowledgeBase }: NavigatorPanelProps) {
             !hasScoreRange(view) &&
             view.order === DEFAULT_SCORE_VIEW.order &&
             view.direction === DEFAULT_SCORE_VIEW.direction &&
-            view.spacing === DEFAULT_SCORE_VIEW.spacing
+            view.spacing === DEFAULT_SCORE_VIEW.spacing &&
+            view.showParents === DEFAULT_SCORE_VIEW.showParents
           }
           onClick={() => setScoreView({ ...DEFAULT_SCORE_VIEW })}
         >

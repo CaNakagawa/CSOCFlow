@@ -261,6 +261,7 @@ export const de: Record<TranslationKey, string> = {
   'navigator.spacingNormal': 'Normal',
   'navigator.spacingCompact': 'Enger',
   'navigator.spacingTight': 'Am engsten',
+  'navigator.spacingExploded': 'Auseinandergezogen (Verbindungen verfolgen)',
   'navigator.asc': 'Aufsteigend',
   'navigator.desc': 'Absteigend',
   'navigator.range': 'Score-Bereich',
@@ -268,6 +269,8 @@ export const de: Record<TranslationKey, string> = {
   'navigator.max': 'Bis',
   'navigator.rangeInvalid': 'Der niedrigste Score liegt über dem höchsten.',
   'navigator.hideOutside': 'Karten außerhalb des Bereichs auf der Leinwand ausblenden',
+  'navigator.showParents':
+    'Übergeordnete Technik einer sichtbaren Subtechnik als blasse Karte behalten',
   'navigator.arrange': 'Leinwand in dieser Reihenfolge anordnen',
   'navigator.clear': 'Filter zurücksetzen',
   'navigator.summary': '{shown} von {total} Techniken werden angezeigt.',

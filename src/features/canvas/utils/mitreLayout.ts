@@ -22,12 +22,14 @@ export interface Size {
 }
 
 /** How close together the cards are packed. `normal` is the matrix grid; the others follow real card sizes. */
-export type Spacing = 'normal' | 'compact' | 'tight'
+export type Spacing = 'normal' | 'compact' | 'tight' | 'exploded'
 
 /** Space left between neighbouring cards for each packed spacing. */
 const PACKED_GAP: Record<Exclude<Spacing, 'normal'>, { x: number; y: number }> = {
   compact: { x: 24, y: 10 },
   tight: { x: 8, y: 4 },
+  // Wide lanes so every link has room to be followed by eye.
+  exploded: { x: 90, y: 40 },
 }
 
 /** What a card measures before the canvas has drawn it. */

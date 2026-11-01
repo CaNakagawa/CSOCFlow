@@ -46,7 +46,7 @@ export interface GenericNodeData extends Record<string, unknown> {
    * How close together the canvas packs its cards. Packed cards stay narrow, so a long
    * name wraps instead of widening the card; `tight` also drops the state and analytics rows.
    */
-  spacing?: 'normal' | 'compact' | 'tight'
+  spacing?: 'normal' | 'compact' | 'tight' | 'exploded'
 }
 
 /** Small enough to still read the label, large enough to grab a corner. */

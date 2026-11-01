@@ -45,7 +45,7 @@ import { useI18n } from '../../../shared/i18n'
 import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/investigation'
 import type { ThemePreference } from '../../../shared/theme/theme'
 import type { DetectionAnalytic, KnowledgeBase } from '../../../shared/types/knowledge'
-import { isHiddenByScore } from '../utils/scoreView'
+import { scoreVisibility } from '../utils/scoreView'
 import { measuredNodeSizes } from '../utils/nodeMeasures'
 import './Canvas.css'
 
@@ -339,6 +339,22 @@ function CanvasSurface({
     [expandSubtechniques, knowledgeBase, locale],
   )
 
+  const visibility = useMemo(() => scoreVisibility(nodes, scoreView), [nodes, scoreView])
+
+  /*
+   * Exploded view: with a card selected, only it and the cards it is linked to stay at full
+   * strength, so a single chain can be followed across a wide, busy matrix.
+   */
+  const focus = useMemo(() => {
+    if (scoreView.spacing !== 'exploded' || selectedIds.size === 0) return null
+    const linked = new Set(selectedIds)
+    for (const e of edges) {
+      if (selectedIds.has(e.source)) linked.add(e.target)
+      if (selectedIds.has(e.target)) linked.add(e.source)
+    }
+    return linked
+  }, [scoreView.spacing, selectedIds, edges])
+
   const flowNodes: Node<GenericNodeData>[] = useMemo(
     () =>
       nodes.map((n) => ({
@@ -349,7 +365,8 @@ function CanvasSurface({
         measured: nodeSizes[n.id],
         parentId: n.parentId,
         // A card the score range takes off the canvas takes its connections with it.
-        hidden: isHiddenByScore(n, scoreView),
+        hidden: visibility.hidden.has(n.id),
+        style: focus && !focus.has(n.id) ? { opacity: 0.25 } : undefined,
         // A backdrop starts behind; anything can then be restacked by hand.
         zIndex: n.layer ?? (BACKDROP_TYPES.has(n.type) ? -1 : 0),
         width: n.size?.width,
@@ -358,7 +375,8 @@ function CanvasSurface({
           label: n.label,
           nodeType: n.type,
           state: n.state,
-          scaffold: n.scaffold,
+          // A parent kept only so its subtechnique stays linked is drawn like the scaffolding.
+          scaffold: n.scaffold || visibility.ghosts.has(n.id),
           nodeId: n.id,
           analytics: analyticsByDefinition.get(n.definitionId) ?? [],
           analyticsExpanded: n.analyticsExpanded ?? false,
@@ -397,6 +415,8 @@ function CanvasSurface({
     [
       nodes,
       scoreView,
+      visibility,
+      focus,
       selectedIds,
       analyticsByDefinition,
       selectedAnalytic,
@@ -426,10 +446,18 @@ function CanvasSurface({
         reconnectable: !e.automatic,
         data: { automatic: e.automatic, type: e.type },
         markerEnd: { type: MarkerType.ArrowClosed, color: stroke },
-        style: { stroke, strokeDasharray: dashed ? '4 3' : undefined },
+        style: {
+          stroke,
+          strokeDasharray: dashed ? '4 3' : undefined,
+          ...(focus
+            ? selectedIds.has(e.source) || selectedIds.has(e.target)
+              ? { strokeWidth: 2.5 }
+              : { opacity: 0.08 }
+            : {}),
+        },
       }
     })
-  }, [edges, selectedEdgeId])
+  }, [edges, selectedEdgeId, focus, selectedIds])
 
   const onNodesChange: OnNodesChange<Node<GenericNodeData>> = useCallback(
     (changes: NodeChange<Node<GenericNodeData>>[]) => {
