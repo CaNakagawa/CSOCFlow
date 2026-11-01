@@ -432,7 +432,9 @@ function CanvasSurface({
     const labelStyle = buildEdgeLabelStyle(readCssToken)
     return edges.map((e) => {
       const stroke = e.color ?? (e.automatic ? AUTOMATIC_EDGE_COLOR : MANUAL_EDGE_COLOR)
-      const dashed = e.lineStyle ? e.lineStyle === 'dashed' : e.automatic
+      // A link to a faded parent is dashed too: it only exists to keep the subtechnique attached.
+      const toGhost = visibility.ghosts.has(e.source) || visibility.ghosts.has(e.target)
+      const dashed = toGhost || (e.lineStyle ? e.lineStyle === 'dashed' : e.automatic)
       return {
         id: e.id,
         source: e.source,
@@ -457,7 +459,7 @@ function CanvasSurface({
         },
       }
     })
-  }, [edges, selectedEdgeId, focus, selectedIds])
+  }, [edges, selectedEdgeId, focus, selectedIds, visibility])
 
   const onNodesChange: OnNodesChange<Node<GenericNodeData>> = useCallback(
     (changes: NodeChange<Node<GenericNodeData>>[]) => {

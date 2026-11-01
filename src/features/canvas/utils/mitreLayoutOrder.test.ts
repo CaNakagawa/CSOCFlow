@@ -196,3 +196,50 @@ describe('layoutLikeMitre packed by measured sizes', () => {
     expect(b.y - a.y).toBe(104 + 4)
   })
 })
+
+describe('exploded layout', () => {
+  const techniques = ['T1059', 'T1003', 'T1566'].map((id) => technique(id, ['TA0001']))
+  const nodes = [
+    card('T1059', 4),
+    ...['001', '002', '003', '004', '005', '006'].map((n) => card(`T1059.${n}`, 20)),
+    card('T1003', 3),
+    card('T1003.001', 9),
+    card('T1566', 8),
+  ]
+  const size = { width: 200, height: 100 }
+  const positions = layoutLikeMitre(nodes, tactics, techniques, undefined, {
+    spacing: 'exploded',
+    sizeOf: () => size,
+  })
+
+  it('never lets two cards overlap', () => {
+    const boxes = nodes.map((n) => ({
+      id: n.id,
+      ...(positions.get(n.id) as { x: number; y: number }),
+    }))
+    for (const a of boxes)
+      for (const b of boxes) {
+        if (a.id >= b.id) continue
+        const apart =
+          a.x + size.width <= b.x ||
+          b.x + size.width <= a.x ||
+          a.y + size.height <= b.y ||
+          b.y + size.height <= a.y
+        expect(apart, `${a.id} over ${b.id}`).toBe(true)
+      }
+  })
+
+  it('spreads the subtechniques around their parent, equally far from it', () => {
+    const centre = (id: string) => {
+      const p = positions.get(id) as { x: number; y: number }
+      return { x: p.x + size.width / 2, y: p.y + size.height / 2 }
+    }
+    const parent = centre('n-T1059')
+    const distances = ['001', '002', '003', '004', '005', '006'].map((n) => {
+      const c = centre(`n-T1059.${n}`)
+      return Math.round(Math.hypot(c.x - parent.x, c.y - parent.y))
+    })
+    expect(new Set(distances).size).toBe(1)
+    expect(distances[0]).toBeGreaterThan(size.width)
+  })
+})
