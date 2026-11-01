@@ -246,6 +246,33 @@ export const pt: Record<TranslationKey, string> = {
   'rightPanel.collapse': 'Retrair painel',
   'rightPanel.expand': 'Expandir painel',
 
+  'rightPanel.navigator': 'MITRE NAVIGATOR',
+  'navigator.scoreTitle': 'Score da camada importada: {score}',
+  'navigator.empty':
+    'Nenhuma técnica com score ainda. Importe uma camada do ATT&CK Navigator que traga scores, e filtre e ordene as técnicas aqui.',
+  'navigator.hint':
+    'Os scores vêm da camada importada e aparecem como estão. Eles não alteram o score da investigação.',
+  'navigator.legend': 'Escala de score',
+  'navigator.orderBy': 'Ordenar por',
+  'navigator.orderTechnique': 'Ordem das técnicas (MITRE)',
+  'navigator.orderScore': 'Score',
+  'navigator.direction': 'Sentido',
+  'navigator.asc': 'Crescente',
+  'navigator.desc': 'Decrescente',
+  'navigator.range': 'Faixa de score',
+  'navigator.min': 'De',
+  'navigator.max': 'Até',
+  'navigator.rangeInvalid': 'O menor score está acima do maior.',
+  'navigator.hideOutside': 'Esconder no canvas os cartões fora da faixa',
+  'navigator.arrange': 'Organizar o canvas nesta ordem',
+  'navigator.clear': 'Limpar filtro',
+  'navigator.summary': 'Mostrando {shown} de {total} técnicas.',
+  'navigator.listLabel': 'Técnicas da camada importada',
+  'navigator.colTechnique': 'Técnica',
+  'navigator.colName': 'Nome',
+  'navigator.colScore': 'Score',
+  'navigator.noMatch': 'Nenhuma técnica tem score nesta faixa.',
+
   'score.empty':
     'Nenhuma técnica MITRE no canvas ainda. A nota mede até onde a atividade confirmada chega no kill chain.',
   'score.reached': 'A atividade confirmada chega em {tactic}.',

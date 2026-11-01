@@ -102,6 +102,12 @@ export interface InvestigationNode {
    */
   color?: string
   /**
+   * The score an imported ATT&CK Navigator layer gave this technique. It is the
+   * layer author's own number (how many actors use it, say), kept apart from
+   * the analyst's verdict in `state`.
+   */
+  navigatorScore?: number
+  /**
    * An icon the analyst picked to say at a glance what this is — a bug, a
    * magnifier, a lock. Purely illustrative: it never changes correlation.
    */
@@ -178,6 +184,8 @@ export interface Investigation {
     nodes: InvestigationNode[]
     edges: InvestigationEdge[]
     drawings?: DrawingStroke[]
+    /** The colour scale of the Navigator layer the scores came from, for the legend. */
+    heatScale?: { colors: string[]; min: number; max: number }
   }
   hypotheses: HypothesisRecord[]
   timeline: TimelineEntry[]

@@ -18,6 +18,8 @@ import {
 } from '../../correlation/engine/buildSubtechniqueEdges'
 import { buildTacticChainEdges } from '../../correlation/engine/buildTacticChainEdges'
 import { layoutLikeMitre } from '../../canvas/utils/mitreLayout'
+import type { HeatScale } from '../../canvas/utils/heatScale'
+import { DEFAULT_SCORE_VIEW, isHiddenByScore, type ScoreView } from '../../canvas/utils/scoreView'
 import type { NavigatorEntry } from '../../canvas/export/attackNavigatorImport'
 import { OPPOSITE_HANDLE, findNearestNodeInDirection } from '../../canvas/utils/nearestNode'
 import type { HandleId } from '../../../shared/types/handles'
@@ -125,6 +127,10 @@ interface InvestigationState {
   meta: InvestigationMeta
   viewport: Viewport
   nodes: InvestigationNode[]
+  /** The colour scale of the last Navigator layer imported, for the legend. */
+  heatScale: HeatScale | null
+  /** Which scores of a Navigator layer to show and in what order; a view, never saved. */
+  scoreView: ScoreView
   manualEdges: InvestigationEdge[]
   inferredEdges: InvestigationEdge[]
   selectedNodeId: string | null
@@ -162,7 +168,12 @@ interface InvestigationState {
     entries: NavigatorEntry[],
     knowledgeBase: KnowledgeBase,
     locale: Locale,
+    scale?: HeatScale | null,
   ) => { added: number; skipped: number; unknown: string[] }
+  /** Changes how the scored techniques are filtered and ordered. */
+  setScoreView: (patch: Partial<ScoreView>) => void
+  /** Lays the techniques out column by column in the order the score view asks for. */
+  arrangeByScoreView: (knowledgeBase: KnowledgeBase) => number
   applyUseCase: (useCase: UseCaseDefinition, knowledgeBase: KnowledgeBase, locale: Locale) => void
   updateNodeFields: (nodeId: string, fields: Record<string, unknown>) => void
   updateNodeState: (nodeId: string, state: NodeState) => void
@@ -287,6 +298,8 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
     meta: createMeta(),
     viewport: { x: 0, y: 0, zoom: 1 },
     nodes: [],
+    heatScale: null,
+    scoreView: DEFAULT_SCORE_VIEW,
     manualEdges: [],
     inferredEdges: [],
     selectedNodeId: null,
@@ -541,7 +554,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       return addedTactics
     },
 
-    importNavigatorLayer: (entries, knowledgeBase, locale) => {
+    importNavigatorLayer: (entries, knowledgeBase, locale, scale) => {
       const onCanvas = new Set(
         get()
           .nodes.filter((n) => n.type === 'mitre_technique' || n.type === 'mitre_subtechnique')
@@ -590,6 +603,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
             fields: {},
             notes,
             ...(entry.color ? { color: entry.color } : {}),
+            ...(entry.score !== undefined ? { navigatorScore: entry.score } : {}),
             createdAt: now,
             updatedAt: now,
           })
@@ -607,10 +621,34 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
           (edge) => !existingEdgeIds.has(edge.id),
         )
 
-        return { nodes: positioned, manualEdges: [...state.manualEdges, ...newEdges] }
+        return {
+          nodes: positioned,
+          manualEdges: [...state.manualEdges, ...newEdges],
+          heatScale: scale ?? state.heatScale,
+        }
       })
 
       return { added: arriving.length, skipped: entries.length - arriving.length, unknown }
+    },
+
+    setScoreView: (patch) => set((state) => ({ scoreView: { ...state.scoreView, ...patch } })),
+
+    arrangeByScoreView: (knowledgeBase) => {
+      const { nodes, scoreView } = get()
+      // A card the range takes off the canvas must not leave a gap in its column.
+      const shown = nodes.filter((node) => !isHiddenByScore(node, scoreView))
+      const positions = layoutLikeMitre(shown, knowledgeBase.tactics, knowledgeBase.techniques, {
+        order: scoreView.order,
+        direction: scoreView.direction,
+      })
+      get().pushHistory()
+      set((state) => ({
+        nodes: state.nodes.map((node) => {
+          const position = positions.get(node.id)
+          return position ? { ...node, position } : node
+        }),
+      }))
+      return positions.size
     },
 
     applyUseCase: (useCase, knowledgeBase, locale) => {
@@ -1363,6 +1401,8 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       set({
         meta: doc.investigation,
         viewport: doc.canvas.viewport,
+        heatScale: doc.canvas.heatScale ?? null,
+        scoreView: DEFAULT_SCORE_VIEW,
         // Investigations saved before strokes were elements carry them apart.
         nodes: [...doc.canvas.nodes, ...(doc.canvas.drawings ?? []).map(strokeToNode)],
         manualEdges: doc.canvas.edges.filter((e) => !e.automatic),
@@ -1387,6 +1427,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
           viewport: state.viewport,
           nodes: state.nodes,
           edges: combineEdges(state.inferredEdges, state.manualEdges),
+          ...(state.heatScale ? { heatScale: state.heatScale } : {}),
         },
         hypotheses: state.hypothesisResults.map((h) => ({
           hypothesisId: h.hypothesisId,
@@ -1407,6 +1448,8 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
         future: [],
         viewport: { x: 0, y: 0, zoom: 1 },
         nodes: [],
+        heatScale: null,
+        scoreView: DEFAULT_SCORE_VIEW,
         manualEdges: [],
         inferredEdges: [],
         selectedNodeId: null,
@@ -1423,6 +1466,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
       get().pushHistory()
       set({
         nodes: [],
+        heatScale: null,
         manualEdges: [],
         inferredEdges: [],
         selectedNodeId: null,

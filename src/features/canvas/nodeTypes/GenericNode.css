@@ -258,3 +258,16 @@
   height: 14px;
   flex: none;
 }
+
+/* The score a Navigator layer gave a technique; its colour is the heat colour of that score. */
+.generic-node__score {
+  margin-left: auto;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--node-border, #64748b);
+  color: #111827;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}

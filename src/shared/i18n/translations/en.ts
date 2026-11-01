@@ -245,6 +245,33 @@ export const en = {
   'rightPanel.collapse': 'Collapse panel',
   'rightPanel.expand': 'Expand panel',
 
+  'rightPanel.navigator': 'MITRE NAVIGATOR',
+  'navigator.scoreTitle': 'Score from the imported layer: {score}',
+  'navigator.empty':
+    'No scored technique yet. Import an ATT&CK Navigator layer that carries scores, and filter and sort its techniques here.',
+  'navigator.hint':
+    'The scores come from the imported layer and are shown as they are. They do not change the investigation score.',
+  'navigator.legend': 'Score scale',
+  'navigator.orderBy': 'Order by',
+  'navigator.orderTechnique': 'Technique order (MITRE)',
+  'navigator.orderScore': 'Score',
+  'navigator.direction': 'Direction',
+  'navigator.asc': 'Ascending',
+  'navigator.desc': 'Descending',
+  'navigator.range': 'Score range',
+  'navigator.min': 'From',
+  'navigator.max': 'To',
+  'navigator.rangeInvalid': 'The lowest score is above the highest one.',
+  'navigator.hideOutside': 'Hide the cards outside the range on the canvas',
+  'navigator.arrange': 'Arrange the canvas in this order',
+  'navigator.clear': 'Clear filter',
+  'navigator.summary': 'Showing {shown} of {total} techniques.',
+  'navigator.listLabel': 'Techniques of the imported layer',
+  'navigator.colTechnique': 'Technique',
+  'navigator.colName': 'Name',
+  'navigator.colScore': 'Score',
+  'navigator.noMatch': 'No technique has a score in this range.',
+
   'score.empty':
     'No MITRE technique on the canvas yet. The score reads how far along the kill chain confirmed activity reaches.',
   'score.reached': 'Confirmed activity reaches {tactic}.',

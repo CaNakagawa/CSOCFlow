@@ -41,6 +41,7 @@ const investigationNodeSchema = z.object({
   imageSrc: z.string().optional(),
   layer: z.number().optional(),
   color: z.string().optional(),
+  navigatorScore: z.number().optional(),
   icon: z.string().optional(),
   step: z.number().optional(),
   eventAt: z.string().optional(),
@@ -83,6 +84,9 @@ export const investigationSchema = z.object({
     viewport: z.object({ x: z.number(), y: z.number(), zoom: z.number() }),
     nodes: z.array(investigationNodeSchema),
     edges: z.array(investigationEdgeSchema),
+    heatScale: z
+      .object({ colors: z.array(z.string()), min: z.number(), max: z.number() })
+      .optional(),
   }),
   hypotheses: z.array(
     z.object({

@@ -3,11 +3,12 @@ import { DetailsPanel } from '../features/investigation/components/DetailsPanel'
 import { ScorePanel } from '../features/investigation/components/ScorePanel'
 import { HypothesisPanel } from '../features/hypotheses/components/HypothesisPanel'
 import { UseCasePanel } from '../features/use-cases/components/UseCasePanel'
+import { NavigatorPanel } from '../features/investigation/components/NavigatorPanel'
 import type { KnowledgeBase } from '../shared/types/knowledge'
 import { useI18n } from '../shared/i18n'
 import './RightPanel.css'
 
-type Tab = 'details' | 'score' | 'hypotheses' | 'useCases'
+type Tab = 'details' | 'score' | 'hypotheses' | 'useCases' | 'navigator'
 
 interface RightPanelProps {
   knowledgeBase: KnowledgeBase | null
@@ -76,6 +77,15 @@ export function RightPanel({ knowledgeBase, collapsed, onToggleCollapsed }: Righ
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={tab === 'navigator'}
+          className={tab === 'navigator' ? 'active' : ''}
+          onClick={() => setTab('navigator')}
+        >
+          {t('rightPanel.navigator')}
+        </button>
+        <button
+          type="button"
           className="right-panel__collapse-toggle"
           onClick={onToggleCollapsed}
           aria-label={t('rightPanel.collapse')}
@@ -89,6 +99,7 @@ export function RightPanel({ knowledgeBase, collapsed, onToggleCollapsed }: Righ
         {tab === 'score' && <ScorePanel knowledgeBase={knowledgeBase} />}
         {tab === 'hypotheses' && <HypothesisPanel knowledgeBase={knowledgeBase} />}
         {tab === 'useCases' && <UseCasePanel knowledgeBase={knowledgeBase} />}
+        {tab === 'navigator' && <NavigatorPanel knowledgeBase={knowledgeBase} />}
       </div>
     </aside>
   )

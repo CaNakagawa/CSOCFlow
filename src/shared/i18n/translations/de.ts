@@ -246,6 +246,33 @@ export const de: Record<TranslationKey, string> = {
   'rightPanel.collapse': 'Panel einklappen',
   'rightPanel.expand': 'Panel ausklappen',
 
+  'rightPanel.navigator': 'MITRE NAVIGATOR',
+  'navigator.scoreTitle': 'Score aus der importierten Ebene: {score}',
+  'navigator.empty':
+    'Noch keine Technik mit Score. Importieren Sie eine ATT&CK-Navigator-Ebene mit Scores und filtern und sortieren Sie die Techniken hier.',
+  'navigator.hint':
+    'Die Scores stammen aus der importierten Ebene und werden unverändert angezeigt. Sie ändern den Score der Untersuchung nicht.',
+  'navigator.legend': 'Score-Skala',
+  'navigator.orderBy': 'Sortieren nach',
+  'navigator.orderTechnique': 'Reihenfolge der Techniken (MITRE)',
+  'navigator.orderScore': 'Score',
+  'navigator.direction': 'Richtung',
+  'navigator.asc': 'Aufsteigend',
+  'navigator.desc': 'Absteigend',
+  'navigator.range': 'Score-Bereich',
+  'navigator.min': 'Von',
+  'navigator.max': 'Bis',
+  'navigator.rangeInvalid': 'Der niedrigste Score liegt über dem höchsten.',
+  'navigator.hideOutside': 'Karten außerhalb des Bereichs auf der Leinwand ausblenden',
+  'navigator.arrange': 'Leinwand in dieser Reihenfolge anordnen',
+  'navigator.clear': 'Filter zurücksetzen',
+  'navigator.summary': '{shown} von {total} Techniken werden angezeigt.',
+  'navigator.listLabel': 'Techniken der importierten Ebene',
+  'navigator.colTechnique': 'Technik',
+  'navigator.colName': 'Name',
+  'navigator.colScore': 'Score',
+  'navigator.noMatch': 'Keine Technik hat einen Score in diesem Bereich.',
+
   'score.empty':
     'Noch keine MITRE-Technik auf dem Canvas. Der Wert misst, wie weit bestätigte Aktivität in der Angriffskette reicht.',
   'score.reached': 'Bestätigte Aktivität reicht bis {tactic}.',

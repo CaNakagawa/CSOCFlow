@@ -40,6 +40,8 @@ export interface GenericNodeData extends Record<string, unknown> {
   color?: string
   /** An icon picked by hand, shown in place of the category's short glyph. */
   icon?: string
+  /** The score an imported Navigator layer gave this technique. */
+  score?: number
 }
 
 /** Small enough to still read the label, large enough to grab a corner. */
@@ -71,6 +73,7 @@ export function GenericNode({ data, selected }: NodeProps) {
     height,
     color,
     icon,
+    score,
   } = data as unknown as GenericNodeData
   const { t } = useI18n()
   const linkToNearest = useInvestigationStore((s) => s.linkToNearest)
@@ -157,6 +160,15 @@ export function GenericNode({ data, selected }: NodeProps) {
           </span>
         )}
         <span className="generic-node__category">{t(nodeCategoryKey(nodeType))}</span>
+        {score !== undefined && (
+          <span
+            className="generic-node__score"
+            style={color ? { background: color } : undefined}
+            title={t('navigator.scoreTitle', { score: String(score) })}
+          >
+            {score}
+          </span>
+        )}
       </div>
       {editingLabel ? (
         <input

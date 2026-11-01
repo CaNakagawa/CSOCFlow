@@ -164,4 +164,73 @@ describe('parseNavigatorLayer', () => {
 
     expect(imported.entries).toHaveLength(1)
   })
+
+  describe('colours from a gradient', () => {
+    const GRADIENT = { colors: ['#ff6666ff', '#ffe766ff', '#8ec843ff'], minValue: 1, maxValue: 26 }
+
+    function scored(extra: Record<string, unknown> = {}) {
+      return layer(
+        [
+          { techniqueID: 'T1105', tactic: 'command-and-control', score: 26, color: '' },
+          { techniqueID: 'T1078', tactic: 'persistence', score: 1, color: '' },
+          { techniqueID: 'T1078', tactic: 'initial-access', score: 1, color: '' },
+        ],
+        { gradient: GRADIENT, ...extra },
+      )
+    }
+
+    it('paints a scored technique that has no colour of its own, as the Navigator would', () => {
+      const imported = parseNavigatorLayer(scored())
+      const byId = new Map(imported.entries.map((e) => [e.techniqueId, e]))
+
+      expect(byId.get('T1078')!.color).toBe('#ff6666')
+      expect(byId.get('T1105')!.color).toBe('#8ec843')
+      expect(imported.scale).toEqual({ colors: ['#ff6666', '#ffe766', '#8ec843'], min: 1, max: 26 })
+    })
+
+    it('keeps the score next to the colour', () => {
+      const imported = parseNavigatorLayer(scored())
+      expect(imported.entries.find((e) => e.techniqueId === 'T1105')!.score).toBe(26)
+    })
+
+    it('leaves a colour the author painted by hand alone', () => {
+      const imported = parseNavigatorLayer(
+        layer(
+          [
+            { techniqueID: 'T1105', score: 26, color: '#e60d0d' },
+            { techniqueID: 'T1078', score: 1, color: '' },
+          ],
+          { gradient: GRADIENT },
+        ),
+      )
+      const byId = new Map(imported.entries.map((e) => [e.techniqueId, e]))
+
+      expect(byId.get('T1105')!.color).toBe('#e60d0d')
+      expect(byId.get('T1078')!.color).toBe('#ff6666')
+    })
+
+    it('reports no scale when every colour was painted by hand', () => {
+      const imported = parseNavigatorLayer(
+        layer([{ techniqueID: 'T1583.006', score: 1, color: '#e60d0d' }], { gradient: GRADIENT }),
+      )
+      expect(imported.scale).toBeUndefined()
+      expect(imported.entries[0].color).toBe('#e60d0d')
+    })
+
+    it('uses the Navigator default scale when a scored layer has no gradient block', () => {
+      const imported = parseNavigatorLayer(layer([{ techniqueID: 'T1105', score: 100 }]))
+      expect(imported.entries[0].color).toBe('#8ec843')
+      expect(imported.scale).toMatchObject({ min: 0, max: 100 })
+    })
+
+    it('does not invent a colour for a technique that has no score', () => {
+      const imported = parseNavigatorLayer(
+        layer([
+          { techniqueID: 'T1105', comment: 'look here' },
+          { techniqueID: 'T1078', score: 5 },
+        ]),
+      )
+      expect(imported.entries.find((e) => e.techniqueId === 'T1105')?.color).toBeUndefined()
+    })
+  })
 })

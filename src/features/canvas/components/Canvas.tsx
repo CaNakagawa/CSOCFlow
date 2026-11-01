@@ -45,6 +45,7 @@ import { useI18n } from '../../../shared/i18n'
 import type { EdgeLineStyle, RelationshipType } from '../../../shared/types/investigation'
 import type { ThemePreference } from '../../../shared/theme/theme'
 import type { DetectionAnalytic, KnowledgeBase } from '../../../shared/types/knowledge'
+import { isHiddenByScore } from '../utils/scoreView'
 import './Canvas.css'
 
 const nodeTypes = {
@@ -155,6 +156,7 @@ function CanvasSurface({
   const { t, locale } = useI18n()
   const { screenToFlowPosition, getViewport } = useReactFlow()
   const nodes = useInvestigationStore((s) => s.nodes)
+  const scoreView = useInvestigationStore((s) => s.scoreView)
   const manualEdges = useInvestigationStore((s) => s.manualEdges)
   const inferredEdges = useInvestigationStore((s) => s.inferredEdges)
   const edges = useMemo(
@@ -316,6 +318,8 @@ function CanvasSurface({
         selected: selectedIds.has(n.id),
         measured: nodeSizes[n.id],
         parentId: n.parentId,
+        // A card the score range takes off the canvas takes its connections with it.
+        hidden: isHiddenByScore(n, scoreView),
         // A backdrop starts behind; anything can then be restacked by hand.
         zIndex: n.layer ?? (BACKDROP_TYPES.has(n.type) ? -1 : 0),
         width: n.size?.width,
@@ -356,10 +360,12 @@ function CanvasSurface({
           src: n.imageSrc ?? '',
           color: n.color,
           icon: n.icon,
+          score: n.navigatorScore,
         },
       })),
     [
       nodes,
+      scoreView,
       selectedIds,
       analyticsByDefinition,
       selectedAnalytic,

@@ -1,6 +1,7 @@
 import type { InvestigationNode } from '../../../shared/types/investigation'
 import type { MitreTactic, MitreTechnique } from '../../../shared/types/knowledge'
 import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
+import { sortByScoreView, type ScoreDirection, type ScoreOrder } from './scoreView'
 
 export const COLUMN_WIDTH = 240
 export const TACTIC_ROW_Y = 0
@@ -13,6 +14,12 @@ export const OTHER_COLUMNS = 4
 export interface Position {
   x: number
   y: number
+}
+
+/** How the cards in each column are put in order; without it they keep the order they came in. */
+export interface LayoutOrder {
+  order: ScoreOrder
+  direction: ScoreDirection
 }
 
 function isTechniqueNode(node: InvestigationNode): boolean {
@@ -30,11 +37,17 @@ function isTechniqueNode(node: InvestigationNode): boolean {
  * Nodes that are neither tactics nor techniques (evidence, alerts, notes) are
  * parked in a grid underneath so the matrix never lands on top of them. Their
  * relative order is preserved.
+ *
+ * With `order`, the cards of each column are sorted: by technique id, where a
+ * subtechnique still sits under its parent, or by the score a Navigator layer
+ * gave them, where every card stands on its own so the column reads strictly
+ * from the highest score down (or the lowest up).
  */
 export function layoutLikeMitre(
   nodes: InvestigationNode[],
   tactics: MitreTactic[],
   techniques: MitreTechnique[],
+  order?: LayoutOrder,
 ): Map<string, Position> {
   const positions = new Map<string, Position>()
   const columnOf = new Map(tactics.map((tactic, index) => [tactic.id, index]))
@@ -52,7 +65,10 @@ export function layoutLikeMitre(
   const techniqueNodes = nodes.filter(isTechniqueNode)
 
   function columnFor(node: InvestigationNode): number {
-    const definition = techniquesById.get(node.definitionId)
+    // A subtechnique the knowledge base does not place follows its parent.
+    const parentId = parentTechniqueId(node.definitionId)
+    const definition =
+      techniquesById.get(node.definitionId) ?? (parentId ? techniquesById.get(parentId) : undefined)
     const firstKnownTactic = definition?.tactics.find((id) => columnOf.has(id))
     return firstKnownTactic ? (columnOf.get(firstKnownTactic) ?? overflowColumn) : overflowColumn
   }
@@ -83,11 +99,16 @@ export function layoutLikeMitre(
     }
   }
 
-  for (const technique of rootTechniques) {
-    const column = columnFor(technique)
-    place(technique, column)
-    for (const child of childrenOf.get(technique.definitionId) ?? []) {
-      place(child, column)
+  if (order?.order === 'score') {
+    for (const card of sortByScoreView(techniqueNodes, order)) place(card, columnFor(card))
+  } else {
+    const roots = order ? sortByScoreView(rootTechniques, order) : rootTechniques
+    for (const technique of roots) {
+      const column = columnFor(technique)
+      place(technique, column)
+      for (const child of childrenOf.get(technique.definitionId) ?? []) {
+        place(child, column)
+      }
     }
   }
 

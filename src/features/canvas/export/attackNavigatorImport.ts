@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { DEFAULT_HEAT_COLORS, heatColor, parseHeatScale, type HeatScale } from '../utils/heatScale'
 
 /**
  * One technique taken out of a Navigator layer, already reduced to what the
@@ -20,6 +21,11 @@ export interface NavigatorImport {
   entries: NavigatorEntry[]
   /** Techniques the layer carries but that were left out as layout state. */
   ignored: number
+  /**
+   * The scale the colours of scored techniques were worked out on, when any
+   * were: the Navigator writes the score and the gradient, never the colour.
+   */
+  scale?: HeatScale
 }
 
 /*
@@ -31,6 +37,7 @@ export interface NavigatorImport {
 const layerSchema = z.object({
   name: z.string().optional(),
   domain: z.string().optional(),
+  gradient: z.unknown().optional(),
   versions: z
     .object({
       attack: z.string().optional(),
@@ -142,10 +149,29 @@ export function parseNavigatorLayer(text: string): NavigatorImport {
   )
   const entries = marked.length > 0 ? marked : all
 
+  /*
+   * A scored technique with no colour of its own is painted by the gradient,
+   * as the Navigator would. A colour the author set by hand always wins, and a
+   * layer with scores but no gradient block gets the Navigator's own default.
+   */
+  const scale: HeatScale = parseHeatScale(result.data.gradient) ?? {
+    colors: DEFAULT_HEAT_COLORS,
+    min: 0,
+    max: 100,
+  }
+  let painted = 0
+  for (const entry of entries) {
+    if (entry.color === undefined && entry.score !== undefined) {
+      entry.color = heatColor(entry.score, scale)
+      painted += 1
+    }
+  }
+
   return {
     name: result.data.name?.trim() || '',
     attackVersion: result.data.versions?.attack,
     entries,
     ignored: all.length - entries.length,
+    ...(painted > 0 ? { scale } : {}),
   }
 }

@@ -98,6 +98,7 @@ export function App() {
           layer.entries,
           knowledgeBase,
           locale,
+          layer.scale,
         )
         setStatus(
           [
