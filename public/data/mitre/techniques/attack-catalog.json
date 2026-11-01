@@ -3439,7 +3439,8 @@
     "platforms": [
       "ESXi",
       "Linux",
-      "macOS"
+      "macOS",
+      "Windows"
     ],
     "brief": {
       "en": "Adversaries may use Valid Accounts to log into remote machines using Secure Shell (SSH). The adversary may then perform actions as the logged-on user. SSH is a protocol that allows authorized users to open remote shells on other computers. Many Linux and macOS versions come with SSH installed by default, although typically disabled until the user enables it. On ESXi, SSH can be enabled either directly on the host (e."
@@ -44769,7 +44770,7 @@
         "id": "AN0339",
         "detectionStrategyId": "DET0120",
         "description": {
-          "en": "Deletion or disablement of user accounts in platforms like Okta, Salesforce, or Zoom with anomalies in admin session attributes or mass actions within short duration."
+          "en": "Deletion or disablement of user accounts in SaaS platforms such as Okta, Salesforce, or Zoom, correlated with anomalous administrative session attributes or multiple account-removal actions within a short duration."
         },
         "url": "https://attack.mitre.org/detectionstrategies/DET0120#AN0339",
         "platforms": [
@@ -44778,17 +44779,17 @@
         "logSources": [
           {
             "name": "saas:okta",
-            "channel": "user.lifecycle.delete, user.account.lock"
+            "channel": "user.lifecycle.deactivate, user.lifecycle.suspend, user.lifecycle.delete.initiated, user.lifecycle.delete.completed"
           }
         ],
         "mutableElements": [
           {
             "field": "BulkActionThreshold",
-            "description": "Trigger if multiple deletions occur within a short period"
+            "description": "Trigger if multiple account deletion, deactivation, or suspension actions occur within a short period."
           },
           {
             "field": "SessionDeviceType",
-            "description": "Alert on deletions initiated from unfamiliar device contexts"
+            "description": "Alert when account deletion, deactivation, or suspension is initiated from unfamiliar administrative session contexts."
           }
         ]
       }
@@ -65997,7 +65998,7 @@
       "PRE"
     ],
     "brief": {
-      "en": "Adversaries may obtain access to generative artificial intelligence tools, such as large language models (LLMs), to aid various techniques during targeting. These tools may be used to inform, bolster, and enable a variety of malicious tasks, including conducting Reconnaissance, creating basic scripts, assisting social engineering, and even developing payloads."
+      "en": "Adversaries may obtain access to generative artificial intelligence (AI) tools, such as large language models (LLMs), to aid various techniques during targeting. These tools may be used to inform, bolster, and enable a variety of malicious tasks, including creating scripts, assisting social engineering, developing payloads, and to Query Public AI Services in support of Reconnaissance."
     },
     "expected_evidence": [],
     "related_hypotheses": [],
@@ -69430,6 +69431,44 @@
       {
         "title": "MITRE ATT&CK",
         "url": "https://attack.mitre.org/techniques/T1608/006"
+      }
+    ]
+  },
+  {
+    "id": "T1608.007",
+    "name": "AI Result Poisoning",
+    "type": "mitre_subtechnique",
+    "tactics": [
+      "TA0042"
+    ],
+    "platforms": [
+      "PRE"
+    ],
+    "brief": {
+      "en": "Adversaries may manipulate publicly accessible web content to influence generative AI systems or AI-powered search engines into retrieving, citing, or recommending attacker-controlled information."
+    },
+    "expected_evidence": [],
+    "related_hypotheses": [],
+    "suggested_checks": [],
+    "detection_analytics": [
+      {
+        "id": "AN2068",
+        "detectionStrategyId": "DET0922",
+        "description": {
+          "en": "No target-side behavioral analytic. A defender cannot reliably distinguish an adversary intentionally staging public content to manipulate future AI retrieval from ordinary publishing, SEO, inaccurate information, duplicated content, or legitimate coordinated publication using target-enterprise telemetry."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0922#AN2068",
+        "platforms": [
+          "PRE"
+        ],
+        "logSources": [],
+        "mutableElements": []
+      }
+    ],
+    "references": [
+      {
+        "title": "MITRE ATT&CK",
+        "url": "https://attack.mitre.org/techniques/T1608/007"
       }
     ]
   },
@@ -74707,6 +74746,31 @@
     ]
   },
   {
+    "id": "T1685.007",
+    "name": "Impair Autonomous Defenses",
+    "type": "mitre_subtechnique",
+    "tactics": [
+      "TA0112"
+    ],
+    "platforms": [
+      "Windows",
+      "SaaS"
+    ],
+    "brief": {
+      "en": "Adversaries may use methods like Indirect Prompt Injection to disrupt, disable, or otherwise impair autonomous defensive capabilities such as LLM-assisted processing of malware, artifacts, or activity. This behavior may cause a system to ignore data, fail to alert on malicious activity, abort analysis, or to be disabled completely."
+    },
+    "expected_evidence": [],
+    "related_hypotheses": [],
+    "suggested_checks": [],
+    "detection_analytics": [],
+    "references": [
+      {
+        "title": "MITRE ATT&CK",
+        "url": "https://attack.mitre.org/techniques/T1685/007"
+      }
+    ]
+  },
+  {
     "id": "T1686",
     "name": "Disable or Modify System Firewall",
     "type": "mitre_technique",
@@ -75631,6 +75695,476 @@
       {
         "title": "MITRE ATT&CK",
         "url": "https://attack.mitre.org/techniques/T1690"
+      }
+    ]
+  },
+  {
+    "id": "T1696",
+    "name": "Anti-Automation Evasion",
+    "type": "mitre_technique",
+    "tactics": [
+      "TA0005"
+    ],
+    "platforms": [
+      "SaaS"
+    ],
+    "brief": {
+      "en": "Adversaries may employ various means to evade or complete automation checks. Automation checks distinguish human users from bot traffic and prevent bots from reaching the web pages protected by automation checks. For example, a user may be required to solve a CAPTCHA challenge before accessing a form or login page."
+    },
+    "expected_evidence": [],
+    "related_hypotheses": [],
+    "suggested_checks": [],
+    "detection_analytics": [
+      {
+        "id": "AN2106",
+        "detectionStrategyId": "DET0939",
+        "description": {
+          "en": "No target-side behavioral Detection Strategy exists for CAPTCHA based solely on CAPTCHA telemetry."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0939#AN2106",
+        "platforms": [
+          "SaaS"
+        ],
+        "logSources": [],
+        "mutableElements": []
+      }
+    ],
+    "references": [
+      {
+        "title": "MITRE ATT&CK",
+        "url": "https://attack.mitre.org/techniques/T1696"
+      }
+    ]
+  },
+  {
+    "id": "T1696.001",
+    "name": "Automate CAPTCHA Completion",
+    "type": "mitre_subtechnique",
+    "tactics": [
+      "TA0005"
+    ],
+    "platforms": [
+      "SaaS"
+    ],
+    "brief": {
+      "en": "Adversaries may attempt to use bots to successfully solve CAPTCHA challenges. CAPTCHA challenges are typically used by defenders to detect and prevent bot and spam traffic from accessing protected webpages. CAPTCHAs are automated tests often placed before login screens or form fields. Traditional CAPTCHAs ask the user to decipher a string of characters, type the characters into a box, and submit the form."
+    },
+    "expected_evidence": [],
+    "related_hypotheses": [],
+    "suggested_checks": [],
+    "detection_analytics": [
+      {
+        "id": "AN2104",
+        "detectionStrategyId": "DET0937",
+        "description": {
+          "en": "Successful CAPTCHA completion does not expose whether the challenge was solved manually, through automated tooling, through an AI-enabled solver, or through a third-party human-solving service. Providers may independently classify associated sessions as automated or bot-like, but this identifies suspicious automation rather than the method used to complete the CAPTCHA."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0937#AN2104",
+        "platforms": [
+          "SaaS"
+        ],
+        "logSources": [],
+        "mutableElements": []
+      }
+    ],
+    "references": [
+      {
+        "title": "MITRE ATT&CK",
+        "url": "https://attack.mitre.org/techniques/T1696/001"
+      }
+    ]
+  },
+  {
+    "id": "T1696.002",
+    "name": "Avoid CAPTCHA",
+    "type": "mitre_subtechnique",
+    "tactics": [
+      "TA0005"
+    ],
+    "platforms": [
+      "SaaS"
+    ],
+    "brief": {
+      "en": "Adversaries may avoid CAPTCHA challenges by mimicking human behavior. Automation tests, such as CAPTCHA, are typically used by defenders to detect and prevent bot and spam traffic from accessing protected webpages. CAPTCHAs are often placed before login screens or form fields. Traditional CAPTCHAs ask the user to decipher a string of characters, type the characters into a box, and submit the form."
+    },
+    "expected_evidence": [],
+    "related_hypotheses": [],
+    "suggested_checks": [],
+    "detection_analytics": [
+      {
+        "id": "AN2105",
+        "detectionStrategyId": "DET0938",
+        "description": {
+          "en": "No target-side behavioral Detection Strategy exists for Avoid CAPTCHA based solely on CAPTCHA telemetry."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0938#AN2105",
+        "platforms": [
+          "SaaS"
+        ],
+        "logSources": [],
+        "mutableElements": []
+      }
+    ],
+    "references": [
+      {
+        "title": "MITRE ATT&CK",
+        "url": "https://attack.mitre.org/techniques/T1696/002"
+      }
+    ]
+  },
+  {
+    "id": "T1697",
+    "name": "Steal Application Specific Passwords",
+    "type": "mitre_technique",
+    "tactics": [
+      "TA0006"
+    ],
+    "platforms": [
+      "Office Suite",
+      "Identity Provider",
+      "SaaS"
+    ],
+    "brief": {
+      "en": "Adversaries may steal Application Specific Passwords (ASPs) to gain access to Valid Accounts, bypassing multifactor authentication (MFA) methods. ASPs are passwords typically used to give third-party applications or legacy devices (which do not support MFA methods) account access."
+    },
+    "expected_evidence": [],
+    "related_hypotheses": [],
+    "suggested_checks": [],
+    "detection_analytics": [
+      {
+        "id": "AN2077",
+        "detectionStrategyId": "DET0926",
+        "description": {
+          "en": "Detect successful SaaS authentication through an application-specific or legacy credential mechanism from a source/client not previously associated with that account, correlated with new session establishment or subsequent access inconsistent with ApprovedASPUsage."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0926#AN2077",
+        "platforms": [
+          "SaaS"
+        ],
+        "logSources": [
+          {
+            "name": "saas:audit ",
+            "channel": "Successful application-specific/legacy credential authentication where exposed "
+          },
+          {
+            "name": "saas:audit",
+            "channel": "ASP creation/modification event where supported "
+          },
+          {
+            "name": "saas:session ",
+            "channel": "New authenticated session associated with changed source/client context "
+          }
+        ],
+        "mutableElements": [
+          {
+            "field": "ApprovedASPUsage",
+            "description": "Approved user/application/use-case relationships for ASP authentication—for example, which user or service is expected to use an ASP with which application. Derive from documented integration workflows and service ownership. Broadening permitted relationships reduces FP but increases FN for abused legitimate credentials; narrowing them increases detection sensitivity and FP."
+          }
+        ]
+      },
+      {
+        "id": "AN2076",
+        "detectionStrategyId": "DET0926",
+        "description": {
+          "en": "Detect successful Office Suite access using an authentication method that does not perform the account's expected MFA flow, correlated within ASPActivityWindow with first-seen client/application access, an anomalous source/device, or an ASP-related account credential change where available."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0926#AN2076",
+        "platforms": [
+          "Office Suite"
+        ],
+        "logSources": [
+          {
+            "name": "m365:unified",
+            "channel": "Authentication/account audit event identifying app-password or applicable legacy-authentication activity "
+          },
+          {
+            "name": "azure:signinlogs",
+            "channel": "Successful account authentication with authentication/client properties inconsistent with normal MFA-backed access "
+          },
+          {
+            "name": "idp:audit",
+            "channel": "ASP added/created where exposed by provider"
+          }
+        ],
+        "mutableElements": []
+      },
+      {
+        "id": "AN2075",
+        "detectionStrategyId": "DET0926",
+        "description": {
+          "en": "Detect creation of an application-specific password for a user account, correlated within ASPActivityWindow with authentication from a source, device, client, or location outside the account's established baseline, or followed by authentication using a legacy/non-MFA authentication path inconsistent with ApprovedASPUsage."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0926#AN2075",
+        "platforms": [
+          "Identity Provider"
+        ],
+        "logSources": [
+          {
+            "name": "idp:audit",
+            "channel": "Application-specific password created/added for account "
+          },
+          {
+            "name": "idp:authentication ",
+            "channel": "Successful authentication associated with legacy/application-specific credential flow "
+          },
+          {
+            "name": "idp:session ",
+            "channel": "New session established from source/device inconsistent with account baseline "
+          }
+        ],
+        "mutableElements": [
+          {
+            "field": "ASPActivityWindow",
+            "description": "Time window used to correlate application-specific password creation, modification, retrieval, or use with subsequent authentication activity. Derive from the normal delay between ASP administration and legitimate first use. Increasing the window captures delayed malicious use but increases FP from unrelated account activity; decreasing it reduces FP but may miss delayed adversary use (FN)."
+          },
+          {
+            "field": "ApprovedASPUsers",
+            "description": "Users or roles authorized to create, manage, or use application-specific passwords. Derive from IAM policy, role assignments, and approved exception records. Broadening the list reduces FP but increases FN from compromised authorized accounts; narrowing it increases FP for legitimate ASP users but reduces FN."
+          },
+          {
+            "field": "ApprovedASPApplications",
+            "description": "Applications, services, or integrations approved to authenticate using application-specific passwords. Derive from application inventory and IAM/integration configuration. Broadening the set reduces FP but may conceal unauthorized application use (FN); narrowing it increases FP when legitimate applications are omitted."
+          },
+          {
+            "field": "ApprovedASPUsage",
+            "description": "Approved user/application/use-case relationships for ASP authentication—for example, which user or service is expected to use an ASP with which application. Derive from documented integration workflows and service ownership. Broadening permitted relationships reduces FP but increases FN for abused legitimate credentials; narrowing them increases detection sensitivity and FP."
+          },
+          {
+            "field": "KnownDevices",
+            "description": "Devices or managed endpoints from which ASP-related account activity or authentication is expected. Derive from device inventory, endpoint management, and historical successful authentication. Broadening known-device criteria reduces FP but can suppress compromised devices; narrowing increases FP from new/rebuilt legitimate devices."
+          },
+          {
+            "field": "KnownLocations",
+            "description": "Expected geographic, network, tenant, or organizational locations for the associated identity/application activity. Derive from historical authentication telemetry and organizational network architecture. Broadening accepted locations reduces travel/remote-work FP but increases FN; narrowing increases sensitivity but also FP."
+          },
+          {
+            "field": "ExpectedAuthMethods",
+            "description": "Authentication methods normally associated with the account/application workflow. Derive from identity-provider policy and historical authentication telemetry. Broadening expected methods reduces FP but can hide fallback or weaker authentication abuse; narrowing increases FP when legitimate authentication methods change."
+          },
+          {
+            "field": "ApprovedLegacyClients",
+            "description": "Legacy clients explicitly permitted to authenticate using ASP-compatible mechanisms. Derive from application inventory and documented compatibility exceptions. Adding clients reduces FP but increases the opportunity for malicious use to blend with approved legacy authentication; removing clients increases FP until legitimate dependencies are remediated."
+          },
+          {
+            "field": "KnownSourceRanges",
+            "description": "Network ranges from which approved ASP-backed applications or services normally authenticate. Derive from service/network architecture and historical authentication sources. Broadening ranges reduces FP but increases FN for adversary activity originating within accepted infrastructure; narrowing improves discrimination but increases FP from legitimate infrastructure changes."
+          }
+        ]
+      }
+    ],
+    "references": [
+      {
+        "title": "MITRE ATT&CK",
+        "url": "https://attack.mitre.org/techniques/T1697"
+      }
+    ]
+  },
+  {
+    "id": "T1698",
+    "name": "Indirect Prompt Injection",
+    "type": "mitre_technique",
+    "tactics": [
+      "TA0002"
+    ],
+    "platforms": [
+      "Windows",
+      "SaaS"
+    ],
+    "brief": {
+      "en": "Adversaries may deliver malicious prompts to an LLM indirectly by embedding the prompts in content that the adversary expects may be processed by an LLM. These prompts can be included in web pages, documents, emails, tickets, code, or other sources that an agent, copilot, or other AI system may retrieve and process."
+    },
+    "expected_evidence": [],
+    "related_hypotheses": [],
+    "suggested_checks": [],
+    "detection_analytics": [],
+    "references": [
+      {
+        "title": "MITRE ATT&CK",
+        "url": "https://attack.mitre.org/techniques/T1698"
+      }
+    ]
+  },
+  {
+    "id": "T1699",
+    "name": "Direct Prompt Injection",
+    "type": "mitre_technique",
+    "tactics": [
+      "TA0002"
+    ],
+    "platforms": [
+      "Windows",
+      "SaaS"
+    ],
+    "brief": {
+      "en": "Adversaries may input malicious prompts directly into an LLM’s user interface. The prompts can be designed to bypass safeguards, manipulate context, override previous instructions, or coerce the LLM into unauthorized behavior. Adversaries may use direct prompt injection to Generate Content prohibited by the LLM's guardrails or to induce the system to utilize its capabilities in unintended or prohibited ways."
+    },
+    "expected_evidence": [],
+    "related_hypotheses": [],
+    "suggested_checks": [],
+    "detection_analytics": [],
+    "references": [
+      {
+        "title": "MITRE ATT&CK",
+        "url": "https://attack.mitre.org/techniques/T1699"
+      }
+    ]
+  },
+  {
+    "id": "T1700",
+    "name": "AI-Enabled Exfiltration",
+    "type": "mitre_technique",
+    "tactics": [
+      "TA0010"
+    ],
+    "platforms": [
+      "Windows",
+      "SaaS"
+    ],
+    "brief": {
+      "en": "Adversaries may utilize Direct Prompt Injection, Indirect Prompt Injection or other methods to instruct enterprise AI agents to exfiltrate data. When enterprise systems incorporate the use of AI assistants or other AI agents, adversaries may abuse these systems to weaponize sanctioned tools available to the agent."
+    },
+    "expected_evidence": [],
+    "related_hypotheses": [],
+    "suggested_checks": [],
+    "detection_analytics": [
+      {
+        "id": "AN2079",
+        "detectionStrategyId": "DET0927",
+        "description": {
+          "en": "An analyst observes an AI-associated process access data outside $AuthorizedAIDataScope$, followed within $EndpointExfilWindow$ by transfer-capable execution and an outbound connection to a destination outside $AuthorizedAIEndpoints$ from the same process lineage."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0927#AN2079",
+        "platforms": [
+          "Windows"
+        ],
+        "logSources": [
+          {
+            "name": "WinEventLog:Security",
+            "channel": "EventCode=4663, 4670, 4656"
+          },
+          {
+            "name": "WinEventLog:PowerShell",
+            "channel": "EventCode=4103, 4104, 4105, 4106"
+          },
+          {
+            "name": "WinEventLog:Sysmon",
+            "channel": "EventCode=1"
+          }
+        ],
+        "mutableElements": [
+          {
+            "field": "AuthorizedAIDataScope",
+            "description": "data paths/classes the AI application/service identity is permitted to access; derive from application design, IAM and data policy"
+          },
+          {
+            "field": "ExpectedAIProcessTree",
+            "description": "approved AI parent/child relationships from clean executions"
+          },
+          {
+            "field": "AuthorizedAIEndpoints",
+            "description": "legitimate service/repository/API destinations"
+          },
+          {
+            "field": "EndpointExfilWindow",
+            "description": "access→execution→egress timing derived from clean workflows"
+          }
+        ]
+      },
+      {
+        "id": "AN2078",
+        "detectionStrategyId": "DET0927",
+        "description": {
+          "en": "An analyst observes an AI agent access $ProtectedDataScope$, invoke a tool/API using that information or a derived payload, and the destination service record a successful transfer to a recipient, repository, tenant, domain, or service outside $AuthorizedAIDataFlows$."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0927#AN2078",
+        "platforms": [
+          "SaaS"
+        ],
+        "logSources": [
+          {
+            "name": "saas:audit",
+            "channel": "Actual send/share/upload/write operation"
+          },
+          {
+            "name": "AWS:bedrock",
+            "channel": "AgentTrace.actionGroupInvocationInput"
+          },
+          {
+            "name": "AWS:bedrock",
+            "channel": "AgentTrace.knowledgeBaseLookupInput"
+          }
+        ],
+        "mutableElements": [
+          {
+            "field": "ProtectedDataScope",
+            "description": "protected information"
+          },
+          {
+            "field": "AuthorizedAgentActions",
+            "description": "tools/functions legitimately available for workflow"
+          },
+          {
+            "field": "AuthorizedAIDataFlows",
+            "description": "allowed source→tool→destination relationships"
+          },
+          {
+            "field": "AuthorizedAIOutputDestinations",
+            "description": "permitted recipients/domains/tenants/repos/connectors"
+          },
+          {
+            "field": "AIExfiltrationWindow",
+            "description": "normal access→transfer interval"
+          }
+        ]
+      },
+      {
+        "id": "AN2080",
+        "detectionStrategyId": "DET0927",
+        "description": {
+          "en": "An analyst observes an AI-associated process access data outside $AuthorizedAIDataScope$, followed within $EndpointExfilWindow$ by transfer-capable execution and an outbound connection from the same lineage to a destination outside $AuthorizedAIEndpoints$."
+        },
+        "url": "https://attack.mitre.org/detectionstrategies/DET0927#AN2080",
+        "platforms": [
+          "Linux"
+        ],
+        "logSources": [
+          {
+            "name": "auditd:SYSCALL",
+            "channel": "open/read"
+          },
+          {
+            "name": "auditd:SYSCALL",
+            "channel": "EXECVE"
+          },
+          {
+            "name": "auditd:SYSCALL",
+            "channel": "connect"
+          }
+        ],
+        "mutableElements": [
+          {
+            "field": "AuthorizedAIDataScope",
+            "description": "data paths/classes the AI application/service identity is permitted to access; derive from application design, IAM and data policy"
+          },
+          {
+            "field": "ExpectedAIProcessTree",
+            "description": "approved AI parent/child relationships from clean executions"
+          },
+          {
+            "field": "AuthorizedAIEndpoints",
+            "description": "legitimate service/repository/API destinations"
+          },
+          {
+            "field": "EndpointExfilWindow",
+            "description": "access→execution→egress timing derived from clean workflows"
+          }
+        ]
+      }
+    ],
+    "references": [
+      {
+        "title": "MITRE ATT&CK",
+        "url": "https://attack.mitre.org/techniques/T1700"
       }
     ]
   }
