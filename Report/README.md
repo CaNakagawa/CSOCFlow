@@ -2,11 +2,11 @@
 
 Daily reports of **CSOC Flow**, written by the project's **Report Writer** role and grouped by who may read them.
 
-| Folder | Who can read it | What the website shows | In git |
-|---|---|---|---|
-| `Public/` | everyone | the whole report, in the "Agents work" pop-up | versioned |
-| `Sensitive/` | everyone, after details are generalized | the text, without the evidence table | stays on the machine (ignored) |
-| `Private/` | the owner only | only "a report exists", the text is never read | stays on the machine (ignored) |
+| Folder       | Who can read it                         | What the website shows                         | In git                         |
+| ------------ | --------------------------------------- | ---------------------------------------------- | ------------------------------ |
+| `Public/`    | everyone                                | the whole report, in the "Agents work" pop-up  | versioned                      |
+| `Sensitive/` | everyone, after details are generalized | the text, without the evidence table           | stays on the machine (ignored) |
+| `Private/`   | the owner only                          | only "a report exists", the text is never read | stays on the machine (ignored) |
 
 Each folder has an `INSTRUCTIONS.md` with the rules the writer follows for the reports in that folder. Read it before writing.
 
@@ -25,4 +25,3 @@ Each folder has an `INSTRUCTIONS.md` with the rules the writer follows for the r
 - Facts are facts, inference is labelled inference, and what was not checked goes in the limits. "Nothing changed today" is a valid report.
 
 Project language for reports: English.
-
