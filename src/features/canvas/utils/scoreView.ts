@@ -1,4 +1,5 @@
 import type { InvestigationNode } from '../../../shared/types/investigation'
+import { parentTechniqueId } from '../../correlation/engine/buildSubtechniqueEdges'
 
 /**
  * How the scored techniques of an imported ATT&CK Navigator layer are looked
@@ -9,7 +10,7 @@ import type { InvestigationNode } from '../../../shared/types/investigation'
 export type ScoreOrder = 'technique' | 'score'
 export type ScoreDirection = 'asc' | 'desc'
 /** How close together the cards are packed when the canvas is arranged. */
-export type ScoreSpacing = 'normal' | 'compact' | 'tight'
+export type ScoreSpacing = 'normal' | 'compact' | 'tight' | 'exploded'
 
 export interface ScoreView {
   /** Lowest score to show; null for no lower limit. */
@@ -23,6 +24,8 @@ export interface ScoreView {
   hideOutside: boolean
   /** How tightly the canvas packs the cards when it is arranged. */
   spacing: ScoreSpacing
+  /** Whether a technique the range hides stays as a faded card while one of its subtechniques is shown. */
+  showParents: boolean
 }
 
 export const DEFAULT_SCORE_VIEW: ScoreView = {
@@ -32,6 +35,7 @@ export const DEFAULT_SCORE_VIEW: ScoreView = {
   direction: 'asc',
   hideOutside: true,
   spacing: 'normal',
+  showParents: true,
 }
 
 export function isTechniqueNode(node: InvestigationNode): boolean {
@@ -57,6 +61,40 @@ export function isHiddenByScore(node: InvestigationNode, view: ScoreView): boole
   if (!view.hideOutside || !hasScoreRange(view)) return false
   if (!isTechniqueNode(node) || node.navigatorScore === undefined) return false
   return !inScoreRange(node.navigatorScore, view)
+}
+
+export interface ScoreVisibility {
+  /** Cards the range takes off the canvas. */
+  hidden: Set<string>
+  /** Cards the range would hide but that stay, faded, as the parent of a subtechnique that is shown. */
+  ghosts: Set<string>
+}
+
+/**
+ * Works out what the range does to every card. A subtechnique can pass the
+ * range while its parent does not (a parent scored 4, its subtechnique 26);
+ * hiding the parent would leave the subtechnique with no link, so the parent
+ * stays as a faded card, like the matrix scaffolding, unless the view says no.
+ */
+export function scoreVisibility(nodes: InvestigationNode[], view: ScoreView): ScoreVisibility {
+  const hidden = new Set<string>()
+  const ghosts = new Set<string>()
+  for (const node of nodes) if (isHiddenByScore(node, view)) hidden.add(node.id)
+  if (!view.showParents || hidden.size === 0) return { hidden, ghosts }
+
+  const shownParents = new Set<string>()
+  for (const node of nodes) {
+    if (!isTechniqueNode(node) || hidden.has(node.id)) continue
+    const parentId = parentTechniqueId(node.definitionId)
+    if (parentId) shownParents.add(parentId)
+  }
+  for (const node of nodes) {
+    if (hidden.has(node.id) && isTechniqueNode(node) && shownParents.has(node.definitionId)) {
+      hidden.delete(node.id)
+      ghosts.add(node.id)
+    }
+  }
+  return { hidden, ghosts }
 }
 
 /** Compares two technique ids the way MITRE numbers them: T1059 before T1059.001 before T1060. */

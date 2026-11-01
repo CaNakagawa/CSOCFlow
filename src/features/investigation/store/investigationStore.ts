@@ -20,7 +20,7 @@ import { buildTacticChainEdges } from '../../correlation/engine/buildTacticChain
 import { layoutLikeMitre } from '../../canvas/utils/mitreLayout'
 import { measuredNodeSizes } from '../../canvas/utils/nodeMeasures'
 import type { HeatScale } from '../../canvas/utils/heatScale'
-import { DEFAULT_SCORE_VIEW, isHiddenByScore, type ScoreView } from '../../canvas/utils/scoreView'
+import { DEFAULT_SCORE_VIEW, scoreVisibility, type ScoreView } from '../../canvas/utils/scoreView'
 import type { NavigatorEntry } from '../../canvas/export/attackNavigatorImport'
 import { OPPOSITE_HANDLE, findNearestNodeInDirection } from '../../canvas/utils/nearestNode'
 import type { HandleId } from '../../../shared/types/handles'
@@ -658,7 +658,8 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => {
     arrangeByScoreView: (knowledgeBase) => {
       const { nodes, scoreView } = get()
       // A card the range takes off the canvas must not leave a gap in its column.
-      const shown = nodes.filter((node) => !isHiddenByScore(node, scoreView))
+      const { hidden } = scoreVisibility(nodes, scoreView)
+      const shown = nodes.filter((node) => !hidden.has(node.id))
       const positions = layoutLikeMitre(
         shown,
         knowledgeBase.tactics,

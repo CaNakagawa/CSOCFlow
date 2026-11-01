@@ -261,6 +261,7 @@ export const pt: Record<TranslationKey, string> = {
   'navigator.spacingNormal': 'Normal',
   'navigator.spacingCompact': 'Aproximado',
   'navigator.spacingTight': 'Bem junto',
+  'navigator.spacingExploded': 'Explodido (seguir as ligações)',
   'navigator.asc': 'Crescente',
   'navigator.desc': 'Decrescente',
   'navigator.range': 'Faixa de score',
@@ -268,6 +269,8 @@ export const pt: Record<TranslationKey, string> = {
   'navigator.max': 'Até',
   'navigator.rangeInvalid': 'O menor score está acima do maior.',
   'navigator.hideOutside': 'Esconder no canvas os cartões fora da faixa',
+  'navigator.showParents':
+    'Manter a técnica-pai de uma subtécnica visível como cartão transparente',
   'navigator.arrange': 'Organizar o canvas nesta ordem',
   'navigator.clear': 'Limpar filtro',
   'navigator.summary': 'Mostrando {shown} de {total} técnicas.',
