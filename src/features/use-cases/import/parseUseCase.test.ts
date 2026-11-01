@@ -70,7 +70,10 @@ describe('parseUseCase', () => {
       const viaStrategy = {
         ...VALID,
         investigationSteps: [
-          { ...VALID.investigationSteps[0], detectionStrategies: [{ id: 's', name: { en: 's' }, url }] },
+          {
+            ...VALID.investigationSteps[0],
+            detectionStrategies: [{ id: 's', name: { en: 's' }, url }],
+          },
         ],
       }
       expect(() => parseUseCase(JSON.stringify(viaStrategy), options)).toThrow(/http\(s\)/)
@@ -78,7 +81,10 @@ describe('parseUseCase', () => {
   })
 
   it('keeps an https link', () => {
-    const ok = { ...VALID, sourceReference: { title: 'ATT&CK', url: 'https://attack.mitre.org/techniques/T1078/' } }
+    const ok = {
+      ...VALID,
+      sourceReference: { title: 'ATT&CK', url: 'https://attack.mitre.org/techniques/T1078/' },
+    }
     expect(parseUseCase(JSON.stringify(ok), options).sourceReference?.url).toBe(
       'https://attack.mitre.org/techniques/T1078/',
     )
